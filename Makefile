@@ -1,56 +1,76 @@
-NAME		=	ircserv
+# tester avec g++ +  -Weffc++ -pedantic
+# tester avec scan-build-12 make
+######################################
+#              COMMANDS              #
+######################################
+# CXX					= g++
+CXX					= c++
+MKDIR				= mkdir -p
+RM					= rm -rf
 
-# --   Compilation flags  -- #
-CXX			=	c++
-CXXFLAGS	=	-Wall -Wextra -Werror -MP -MMD -std=c++98
+######################################
+#             EXECUTABLE             #
+######################################
+NAME				= server
 
-OBJ_DIR		=	objs
-INC_DIR		=	includes
-SRC_DIR		=	$(shell find srcs -type d)
+#######################################
+#             DIRECTORIES             #
+#######################################
+OBJ_DIR				= objs/
+INC_DIR				= includes
+SRC_DIR				= $(shell find srcs -type d)
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
+######################################
+#            SOURCE FILES            #
+######################################
+SRC				=	\
+					main.cpp	\
 
-OBJS		=	$(addprefix $(OBJ_DIR)/, $(SRCS:%.cpp=%.o))
-DEPS		=	$(OBJS:%.o=%.d)
+######################################
+#            OBJECT FILES            #
+######################################
+OBJ				= ${SRC:.cpp=.o}
+OBJ				:= ${addprefix ${OBJ_DIR}, ${OBJ}}
 
-INCS		=	color.h
+DEP				= ${OBJ:.o=.d}
 
-SRCS		=	main.cpp		\
+#######################################
+#                FLAGS                #
+#######################################
+CXXFLAGS			= -Wall -Wextra -Werror -std=c++98 -I${INC_DIR}
+CXXFLAGS			+= -MMD -MP
+# CXXFLAGS			+= -Weffc++ -pedantic
 
+LDFLAGS			=
 
-# --    Add DEBUG flags   -- #
-DEBUG = $(shell env | grep DEBUG= | tr '=' ' ' | awk '{print $$2}')
-
-ifeq ($(DEBUG), 1)
-	CXXFLAGS += -g3
+ifeq (${LEAK}, 1)
+	CXXFLAGS	+= -fsanitize=address -g3
+	LDFLAGS		+= -fsanitize=address
 endif
 
-# **************************************************************************** #
+#######################################
+#                RULES                #
+#######################################
+.PHONY: all clean fclean re
 
-.PHONY: all
-all : $(NAME)
+${NAME}: ${OBJ}
+	${CXX} ${OUTPUT_OPTION} ${OBJ} ${LDFLAGS}
 
-# **************************************************************************** #
+all: ${NAME}
 
-$(NAME): $(OBJS) #$(INCS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
+-include ${DEP}
 
--include $(DEPS)
-$(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -I$(INC_DIR) -c $< -o $@
+${OBJ_DIR}%.o: %.cpp | ${OBJ_DIR}
+	${CXX} -c ${OUTPUT_OPTION} ${CXXFLAGS} $<
 
-$(OBJ_DIR) :
-	mkdir -p $@
+${OBJ_DIR}:
+	${MKDIR} ${@D}
 
-# **************************************************************************** #
-
-.PHONY: clean
 clean:
-	rm -rf $(OBJ_DIR)
+	${RM} ${OBJ_DIR}
 
-.PHONY: fclean
-fclean: clean
-	rm -f $(NAME)
+fclean:
+	${RM} ${OBJ_DIR} ${NAME}
 
-.PHONY: re
 re: fclean all
