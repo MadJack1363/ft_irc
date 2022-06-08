@@ -3,8 +3,6 @@
 #include "color.h"
 
 int	main(int argc, char **argv){
-	int i;
-
 	(void)argv;
 	if (argc != 3){
 		std::cerr << "Error use ircserv like " GREEN "./ircserv <port> <password>" RESET << std::endl;
