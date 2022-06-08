@@ -2,7 +2,7 @@ NAME		=	ircserv
 
 # --   Compilation flags  -- #
 CXX			=	c++
-CXXFLAGS	=	-Wall -Wextra -Werror -MD -MMP -std=c++98
+CXXFLAGS	=	-Wall -Wextra -Werror -MP -MMD -std=c++98
 
 OBJ_DIR		=	objs
 INC_DIR		=	includes
@@ -32,12 +32,12 @@ all : $(NAME)
 
 # **************************************************************************** #
 
-$(NAME): $(OBJS) $(INCS)
+$(NAME): $(OBJS) #$(INCS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
 -include $(DEPS)
-$(OBJ_DIR)/%.o: %.cpp $(INCS) | $(OBJ_DIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -I$(INC_DIR) -c $< -o $@
 
 $(OBJ_DIR) :
 	mkdir -p $@
