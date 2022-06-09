@@ -9,3 +9,47 @@ socket :
 	Description :
 		- Creer un point d'entree pour les communications renvoie un FD qui pointe vers le point d'entree.
 		- param entree domain et le port qu'il va ecoute
+		- protocol is like TCP, UDP or IP (man 5 protocols)
+
+setsockopt :
+	proto :
+		int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+	include need :
+		- #include <sys/types.h>
+		- #include <sys/socket.h>
+	Description :
+		- Permet de manipuler les options des sockets.
+
+
+getsockname :
+	proto :
+		int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+	include need :
+		- #include <sys/socket.h>
+	Description :
+		- Renvoie l'adresse du sock_fd
+
+getprotobyname :
+	proto :
+		struct protoent *getprotobyname(const char *name);
+	include need :
+		- #include <netdb.h>
+	description :
+		- renvoie une struct protoent les entree de la base de donnes qui on match. Une connection est necessaire.
+
+gethostbyname :
+	proto :
+		struct hostent *gethostbyname(const char *name);
+	include need :
+		- #include <netdb.h>
+	description :
+		- renvoie une structure de type hostent pour le param d'entre name. (check doc pour les histoire IPV4)
+
+poll :
+	proto :
+		 int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);
+	include need :
+		- #include <signal.h>
+		- #include <poll.h>
+	description :
+	 - need to do this
