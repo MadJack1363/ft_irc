@@ -23,8 +23,20 @@ int	test_something_socket(void){
 #include <signal.h>
 #include <poll.h>
 
+// First parameter of fct poll 
+// struct pollfd
+// {
+// 		int		fd;		/* file descriptor */
+// 		short	events;	/* requested events */
+// 		short	revents;	/* returned events */
+// };
+
 int	test_poll(void){
-	int	ret = poll(4, );// read man poll
+	struct pollfd test;
+
+	nfds_t	nfds = 4;
+
+	int	ret = poll(&test, nfds, 10);// read man poll
 
 	if (ret == -1){
 		perror("");
