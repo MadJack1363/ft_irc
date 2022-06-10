@@ -53,3 +53,27 @@ poll :
 		- #include <poll.h>
 	description :
 	 - need to do this
+
+rfc2812 :
+
+- Server :
+	> Les server sont identifie par leurs nom. Il ne peuvent avoir que au maximum 63 caractere.
+
+- Client :
+	> Les utilisateur doivent avec un identifiant unique.
+
+- Users :
+	> Les Utilisateurs sont differencie par leurs nom d'utilisateurs (Taille max de 9 Caractere).
+	> Une plus grande taille de nom d'utilisateur est accepte dans les future version des protocols.
+
+- Operators(Modo) :
+	> Possede le droits d'executer des commandes speciales (Dangereuse) MAIS necessaire comme la deconnexion et la reconnexion des serveurs.
+	> Les operateurs sont les seuls a pourvoirs utilisers les fonctions SQUIT(3.1.8) et CONNECTER(3.4.7)
+
+	 > Il peut aussi suppriner un utilisateur du reseaux avec force. Il peut donc fermer des connections entre client et le serveur. KILL(3.7.1)
+
+- Services :
+	> Les services sont differencie en fonction de leur nom de service qui est compose de pseudo et du nom du serveur.
+	> Les utilisateurs auront une longeur de 9 caractere(2.3.1).Check ce qui ne peut pas etre use dans les surnom.
+
+- Channel :
