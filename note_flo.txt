@@ -10,6 +10,17 @@ socket :
 		- Creer un point d'entree pour les communications renvoie un FD qui pointe vers le point d'entree.
 		- param entree domain et le port qu'il va ecoute
 		- protocol is like TCP, UDP or IP (man 5 protocols)
+	Flag pour "domain" :
+		- PF_UNIX ou PF_LOCAL	= Communication en local
+		- PF_INET				= Protocols IPV4
+		- PF_INET6				= Protocols IPV6
+		- PF_IPX				= IPX (http://jmainy.free.fr/guill.web-/Res5Nov.html#IPX)
+		- PF_NETLINK			= Interface user noyau (netlink(7))
+		- PF_X25				= Protocole ITU-T X.25 / ISO-8208 (X25(7))
+		- PF_AX25				= Protocole AX.25 radio amateur
+		- PF_ATMPVC				= Accès direct ATM PVCs
+		- PF_APPLETALK			= Appletalk (ddp(7))
+		- PF_PACKET				= Interface paquet bas-niveau (packet(7))
 
 setsockopt :
 	proto :
@@ -45,6 +56,51 @@ gethostbyname :
 	description :
 		- renvoie une structure de type hostent pour le param d'entre name. (check doc pour les histoire IPV4)
 
+getaddrinfo :
+	proto :
+		int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
+	include need :
+		- #include <sys/types.h>
+		- #include <sys/socket.h>
+		- #include <netdb.h>
+	Description :
+		- Renvoie une ou plusiseur `addinfo`. Elle contienne chacune une addresse internet qui peut etre use par bind() ou connect().
+		- Cette fonction permet de retirer les dependances IPV4 et IPV6.
+
+freeaddrinfo :
+	Marche avec la fonction du dessus. Il permet de free le retour de getaddrinfo.
+
+bind :
+	proto :
+		int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+	include need :
+		- #include <sys/types.h>
+		- #include <sys/socket.h>
+	Description :
+		- Quand on utilise socket(2) on obtient une famille d'adresse mais aucun adresse d'asignation.
+		- Bind donne une address precise a addr.
+
+connect :
+	proto :
+		int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+	include need :
+		- #include <sys/types.h>
+		- #include <sys/socket.h>
+	Description :
+		- Connect le socket donne en option d'entre a l'addresse donne par l'addr.
+		- Addrlen est la taille de addr.
+
+listen :
+	proto :
+		int listen(int sockfd, int backlog);
+	include need :
+		- #include <sys/types.h>
+		- #include <sys/socket.h>
+	Description :
+		- Listen va marque la socket(sockfd) en passive. Elle sera utilise pour accepter les demande de connections. (accept)
+
+
+
 poll :
 	proto :
 		 int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);
@@ -54,6 +110,8 @@ poll :
 	description :
 	 - need to do this
 
+
+##########################################################################
 rfc2812 :
 
 - Server :
@@ -77,3 +135,7 @@ rfc2812 :
 	> Les utilisateurs auront une longeur de 9 caractere(2.3.1).Check ce qui ne peut pas etre use dans les surnom.
 
 - Channel :
+	> Le nom des channels commence par "&#+!" d'une longeur maix de 50 caracteres. Les noms ne doivent pas avoir d'espaces, un ctrl G ou encore une virgule. Les : peuvent etre utilise comme delimiteur de masque pour le canal. Nom de channel non case sensitive.
+	> POur les syntax (2.3.1)
+	> Chaque prefix definis en channel differents. N'est pas a gerez donc dans le RFC 2812.
+

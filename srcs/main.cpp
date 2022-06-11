@@ -31,21 +31,21 @@ int	test_something_socket(void){
 // 		short	revents;	/* returned events */
 // };
 
-int	test_poll(void){
-	struct pollfd test;
+// int	test_poll(void){
+// 	struct pollfd test;
 
-	nfds_t	nfds = 4;
+// 	nfds_t	nfds = 4;
 
-	int	ret = poll(&test, nfds, 10);// read man poll
+// 	int	ret = poll(&test, nfds, 10);// read man poll
 
-	if (ret == -1){
-		perror("");
-		return (false);
-	}
-	std::cerr << "ret poll " << ret << std::endl;
-	while (1);
-	return (true);
-}
+// 	if (ret == -1){
+// 		perror("");
+// 		return (false);
+// 	}
+// 	std::cerr << "ret poll " << ret << std::endl;
+// 	while (1);
+// 	return (true);
+// }
 
 int	main(int argc, char **argv){
 	if (argc != 3){
@@ -63,8 +63,8 @@ int	main(int argc, char **argv){
 	if (!test_something_socket())
 		return (EXIT_FAILURE);
 
-	if (!test_poll())
-		return (EXIT_FAILURE);
+	// if (!test_poll())
+	// 	return (EXIT_FAILURE);
 
 	std::cout << "Project is not working Yet " RED "We're Sorry" RESET << std::endl;
 	return (EXIT_SUCCESS);
