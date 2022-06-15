@@ -17,29 +17,34 @@ NAME				= ircserv
 #             DIRECTORIES             #
 #######################################
 OBJ_DIR				= objs/
-INC_DIR				= includes
+INC_DIR				= includes/
 SRC_DIR				= $(shell find srcs -type d)
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
+
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC				=	\
-					main.cpp	\
+SRC					=	\
+						main.cpp	\
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-OBJ				= ${SRC:.cpp=.o}
-OBJ				:= ${addprefix ${OBJ_DIR}, ${OBJ}}
+OBJ					= ${SRC:.cpp=.o}
+OBJ					:= ${addprefix ${OBJ_DIR}, ${OBJ}}
 
-DEP				= ${OBJ:.o=.d}
+DEP					= ${OBJ:.o=.d}
 
 #######################################
 #                FLAGS                #
 #######################################
-CXXFLAGS			= -Wall -Wextra -Werror -std=c++98 -I${INC_DIR}
-CXXFLAGS			+= -MMD -MP
+CXXFLAGS			=	-c
+CXXFLAGS			+=	-Wall -Wextra -Werror
+CXXFLAGS			+=	-Wshadow
+CXXFLAGS			+=	-std=c++98
+CXXFLAGS			+=	-MMD -MP
+CXXFLAGS			+=	-I${INC_DIR}
 # CXXFLAGS			+= -Weffc++ -pedantic
 
 LDFLAGS			=
@@ -52,7 +57,7 @@ endif
 #######################################
 #                RULES                #
 #######################################
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re fre
 
 ${NAME}: ${OBJ}
 	${CXX} ${OUTPUT_OPTION} ${OBJ} ${LDFLAGS}
@@ -68,9 +73,11 @@ ${OBJ_DIR}:
 	${MKDIR} ${@D}
 
 clean:
-	${RM} ${OBJ_DIR}
+	${RM} ${OBJ_DIR} ${NAME}
 
 fclean:
 	${RM} ${OBJ_DIR} ${NAME}
 
-re: fclean all
+re: clean all
+
+fre: fclean all
