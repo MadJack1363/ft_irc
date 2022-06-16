@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <string>
 #include <sys/types.h> // socket, bind, listen, recv, send
 #include <sys/socket.h>//   "      "      "      "     "
 #include <netinet/in.h>// sockaddr_in
@@ -15,16 +16,15 @@ class Server {
 private:
 
 	int								_socket;
+	std::string						_password;
+	
 	std::map<int, User>				_users; // int is for id/socket
 	std::map<std::string, Channel>	_channels; // string is for the name's channel
 
 public:
 
 	Server( void );
-	Server( Server const & rhs );
 	virtual ~Server( void );
-
-	Server&	operator=( Server const & rhs );
 
 	bool	start(); // socket() + bind() + listen() + fcntl() <-- setup non-blocking fd
 	bool	stop(); // disconnect all users + _users.clear() + close(_socket) + _socket = INVALID_SOCKET (-1)
