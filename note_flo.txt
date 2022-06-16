@@ -87,7 +87,7 @@ connect :
 		- #include <sys/types.h>
 		- #include <sys/socket.h>
 	Description :
-		- Connect le socket donne en option d'entre a l'addresse donne par l'addr.
+		- Connecte le socket donne en option d'entre a l'addresse donne par l'addr.
 		- Addrlen est la taille de addr.
 
 listen :
@@ -103,7 +103,7 @@ listen :
 
 poll :
 	proto :
-		 int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);
+		 int poll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);
 	include need :
 		- #include <signal.h>
 		- #include <poll.h>
@@ -128,7 +128,7 @@ rfc2812 :
 	> Possede le droits d'executer des commandes speciales (Dangereuse) MAIS necessaire comme la deconnexion et la reconnexion des serveurs.
 	> Les operateurs sont les seuls a pourvoirs utilisers les fonctions SQUIT(3.1.8) et CONNECTER(3.4.7)
 
-	 > Il peut aussi suppriner un utilisateur du reseaux avec force. Il peut donc fermer des connections entre client et le serveur. KILL(3.7.1)
+	 > Il peut aussi supprimer un utilisateur du reseaux avec force. Il peut donc fermer des connections entre client et le serveur. KILL(3.7.1)
 
 - Services :
 	> Les services sont differencie en fonction de leur nom de service qui est compose de pseudo et du nom du serveur.
