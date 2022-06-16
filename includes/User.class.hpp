@@ -23,12 +23,9 @@ private:
 public:
 
 	User( void );
-	User( User const & rhs );
 	virtual ~User( void );
 
-	User&	operator=( User const & rhs );
-
-	bool	init(int const & socket, sockaddr_in const & addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
+	bool	init( int const & socket, sockaddr_in const & addr ); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	void	disconnect( void );
 
 	bool	sendTo( User const & user ); // send private message

@@ -13,10 +13,7 @@ private:
 public:
 
 	Channel( void );
-	Channel( Channel const & rhs );
 	virtual ~Channel( void );
-
-	Channel&	operator=( Channel const & rhs );
 
 };
 
