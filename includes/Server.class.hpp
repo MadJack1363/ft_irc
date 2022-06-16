@@ -26,8 +26,10 @@ public:
 	Server( void );
 	virtual ~Server( void );
 
+	bool	init(); // get the port, the password & the config (from config files)
 	bool	start(); // socket() + bind() + listen() + fcntl() <-- setup non-blocking fd
 	bool	stop(); // disconnect all users + _users.clear() + close(_socket) + _socket = INVALID_SOCKET (-1)
+	bool	run(); // principal loop (that call update, ect)
 	bool	update(); // loop (accept() new users + setup new users) + select()/poll() + loop recv() new messages (1 per user)
 
 	/**
