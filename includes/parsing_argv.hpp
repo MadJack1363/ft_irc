@@ -3,6 +3,6 @@
 
 #include <string>
 
-int	getPort(std::string s, unsigned int& port);
+int	getPort(std::string s, unsigned short& port);
 
 #endif

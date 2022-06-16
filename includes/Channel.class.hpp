@@ -5,15 +5,17 @@
 #include <vector>
 #include "User.class.hpp"
 
+class User;
+
 class Channel {
 private:
 
-	std::vector<User &>	_users;
+	std::vector<User *>	_users;
 
 public:
 
 	Channel( void );
-	virtual ~Channel( void );
+	virtual ~Channel( void ) {};
 
 };
 
