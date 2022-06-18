@@ -5,7 +5,7 @@
 #include <climits> // strtol() out of range
 #include <cerrno> // errno & ERANGE
 
-int	getPort(std::string s, unsigned int& port) {
+int	getPort(std::string s, unsigned short& port) {
 	for (std::string::const_iterator it = s.begin(); it != s.end(); it++) {
 		if (!isdigit(*it)) {
 			std::cerr << "error: port: wrong value" << std::endl;

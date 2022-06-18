@@ -26,6 +26,8 @@ public:
 	Server( void );
 	virtual ~Server( void );
 
+	int		getSocket( void ) const; // XXX temporary
+
 	bool	cmdDie(void);
 	bool	cmdDisconnect(User &user);
 	bool	cmdJoin(User &user, std::string const &chanName);
@@ -35,9 +37,10 @@ public:
 	bool	cmdOper(User &user, std::string const &nickname, std::string const &password);
 	bool	cmdPart(User &user, std::string const &chanName);
 	bool	cmdSet(User &user, std::string const &key, std::string const &value);
+
 	bool	init(); // get the port, the password & the config (from config files)
-	bool	start(); // socket() + bind() + listen() + fcntl() <-- setup non-blocking fd
-	bool	stop(); // disconnect all users + _users.clear() + close(_socket) + _socket = INVALID_SOCKET (-1)
+	bool	start( uint16_t port ); // socket() + bind() + listen() + fcntl() <-- setup non-blocking fd
+	bool	stop( void ); // disconnect all users + _users.clear() + close(_socket) + _socket = INVALID_SOCKET (-1)
 	bool	run(); // principal loop (that call update, ect)
 	bool	update(); // loop (accept() new users + setup new users) + select()/poll() + loop recv() new messages (1 per user)
 

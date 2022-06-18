@@ -8,14 +8,16 @@
 #include <netinet/in.h>// sockaddr_in
 #include "Channel.class.hpp"
 
+class Channel;
+
 class User {
 private:
 
 	int			_socket;
 	sockaddr_in	_addr;
 
-	std::string	_username;
 	std::string	_nickname;
+	std::string	_username;
 	std::string	_password;
 
 	bool		isOperator;
@@ -23,7 +25,7 @@ private:
 public:
 
 	User( void );
-	virtual ~User( void );
+	virtual ~User( void ) {};
 
 	bool	init( int const & socket, sockaddr_in const & addr ); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	void	disconnect( void );
