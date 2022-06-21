@@ -28,6 +28,8 @@ public:
 	virtual ~User( void ) {};
 
 	bool	init( int const & socket, sockaddr_in const & addr ); // set _socket & _addr + fcntl() <-- setup non-blocking fd
+
+	// ADDUSER(socket, addr);
 	void	disconnect( void );
 
 	bool	sendTo( User const & user ); // send private message

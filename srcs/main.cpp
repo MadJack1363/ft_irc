@@ -17,7 +17,7 @@ int	main(int argc, char **argv){
 	if (getPort(argv[1], port))
 		return (EXIT_FAILURE);
 
-	std::vector<pollfd>	pollfds;
+	std::vector<pollfd>	pollfds;//Attribut prive
 
 	Server	server;
 	if (server.start(port) == false)
@@ -27,25 +27,71 @@ int	main(int argc, char **argv){
 	pollfds.back().fd = server.getSocket();
 	pollfds.back().events = POLLIN;
 
-	if (poll(&pollfds[0], pollfds.size(), -1) == -1){
-		perror("poll server");
-		close(server.getSocket());
-		return (EXIT_FAILURE);
-	}
+	// if (poll(&pollfds[0], pollfds.size(), -1) == -1){
+	// 	perror("poll server");
+	// 	close(server.getSocket());
+	// 	return (EXIT_FAILURE);
+	// }
 
 	if (pollfds[0].revents == POLLIN){
-		sockaddr_in addr = {};
-		socklen_t addrlen = sizeof(addr);
-		int newUser = accept(server.getSocket(), reinterpret_cast<sockaddr *>(&addr), &addrlen);
-		if (newUser == -1){
+		// sockaddr_in addr = {};
+		// socklen_t addrlen = sizeof(addr);
+		// int newUser = accept(server.getSocket(), reinterpret_cast<sockaddr *>(&addr), &addrlen);
+
+		if (newUser == -1){// chekc if failed
 			perror("accept");
-			close(server.getSocket()); // server.stop()
-			return (EXIT_FAILURE);
+			// close(server.getSocket()); // server.stop()
+			// return (EXIT_FAILURE);
 		}
 		pollfds.push_back(pollfd());
 		pollfds.back().fd = newUser;
 		pollfds.back().events = POLLIN | POLLOUT;
+		// need to add a user WITH SOCKET AND ADDR
 	}
+		// boucle inf
+
+	while (1){
+		if (poll(&pollfds[0], pollfds.size(), -1) == -1){// Ecoute les FD donnes
+			perror("poll server");//check for error
+			// close(server.getSocket());
+			// return (EXIT_FAILURE);
+		}
+
+		sockaddr_in addr = {};
+		socklen_t addrlen = sizeof(addr);
+		int newUser = accept(server.getSocket(), reinterpret_cast<sockaddr *>(&addr), &addrlen);
+		if (newUser == -1){// chekc if failed
+			perror("accept");
+		}
+		else{
+			// have to add to server
+			pollfds.push_back(pollfd());
+			pollfds.back().fd = newUser;
+			pollfds.back().events = POLLIN | POLLOUT;
+		}
+	}
+		// partie accept // check the ping
+
+		// partie poll (setup All socket check recup and receive message)
+
+		// partie recup message (pour la prochaine step du code)
+
+	// }
+
+//	=======================================================================================
+	// if (pollfds[0].revents == POLLIN){
+	// 	sockaddr_in addr = {};
+	// 	socklen_t addrlen = sizeof(addr);
+	// 	int newUser = accept(server.getSocket(), reinterpret_cast<sockaddr *>(&addr), &addrlen);
+	// 	if (newUser == -1){
+	// 		perror("accept");
+	// 		close(server.getSocket()); // server.stop()
+	// 		return (EXIT_FAILURE);
+	// 	}
+	// 	pollfds.push_back(pollfd());
+	// 	pollfds.back().fd = newUser;
+	// 	pollfds.back().events = POLLIN | POLLOUT;
+	// }
 
 	if (poll(&pollfds[0], pollfds.size(), -1) == -1){
 		perror("poll user");
