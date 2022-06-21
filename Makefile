@@ -1,9 +1,6 @@
-# tester avec g++ +  -Weffc++ -pedantic
-# tester avec scan-build-12 make
 ######################################
 #              COMMANDS              #
 ######################################
-# CXX					= g++
 CXX					= c++
 MKDIR				= mkdir -p
 RM					= rm -rf
@@ -27,8 +24,8 @@ vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 ######################################
 SRC				=	\
 					main.cpp	\
-					getPort.cpp	\
 					Server.cpp	\
+					User.cpp
 
 ######################################
 #            OBJECT FILES            #
@@ -42,12 +39,12 @@ DEP					= ${OBJ:.o=.d}
 #                FLAGS                #
 #######################################
 CXXFLAGS			=	-c
-CXXFLAGS			+=	-Wall -Wextra -Werror
+CXXFLAGS			+=	-Wall -Wextra# -Werror
 CXXFLAGS			+=	-Wshadow
 CXXFLAGS			+=	-std=c++98
 CXXFLAGS			+=	-MMD -MP
 CXXFLAGS			+=	-I${INC_DIR}
-# CXXFLAGS			+= -Weffc++ -pedantic
+# CXXFLAGS			+=	-Weffc++ -pedantic
 
 LDFLAGS			=
 
