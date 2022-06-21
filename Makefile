@@ -28,6 +28,7 @@ vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 SRC				=	\
 					main.cpp	\
 					getPort.cpp	\
+					Config.cpp	\
 
 ######################################
 #            OBJECT FILES            #
