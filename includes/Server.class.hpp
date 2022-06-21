@@ -26,6 +26,15 @@ public:
 	Server( void );
 	virtual ~Server( void );
 
+	bool	cmdDie(void);
+	bool	cmdDisconnect(User &user);
+	bool	cmdJoin(User &user, std::string const &chanName);
+	bool	cmdKick(User &user, std::string const &chanName);
+	bool	cmdKill(User &user);
+	bool	cmdMsg(User &user, std::string const &target, std::string const &msg);
+	bool	cmdOper(User &user, std::string const &nickname, std::string const &password);
+	bool	cmdPart(User &user, std::string const &chanName);
+	bool	cmdSet(User &user, std::string const &key, std::string const &value);
 	bool	init(); // get the port, the password & the config (from config files)
 	bool	start(); // socket() + bind() + listen() + fcntl() <-- setup non-blocking fd
 	bool	stop(); // disconnect all users + _users.clear() + close(_socket) + _socket = INVALID_SOCKET (-1)
