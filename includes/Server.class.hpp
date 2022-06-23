@@ -11,6 +11,7 @@
 #include <fcntl.h> //   "
 #include "User.class.hpp"
 #include "Channel.class.hpp"
+#include <poll.h>
 
 class Server {
 private:
@@ -18,6 +19,7 @@ private:
 	int								_socket;
 	std::string						_password;
 
+	std::vector<pollfd>				_pollfds;
 	std::map<int, User>				_users; // int is for id/socket
 	std::map<std::string, Channel>	_channels; // string is for the name's channel
 
@@ -35,6 +37,10 @@ public:
 
 	// fct qui va add newuser dans pollfds first and Create User puis je cree map _users
 	bool	update(); // loop (accept() new users + setup new users) + select()/poll() + loop recv() new messages (1 per user)
+
+	bool	welcomeDwarves(void);
+	// bool	newDwarf(void);
+	bool	listenAll(void);
 
 	/**
 	 * list of command:

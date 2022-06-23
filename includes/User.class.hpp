@@ -25,6 +25,7 @@ private:
 public:
 
 	User( void );
+	User(int socket, sockaddr_in in);
 	virtual ~User( void ) {};
 
 	bool	init( int const & socket, sockaddr_in const & addr ); // set _socket & _addr + fcntl() <-- setup non-blocking fd
