@@ -48,9 +48,15 @@ CXXFLAGS			+=	-I${INC_DIR}
 
 LDFLAGS			=
 
-ifeq (${LEAK}, 1)
-	CXXFLAGS	+= -fsanitize=address -g3
-	LDFLAGS		+= -fsanitize=address
+ifeq (${DEBUG}, 1)
+	CXXFLAGS	+=	-g
+	CXXFLAGS	+=	-DDEBUG
+else \
+ifeq (${DEBUG}, 2)
+	CXXFLAGS	+=	-g
+	CXXFLAGS	+=	-DDEBUG
+	CXXFLAGS	+=	-fsanitize=address
+	LDFLAGS		+=	-fsanitize=address
 endif
 
 #######################################
