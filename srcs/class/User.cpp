@@ -33,7 +33,7 @@ User::~User(void) {}
 //                                 Accessors                                 //
 // ************************************************************************* //
 
-int	User::getSockfd(void) const
+int	User::getSocket(void) const
 {
 	return this->_socket;
 }

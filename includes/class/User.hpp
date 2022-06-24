@@ -36,7 +36,7 @@ public:
 	virtual ~User( void );
 
 	// Accessors
-	int									getSockfd(void) const;
+	int									getSocket(void) const;
 
 	sockaddr_in							getAddr(void) const;
 

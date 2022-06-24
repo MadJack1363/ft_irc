@@ -46,12 +46,12 @@ int	main(int argc, char **argv)
 		return EXIT_FAILURE;
 
 	pollfds.push_back(pollfd());
-	pollfds.back().fd = server.getSockfd();
+	pollfds.back().fd = server.getSocket();
 	pollfds.back().events = POLLIN;
 
 	if (poll(&pollfds[0], pollfds.size(), -1) == -1)
 	{
-		close(server.getSockfd());
+		close(server.getSocket());
 		perror("poll server");
 		return EXIT_FAILURE;
 	}
@@ -60,11 +60,11 @@ int	main(int argc, char **argv)
 	{
 		sockaddr_in addr = {};
 		socklen_t addrlen = sizeof(addr);
-		int newUser = accept(server.getSockfd(), reinterpret_cast<sockaddr *>(&addr), &addrlen);
+		int newUser = accept(server.getSocket(), reinterpret_cast<sockaddr *>(&addr), &addrlen);
 		if (newUser == -1)
 		{
 			perror("accept");
-			close(server.getSockfd()); // server.stop()
+			close(server.getSocket()); // server.stop()
 			return EXIT_FAILURE;
 		}
 		pollfds.push_back(pollfd());
@@ -75,18 +75,18 @@ int	main(int argc, char **argv)
 	if (poll(&pollfds[0], pollfds.size(), -1) == -1)
 	{
 		perror("poll user");
-		close(server.getSockfd());
+		close(server.getSocket());
 		return EXIT_FAILURE;
 	}
 
 	char		buff[1024];
 	size_t		buffsize = sizeof(buff);
 	std::string	msg;
-	std::string	endOfMsg("\r\n");
 	bool		EOM = false;
 	size_t		retRecv;
 	User		bob; // Default user for tests, to be removed.
 
+	bob.setSocket(pollfds.back().fd);
 	bob.setNickname("Bobby42");
 	bob.setUsername("Bob");
 	bob.setHostname("BobLaptop");
@@ -102,14 +102,14 @@ int	main(int argc, char **argv)
 			if (retRecv <= 0)
 			{
 				close(pollfds.back().fd);
-				close(server.getSockfd()); // server.stop()
+				close(server.getSocket()); // server.stop()
 				perror("recv");
 				if (retRecv == 0)
 					std::cerr << "retRecv == 0" << std::endl;
 				return EXIT_FAILURE;
 			}
 			msg.append(buff);
-			if (strstr(buff, endOfMsg.c_str()))
+			if (strstr(buff, "\r\n"))
 				EOM = true;
 		}
 		server.judge(bob, msg);
@@ -117,24 +117,19 @@ int	main(int argc, char **argv)
 		EOM = false;
 
 		// Sending back to client a RPL_WELCOME
-		msg = "001";
-		msg += ' ';
-		msg += "jodufour";
-		msg += ' ';
-		msg	+= ":Gimli gimli gimli a dwarf after midnight";
-		msg += endOfMsg;
+		msg = "001 " + bob.getNickname() + ":Gimli gimli gimli a dwarf after midnight\r\n";
 		if (send(pollfds.back().fd, msg.c_str(), msg.size() + 1, 0) == -1)
 		{
 			perror("send");
 			close(pollfds.back().fd);
-			close(server.getSockfd());
+			close(server.getSocket());
 			return EXIT_FAILURE;
 		}
 		msg.clear();
 	}
 
 	close(pollfds.back().fd);
-	close(server.getSockfd());
+	close(server.getSocket());
 	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << std::endl;
 	return EXIT_SUCCESS;
 }

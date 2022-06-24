@@ -33,6 +33,220 @@ int	Server::getState(void) const
 // ************************************************************************** //
 
 /**
+ * @brief	Terminate the IRC server.
+ * 			This command is reserved for IRC operators.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdDie(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command DIE " + params + ", From " + user.getNickname());
+	if (user.getIsOperator())
+	{
+		Server::logMsg(SENT, "Command DIE " + params + ", To " + user.getNickname());
+		this->_state = SHUTDOWN;
+		return true;
+	}
+	else
+	{
+		Server::logMsg(SENT, "Command DIE " + params + ", To " + user.getNickname() + "; ERROR: Not an operator");
+		return false;
+	}
+	return true;
+}
+
+/**
+ * @brief	Make an user joining a channel.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdJoin(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command JOIN " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Kick an user from a channel.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdKick(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command KICK " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Remove an user from the network.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdKill(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command KILL " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Send a message either to a channel or to an user.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdMsg(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command MSG " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Set a new nickname for an user.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdNick(User &user, std::string const &params)
+{
+	std::map<int, User>::iterator	it;
+
+	Server::logMsg(RECEIVED, "Command NICK " + params + ", From " + user.getNickname());
+	if (params.empty())
+		return this->reply(user, "431 " + user.getNickname() + " :No nickname given");
+	for (it = this->_users.begin() ;
+		it != this->_users.end() && it->second.getNickname() != params ;
+		++it);
+	if (it != this->_users.end())
+		return this->reply(user, "433 " + user.getNickname() + " :Nickname already in use");
+	user.setNickname(params);
+	return this->reply(user, "NICK " + user.getNickname());
+}
+
+/**
+ * @brief	Make an user being promoted to operator status.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdOper(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command OPER " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Make an user leaving a channel.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdPart(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command PART " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Check if a provided password is correct to connect to the server.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdPass(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command PASS " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief 
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdPing(User &user, std::string const &params)
+{
+	std::string	reply;
+
+	Server::logMsg(RECEIVED, "Command PING " + params + ", From " + user.getNickname());
+	reply = "PING " + user.getNickname() + "\r\n";
+	if (send(user.getSocket(), reply.c_str(), reply.size() + 1, 0) == -1)
+	{
+		perror("send");
+		return false;
+	}
+	Server::logMsg(SENT, "Command PING " + user.getNickname() + ", To " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Disconnect an user from the server.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdQuit(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command QUIT " + params + ", From " + user.getNickname());
+	this->_state = SHUTDOWN; // XXX To be removed, temporary solution to end properly the server.
+	return true;
+}
+
+/**
+ * @brief	Update data of an user.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdSet(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command SET " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
+ * @brief	Set a new username, hostname and realname for an user.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdUser(User &user, std::string const &params)
+{
+	Server::logMsg(RECEIVED, "Command USER " + params + ", From " + user.getNickname());
+	return true;
+}
+
+/**
  * @brief	Write a formated log message to the standard output.
  * 
  * @param	msg The message to write.
@@ -56,204 +270,30 @@ void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
 	<< '\n';
 }
 
+/**
+ * @brief	Send a reply message to an user client.
+ * 
+ * @param	user The user to send the reply message to.
+ * @param	msg The message to send.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::reply(User const &user, std::string const &msg) const
+{
+	std::string	toSend(msg + "\r\n");
+
+	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
+	{
+		perror("send");
+		return false;
+	}
+	Server::logMsg(SENT, msg);
+	return true;
+}
+
 // ************************************************************************* //
 //                          Public Member Functions                          //
 // ************************************************************************* //
-
-/**
- * @brief	Terminate the IRC server.
- * 			This command is reserved for IRC operators.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdDie(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command DIE " + params + "; By " + user.getNickname());
-	if (user.getIsOperator())
-	{
-		Server::logMsg(SENT, "Command DIE " + params + "; By " + user.getNickname());
-		this->_state = SHUTDOWN;
-		return true;
-	}
-	else
-	{
-		Server::logMsg(SENT, "Command DIE " + params + "; By " + user.getNickname() + "; ERROR: Not an operator");
-		return false;
-	}
-	return true;
-}
-
-/**
- * @brief	Make an user joining a channel.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdJoin(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command JOIN " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Kick an user from a channel.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdKick(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command KICK " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Remove an user from the network.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdKill(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command KILL " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Send a message either to a channel or to an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdMsg(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command MSG " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Set a new nickname for an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdNick(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command NICK " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Make an user being promoted to operator status.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdOper(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command OPER " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Make an user leaving a channel.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPart(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command PART " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Check if a provided password is correct to connect to the server.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPass(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command PASS " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief 
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPing(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command PING " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Disconnect an user from the server.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdQuit(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command QUIT " + params + "; By " + user.getNickname());
-	this->_state = SHUTDOWN; // XXX To be removed, temporary solution to end properly the server.
-	return true;
-}
-
-/**
- * @brief	Update data of an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdSet(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command SET " + params + "; By " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Set a new username, hostname and realname for an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdUser(User &user, std::string const &params)
-{
-	Server::logMsg(RECEIVED, "Command USER " + params + "; By " + user.getNickname());
-	return true;
-}
 
 /**
  * @brief	Configure the internal attributes of the server.
@@ -262,9 +302,10 @@ bool	Server::cmdUser(User &user, std::string const &params)
  */
 bool	Server::init(void)
 {
-	int	idx;
+	int													idx;
 	std::map<std::string const, t_fct const>::iterator	it;
 
+	this->_name = "ircserv";
 	for (idx = 0 ; Server::_lookupCmds[idx].second ; ++idx)
 		this->_cmds.insert(Server::_lookupCmds[idx]);
 	return true;
@@ -280,21 +321,25 @@ bool	Server::init(void)
  */
 bool	Server::judge(User &user, std::string &msg)
 {
-	std::string	cmdName;
+	std::string	commandName;
 	std::string	params;
 	std::string	line;
-	t_fct		cmd;
+	t_fct		command;
 
 	do
 	{
 		line = msg.substr(0, msg.find('\n') - 1);
-		cmdName = line.substr(0, line.find(' '));
-		params = line.substr(cmdName.length());
+		commandName = line.substr(0, line.find(' '));
+		params = line.substr(commandName.length());
+		params.erase(0, params.find_first_not_of(' '));
 
-		cmd = this->_cmds[cmdName];
-		if (!cmd)
-			Server::logMsg(RECEIVED, "Command " + cmdName + ": " RED "not found." RESET);
-		else if (!(this->*cmd)(user, params))
+		command = this->_cmds[commandName];
+		if (!command)
+		{
+			if (!commandName.empty())
+				Server::logMsg(RECEIVED, "Command " + commandName + ": " RED "not found." RESET);
+		}
+		else if (!(this->*command)(user, params))
 			return false;
 		msg.erase(0, msg.find('\n') + 1);
 	} while (!line.empty());
@@ -379,7 +424,7 @@ bool	Server::update(void)
 	return true;
 }
 
-int	Server::getSockfd(void) const
+int	Server::getSocket(void) const
 {
 	return _socket;
 }
@@ -408,7 +453,7 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] = {
 	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
-	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "Sent" RESET),
+	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
 };
 
 /* void	Server::stop( void ) {
