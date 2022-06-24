@@ -1,3 +1,5 @@
 objs/
 ircserv
 droge_irc
+
+*.log

@@ -21,7 +21,6 @@ Server::Server(void) :
 // ************************************************************************* //
 
 Server::~Server(void) {}
->>>>>>> jo/commandsImplementation
 
 // ************************************************************************* //
 //                                 Accessors                                 //
@@ -438,18 +437,21 @@ bool	Server::listenAll(void){
 		return (true);
 	for (std::map<int, User>::iterator ite = _users.begin(); ite != _users.end(); ite++){
 		while (EOM == false){
-			retRecv = recv(_pollfds.back().fd, buff, buffsize, MSG_DONTWAIT);
+			retRecv = recv(_pollfds.back().fd, buff, buffsize, 0);
+			// Server::logMsg()
 			if (retRecv <= 0){
 				perror("recv");
-				if (retRecv == 0)
-					std::cerr << "retRecv = 0" << std::endl;
+				// if (retRecv == 0)
+				// 	std::cerr << "retRecv = 0" << std::endl;
 				return (false);
 			}
 			message.append(buff);
 			if (strstr(buff, endOfMessage.c_str()))
 				EOM = true;
 		}
-		std::cout << "message = " << message;
+		this->judge(ite->second, message);
+		// _exit(121);
+		// Server::logMsg(RECEIVED, message + ", From " + ite->second.getNickname());
 		if (message.find("QUIT") != std::string::npos)
 			break;
 		message.clear();

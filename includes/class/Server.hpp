@@ -9,6 +9,7 @@
 #include <netinet/in.h>// sockaddr_in
 #include <unistd.h>// fcntl
 #include <fcntl.h> //   "
+#include <poll.h>
 #include "color.h"
 #include "class/User.hpp"
 #include "class/Channel.hpp"
