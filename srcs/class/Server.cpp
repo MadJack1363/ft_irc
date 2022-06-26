@@ -1,7 +1,8 @@
 #include <arpa/inet.h>
-#include <cstring> // strstr
-#include <cstdio>
-#include <ctime>
+#include <cstdio> // perror()
+#include <cstdlib> // abs()
+#include <ctime> // time(), localtime(), strftime()
+#include <sstream>
 #include "class/Server.hpp"
 
 #define PING 10
@@ -11,8 +12,12 @@
 // ************************************************************************** //
 
 Server::Server(void) :
+	_state(STOPPED),
 	_socket(-1),
+	_name(),
 	_password(),
+	_pollfds(),
+	_users(),
 	_channels(),
 	_cmds() {}
 
@@ -21,15 +26,6 @@ Server::Server(void) :
 // ************************************************************************* //
 
 Server::~Server(void) {}
-
-// ************************************************************************* //
-//                                 Accessors                                 //
-// ************************************************************************* //
-
-int	Server::getState(void) const
-{
-	return this->_state;
-}
 
 // ************************************************************************** //
 //                          Private Member Functions                          //
@@ -46,16 +42,16 @@ int	Server::getState(void) const
  */
 bool	Server::cmdDie(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command DIE " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") DIE " + params);
 	if (user.getIsOperator())
 	{
-		Server::logMsg(SENT, "Command DIE " + params + ", To " + user.getNickname());
-		this->_state = SHUTDOWN;
+		Server::logMsg(SENT, "DIE " + params + ", To " + user.getNickname());
+		this->_state = STOPPED;
 		return true;
 	}
 	else
 	{
-		Server::logMsg(SENT, "Command DIE " + params + ", To " + user.getNickname() + "; ERROR: Not an operator");
+		Server::logMsg(SENT, "DIE " + params + ", To " + user.getNickname() + "; ERROR: Not an operator");
 		return false;
 	}
 	return true;
@@ -71,7 +67,7 @@ bool	Server::cmdDie(User &user, std::string const &params)
  */
 bool	Server::cmdJoin(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command JOIN " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
 	return true;
 }
 
@@ -85,7 +81,7 @@ bool	Server::cmdJoin(User &user, std::string const &params)
  */
 bool	Server::cmdKick(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command KICK " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KICK " + params);
 	return true;
 }
 
@@ -99,7 +95,7 @@ bool	Server::cmdKick(User &user, std::string const &params)
  */
 bool	Server::cmdKill(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command KILL " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KILL " + params);
 	return true;
 }
 
@@ -113,7 +109,7 @@ bool	Server::cmdKill(User &user, std::string const &params)
  */
 bool	Server::cmdMsg(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command MSG " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MSG " + params);
 	return true;
 }
 
@@ -129,7 +125,7 @@ bool	Server::cmdNick(User &user, std::string const &params)
 {
 	std::map<int, User>::iterator	it;
 
-	Server::logMsg(RECEIVED, "Command NICK " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") NICK " + params);
 	if (params.empty())
 		return this->reply(user, "431 " + user.getNickname() + " :No nickname given");
 	for (it = this->_users.begin() ;
@@ -151,7 +147,7 @@ bool	Server::cmdNick(User &user, std::string const &params)
  */
 bool	Server::cmdOper(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command OPER " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") OPER " + params);
 	return true;
 }
 
@@ -165,7 +161,7 @@ bool	Server::cmdOper(User &user, std::string const &params)
  */
 bool	Server::cmdPart(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command PART " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
 	return true;
 }
 
@@ -179,7 +175,12 @@ bool	Server::cmdPart(User &user, std::string const &params)
  */
 bool	Server::cmdPass(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command PASS " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PASS " + params);
+
+	// if (this->_password.empty())
+	// 	return true;
+	// if (params == this->_password)
+	// 	return true;
 	return true;
 }
 
@@ -195,15 +196,8 @@ bool	Server::cmdPing(User &user, std::string const &params)
 {
 	std::string	reply;
 
-	Server::logMsg(RECEIVED, "Command PING " + params + ", From " + user.getNickname());
-	reply = "PING " + user.getNickname() + "\r\n";
-	if (send(user.getSocket(), reply.c_str(), reply.size() + 1, 0) == -1)
-	{
-		perror("send");
-		return false;
-	}
-	Server::logMsg(SENT, "Command PING " + user.getNickname() + ", To " + user.getNickname());
-	return true;
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command PING " + params);
+	return this->reply(user, "PING " + user.getNickname());
 }
 
 /**
@@ -216,8 +210,9 @@ bool	Server::cmdPing(User &user, std::string const &params)
  */
 bool	Server::cmdQuit(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command QUIT " + params + ", From " + user.getNickname());
-	this->_state = SHUTDOWN; // XXX To be removed, temporary solution to end properly the server.
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command QUIT " + params);
+
+	this->_state = STOPPED; // XXX To be removed, temporary solution to end properly the server.
 	return true;
 }
 
@@ -231,7 +226,7 @@ bool	Server::cmdQuit(User &user, std::string const &params)
  */
 bool	Server::cmdSet(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command SET " + params + ", From " + user.getNickname());
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command SET " + params);
 	return true;
 }
 
@@ -245,72 +240,7 @@ bool	Server::cmdSet(User &user, std::string const &params)
  */
 bool	Server::cmdUser(User &user, std::string const &params)
 {
-	Server::logMsg(RECEIVED, "Command USER " + params + ", From " + user.getNickname());
-	return true;
-}
-
-/**
- * @brief	Write a formated log message to the standard output.
- * 
- * @param	msg The message to write.
- */
-void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
-{
-	char	logtime[64];
-	time_t	rawtime;
-	int		idx;
-
-	for (idx = 0 ; idx < 3 && _lookupLogMsgTypes[idx].first != type ; ++idx);
-	time(&rawtime);
-	strftime(logtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
-	std::cout
-	<< "["
-	<< logtime
-	<< "]["
-	<< _lookupLogMsgTypes[idx].second
-	<< "] "
-	<< msg
-	<< '\n';
-}
-
-/**
- * @brief	Send a reply message to an user client.
- * 
- * @param	user The user to send the reply message to.
- * @param	msg The message to send.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::reply(User const &user, std::string const &msg) const
-{
-	std::string	toSend(msg + "\r\n");
-
-	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
-	{
-		perror("send");
-		return false;
-	}
-	Server::logMsg(SENT, msg);
-	return true;
-}
-
-// ************************************************************************* //
-//                          Public Member Functions                          //
-// ************************************************************************* //
-
-/**
- * @brief	Configure the internal attributes of the server.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::init(void)
-{
-	int													idx;
-	std::map<std::string const, t_fct const>::iterator	it;
-
-	this->_name = "ircserv";
-	for (idx = 0 ; Server::_lookupCmds[idx].second ; ++idx)
-		this->_cmds.insert(Server::_lookupCmds[idx]);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command USER " + params);
 	return true;
 }
 
@@ -340,12 +270,187 @@ bool	Server::judge(User &user, std::string &msg)
 		if (!command)
 		{
 			if (!commandName.empty())
-				Server::logMsg(RECEIVED, "Command " + commandName + ": " RED "not found." RESET);
+				Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command " + commandName + RED " Unknown" RESET);
 		}
 		else if (!(this->*command)(user, params))
 			return false;
 		msg.erase(0, msg.find('\n') + 1);
 	} while (!line.empty());
+	return true;
+}
+
+/**
+ * @brief	Write a formated log message to the standard output.
+ * 
+ * @param	msg The message to write.
+ */
+void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
+{
+	char	logtime[64];
+	time_t	rawtime;
+	int		idx;
+
+	for (idx = 0 ; idx < 3 && _lookupLogMsgTypes[idx].first != type ; ++idx);
+	time(&rawtime);
+	strftime(logtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
+	std::cout
+	<< "["
+	<< logtime
+	<< "]["
+	<< _lookupLogMsgTypes[idx].second
+	<< "] "
+	<< msg
+	<< '\n';
+}
+
+/**
+ * @brief	Check every user socket connection, receive messages from
+ * 			each of them, and process the received messages.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::recvAll(void)
+{
+	std::map<int, User>::iterator	it;
+	std::string						message;
+	char							buff[BUFFER_SIZE];
+	ssize_t							retRecv;
+
+	if (poll(&_pollfds[0], _pollfds.size(), (PING * 1000) / 10) == -1)
+	{
+		perror("poll");
+		return false;
+	}
+	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
+	{
+		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
+		while (retRecv > 0)
+		{
+			message.append(buff);
+			if (message.find("\r\n") != std::string::npos)
+				break ;
+			retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
+		}
+		if (retRecv == -1)
+		{
+			perror("recv");
+			return false;
+		}
+		if (!retRecv)
+		{
+			Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
+			this->_users.erase(it);
+			return true;
+		}
+		if (!this->judge(it->second, message))
+			return false;
+		message.clear();
+	}
+	return true;
+}
+
+/**
+ * @brief	Send a reply message to an user client.
+ * 
+ * @param	user The user to send the reply message to.
+ * @param	msg The message to send.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::reply(User const &user, std::string const &msg) const
+{
+	std::string	toSend(":" + this->_name + " " + msg + "\r\n");
+
+	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
+	{
+		perror("send");
+		return false;
+	}
+	Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + msg);
+	return true;
+}
+
+/**
+ * @brief	Convert an int to a string.
+ * 
+ * @param	nb The int to convert.
+ * 
+ * @return	The string representation of the int.
+ */
+std::string	Server::toString(int const nb)
+{
+	std::stringstream	ss;
+
+	ss << nb;
+	return ss.str();
+}
+
+/**
+ * @brief	Accept the new clients connection and create users for each one.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::welcomeDwarves(void)
+{
+	sockaddr_in	addr = {};
+	socklen_t	addrlen = sizeof(addr);
+	int			newUser;
+
+	newUser = accept(this->_socket, reinterpret_cast<sockaddr *>(&addr), &addrlen);
+	if (newUser == -1)
+	{
+		// perror("accept");
+	}
+	else
+	{
+		this->_pollfds.push_back(pollfd());
+		this->_pollfds.back().fd = newUser;
+		this->_pollfds.back().events = POLLIN | POLLOUT;
+		this->_users.insert(std::make_pair<int, User>(newUser, User()));
+		this->_users[newUser].setSocket(newUser);
+		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
+	}
+	return true;
+}
+
+// ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+/**
+ * @brief	Configure the internal attributes of the server.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::init(std::string const password)
+{
+	int													idx;
+	std::map<std::string const, t_fct const>::iterator	it;
+
+	this->_name = "ircserv";
+	this->_password = password;
+	for (idx = 0 ; Server::_lookupCmds[idx].second ; ++idx)
+		this->_cmds.insert(Server::_lookupCmds[idx]);
+	return true;
+}
+
+/**
+ * @brief	Main routine of the server, consisting of accepting new connections,
+ * 			receiving messages from clients, and processing them.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::run(void)
+{
+	while (this->_state == RUNNING)
+	{
+		if (!this->welcomeDwarves() ||
+			!this->recvAll())
+		{
+			this->stop();
+			return false;
+		}
+	}
 	return true;
 }
 
@@ -358,7 +463,8 @@ bool	Server::judge(User &user, std::string &msg)
  */
 bool	Server::start(uint16_t const port)
 {
-	int	optval;
+	int			optval;
+	sockaddr_in	addr;
 
 	this->_socket = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
 	if (this->_socket == -1)
@@ -366,137 +472,53 @@ bool	Server::start(uint16_t const port)
 		perror("socket");
 		return false;
 	}
-	Server::logMsg(INTERNAL, "Socket created");
+	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket created");
 
 	optval = 1;
-	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(optval)))
+	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(optval)))
 	{
-		close(_socket); // stop()
+		this->stop();
 		perror("setsockopt");
 		return false;
 	}
-	Server::logMsg(INTERNAL, "Socket options set");
+	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket options set");
 
-	sockaddr_in	addr;
 	addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // ip hard code for now
 	addr.sin_port = htons(port);
 	addr.sin_family = AF_INET;
-	if (bind(_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)))
+	if (bind(this->_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)))
 	{
-		close(_socket); // stop()
+		this->stop();
 		perror("bind");
 		return false;
 	}
-	if (listen(_socket, SOMAXCONN))
+	if (listen(this->_socket, SOMAXCONN))
 	{
-		close(_socket); // stop()
+		this->stop();
 		perror("listen");
 		return false;
 	}
 	_pollfds.push_back(pollfd());
-	_pollfds.back().fd = _socket;
+	_pollfds.back().fd = this->_socket;
 	_pollfds.back().events = POLLIN;
 	this->_state = RUNNING;
 	return true;
 }
 
-bool	Server::welcomeDwarves(void){
-	sockaddr_in addr = {};
-	socklen_t addrlen = sizeof(addr);
-	
-	int newUser = accept(_socket, reinterpret_cast<sockaddr *>(&addr), &addrlen);
-	if (newUser == -1){
-		// perror("accept");
-	}
-	else{
-		std::cout << "New people connected !" <<std::endl;
-		_pollfds.push_back(pollfd());
-		_pollfds.back().fd = newUser;
-		_pollfds.back().events = POLLIN | POLLOUT;
-		std::pair<int, User>	new_pair(newUser, User(newUser, addr));
-		_users.insert(new_pair);
-	}
-	if (poll(&_pollfds[0], _pollfds.size(), (PING * 1000) / 10) == -1){// Ecoute les FD donnes
-		perror("poll server");//check for error
-		return (false);
-	}
-	return (true);
-}
-
-// typedef typename std::map<int, User>::iterator ite_map;
-
-bool	Server::listenAll(void){
-	char		buff[1024];
-	size_t		buffsize = sizeof(buff);
-	std::string	message;
-	std::string	endOfMessage("\r\n");
-	bool		EOM = false;
-	size_t		retRecv;
-
-	if (_users.empty())
-		return (true);
-	for (std::map<int, User>::iterator ite = _users.begin(); ite != _users.end(); ite++){
-		while (EOM == false){
-			retRecv = recv(_pollfds.back().fd, buff, buffsize, 0);
-			// Server::logMsg()
-			if (retRecv <= 0){
-				perror("recv");
-				// if (retRecv == 0)
-				// 	std::cerr << "retRecv = 0" << std::endl;
-				return (false);
-			}
-			message.append(buff);
-			if (strstr(buff, endOfMessage.c_str()))
-				EOM = true;
-		}
-		this->judge(ite->second, message);
-		// _exit(121);
-		// Server::logMsg(RECEIVED, message + ", From " + ite->second.getNickname());
-		if (message.find("QUIT") != std::string::npos)
-			break;
-		message.clear();
-		EOM = false;
-		if (send(_pollfds.back().fd, ":our.server 001 majacque :Welcome to IRC\r\n", sizeof(":our.server 001 majacque :Welcome to IRC\r\n"), 0) == -1){
-			perror("send");
-			return (false);
-		}
-	}
-	return (true);
-}
-
 /**
- * @brief 
- * 
- * @return	true if success, false otherwise.
+ * @brief	Disconnect every users, release the resources of the server,
+ * 			and stop it.
  */
-bool	Server::stop(void)
+void	Server::stop(void)
 {
-	return true;
-}
-
-/**
- * @brief 
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::run(void)
-{
-	return true;
-}
-
-/**
- * @brief 
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::update(void)
-{
-	return true;
-}
-
-int	Server::getSocket(void) const
-{
-	return _socket;
+	this->_users.clear();
+	this->_channels.clear();
+	this->_cmds.clear();
+	if (this->_socket >= 0)
+		close(this->_socket);
+	this->_socket = -1;
+	this->_state = STOPPED;
+	Server::logMsg(INTERNAL, "    Server stopped");
 }
 
 // ************************************************************************** //
@@ -525,15 +547,3 @@ std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] 
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
 };
-
-/* void	Server::stop( void ) {
-	for (std::map<int, User>::iterator it = _users.begin(); it != _users.end(); it++) {
-		it->second.disconnect();
-	}
-	_users.clear();
-	_channels.clear();
-	if (_socket != -1) {
-		close(_socket);
-		_socket = -1;
-	}
-} */

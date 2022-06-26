@@ -27,19 +27,20 @@ private:
 	std::map<std::string, Channel *>	_channels;
 
 	bool								_isOperator;
+	bool								_isRegistered;
+	bool								_isRegisterable;
 
 public:
 	// Constructors
-	User( void );
-	User(int socket, sockaddr_in in);
+	User(void);
 
 	// Destructors
 	virtual ~User( void );
 
 	// Accessors
-	int									getSocket(void) const;
-
 	sockaddr_in							getAddr(void) const;
+
+	int									getSocket(void) const;
 
 	std::string							getNickname(void) const;
 	std::string							getUsername(void) const;

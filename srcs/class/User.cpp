@@ -1,37 +1,46 @@
+#include <unistd.h>
 #include "class/User.hpp"
 
 // ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
-User::User(void) : _socket(0), _nickname("*")
-{
-
-}
-
-User::User(int socket, sockaddr_in in) : _socket(socket), _nickname("*")
-{
-	_addr = in;
-}
+User::User(void) :
+	_socket(-1),
+	_addr(),
+	_nickname("*"),
+	_username(),
+	_hostname(),
+	_realname(),
+	_password(),
+	_channels(),
+	_isOperator(false),
+	_isRegistered(false),
+	_isRegisterable(false) {}
 
 // ************************************************************************* //
 //                                Destructors                                //
 // ************************************************************************* //
 
-User::~User(void) {}
+User::~User(void)
+{
+	if (this->_socket >= 0)
+		close(this->_socket);
+	this->_socket = -1;
+}
 
 // ************************************************************************* //
 //                                 Accessors                                 //
 // ************************************************************************* //
 
-int	User::getSocket(void) const
-{
-	return this->_socket;
-}
-
 sockaddr_in	User::getAddr(void) const
 {
 	return this->_addr;
+}
+
+int	User::getSocket(void) const
+{
+	return this->_socket;
 }
 
 std::string	User::getNickname(void) const

@@ -7,27 +7,31 @@
 #include "color.h"
 #include "class/Server.hpp"
 
-inline static int	__getPort(std::string s, uint16_t &port)
+inline static bool	__getPort(std::string const str, uint16_t &port)
 {
-	for (std::string::const_iterator it = s.begin(); it != s.end(); it++) {
+	std::string::const_iterator it;
+
+	for (it = str.begin(); it != str.end(); ++it)
+	{
 		if (!isdigit(*it))
 		{
 			std::cerr << "error: port: wrong value" << std::endl;
-			return 1;
+			return false;
 		}
 	}
-	port = strtol(s.c_str(), NULL, 10);
-	if (errno == ERANGE) {
+	port = strtol(str.c_str(), NULL, 10);
+	if (errno == ERANGE)
+	{
 		std::cerr << "error: port: out of range" << std::endl;
-		return 1;
+		return false;
 	}
-	return 0;
+	return true;
 }
 
-int	main(int argc, char **argv)
+int	main(int const argc, char const *const *const argv)
 {
-	uint16_t			port;
-	Server				server;
+	Server		server;
+	uint16_t	port;
 
 	if (argc != 3)
 	{
@@ -39,17 +43,11 @@ int	main(int argc, char **argv)
 		<< "" GREEN "./ircserv <port> <password>" RESET << std::endl;
 		return EXIT_FAILURE;
 	}
-	if (__getPort(argv[1], port)
-		|| !server.init()
-		|| !server.start(port))
+	if (!__getPort(argv[1], port) ||
+		!server.init(argv[2]) ||
+		!server.start(port) ||
+		!server.run())
 		return EXIT_FAILURE;
-
-	while (1){
-		server.welcomeDwarves();
-		server.listenAll();
-	}
-
-	close(server.getSocket());
 	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << std::endl;
 	return EXIT_SUCCESS;
 }
