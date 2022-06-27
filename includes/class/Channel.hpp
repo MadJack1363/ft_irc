@@ -15,7 +15,9 @@ private:
 public:
 
 	Channel( void );
-	virtual ~Channel( void ) {};
+	virtual ~Channel( void );
+
+	void addUser(User &user);
 
 };
 

@@ -25,7 +25,8 @@ vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 SRC				=	\
 					main.cpp	\
 					Server.cpp	\
-					User.cpp
+					User.cpp	\
+					Channel.cpp
 
 ######################################
 #            OBJECT FILES            #

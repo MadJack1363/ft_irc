@@ -68,6 +68,8 @@ bool	Server::cmdDie(User &user, std::string const &params)
 bool	Server::cmdJoin(User &user, std::string const &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
+	this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel()));
+	this->_channels[params].addUser(user);
 	return true;
 }
 
@@ -409,6 +411,7 @@ bool	Server::welcomeDwarves(void)
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
 		this->_users[newUser].setSocket(newUser);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
+		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine");
 	}
 	return true;
 }
