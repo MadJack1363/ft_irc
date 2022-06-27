@@ -1,6 +1,6 @@
 #include "class/Channel.hpp"
 
-Channel::Channel(void)
+Channel::Channel(std::string name) : _name(name), _users()
 {
 
 }
@@ -14,4 +14,8 @@ void	Channel::addUser(User &user)
 {
 	this->_users.push_back(&user);
 	return ;
+}
+
+std::vector<User *> const &Channel::getUsers(void) const{
+	return this->_users;
 }

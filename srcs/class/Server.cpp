@@ -67,9 +67,19 @@ bool	Server::cmdDie(User &user, std::string const &params)
  */
 bool	Server::cmdJoin(User &user, std::string const &params)
 {
+
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
 	this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel()));
+	
+	Channel tm = this->_channels[params];
+	
 	this->_channels[params].addUser(user);
+	Server::logMsg(INTERNAL, "(" + params + ")");
+
+	for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
+	{
+		Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
+	}
 	return true;
 }
 
