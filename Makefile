@@ -51,6 +51,7 @@ LDFLAGS			=
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
+	CXXFLAGS	+=	-fstandalone-debug
 	CXXFLAGS	+=	-DDEBUG
 else \
 ifeq (${DEBUG}, 2)

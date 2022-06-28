@@ -122,3 +122,14 @@ void	User::setIsOperator(bool const isOperator)
 {
 	this->_isOperator = isOperator;
 }
+
+std::ostream	&operator<<(std::ostream &ostream, User const &user)
+{
+	ostream << "User : " << std::endl;
+	ostream << "\tSocket : " << user.getSocket() << std::endl;
+	ostream << "\tNickname : " << user.getUsername() << std::endl;
+	ostream << "\tHostname : " << user.getHostname() << std::endl;
+	ostream << "\tRealname : " << user.getRealname() << std::endl;
+	ostream << "\tPassword : " << user.getPassword() << std::endl; 
+	return ostream;
+}

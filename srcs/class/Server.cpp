@@ -76,6 +76,9 @@ bool	Server::cmdJoin(User &user, std::string const &params)
 	this->_channels[params].addUser(user);
 	Server::logMsg(INTERNAL, "(" + params + ")");
 
+	std::cout << user << std::endl;
+	std::cout << "Nb of user co : " << this->_users.size() << std::endl;
+	std::cout << "Size of user in the channel" << tm.getUsers().size() << std::endl;
 	for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
 	{
 		Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
@@ -420,6 +423,7 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
 		this->_users[newUser].setSocket(newUser);
+		std::cout << this->_users[newUser] << std::endl;
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
 		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine");
 	}

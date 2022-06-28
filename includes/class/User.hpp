@@ -24,7 +24,7 @@ private:
 	std::string							_realname;
 	std::string							_password;
 
-	std::map<std::string, Channel *>	_channels;
+	std::map<std::string, Channel *>	_channels;// ??
 
 	bool								_isOperator;
 	bool								_isRegistered;
@@ -69,5 +69,7 @@ public:
 	bool	sendTo( User const & user ); // send private message
 	bool	sendToAll( Channel const & chan ); // send message to every user in the channel (except myself)
 };
+
+std::ostream	& operator<<(std::ostream &ostream, User const &user);
 
 #endif
