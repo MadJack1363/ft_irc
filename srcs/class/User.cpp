@@ -127,7 +127,7 @@ std::ostream	&operator<<(std::ostream &ostream, User const &user)
 {
 	ostream << "User : " << std::endl;
 	ostream << "\tSocket : " << user.getSocket() << std::endl;
-	ostream << "\tNickname : " << user.getUsername() << std::endl;
+	ostream << "\tNickname : " << user.getNickname() << std::endl;
 	ostream << "\tHostname : " << user.getHostname() << std::endl;
 	ostream << "\tRealname : " << user.getRealname() << std::endl;
 	ostream << "\tPassword : " << user.getPassword() << std::endl; 
