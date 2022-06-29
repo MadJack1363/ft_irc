@@ -3,6 +3,7 @@
 #include <cstdlib> // abs()
 #include <ctime> // time(), localtime(), strftime()
 #include <sstream>
+#include <string>
 #include "class/Server.hpp"
 
 #define PING 10
@@ -172,7 +173,28 @@ bool	Server::cmdOper(User &user, std::string const &params)
  */
 bool	Server::cmdPart(User &user, std::string const &params)
 {
+	std::vector<std::string>	channel_left;
+	// size_t	val_char = 0;
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
+
+	Server::logMsg(RECEIVED, "params = " + params);
+	while (params.find(',') != std::string::npos)
+	{
+		std::cout << "In the while" << std::endl;
+		channel_left.push_back(params.substr(0, params.find(',')));
+	}
+	// for (std::string::const_iterator ite = params.begin(); ite != params.end(); ite++){
+	// 	params.find_first_of(',', ite);
+	// 	Server::logMsg(RECEIVED, "\t" + *ite);
+	// }
+	// substr();
+	// do a parsing on every ','
+
+	/** after this left the channel for the @param user
+	 * And send a string for all user with the info of the user left the channel
+	 * if is the last user of the channel delete the channel
+	*/
+
 	return true;
 }
 
@@ -335,7 +357,7 @@ bool	Server::recvAll(void)
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
 		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
-		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
+		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
 		while (retRecv > 0)
 		{
 			message.append(buff);

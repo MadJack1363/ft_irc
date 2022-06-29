@@ -16,6 +16,7 @@ void	Channel::addUser(User &user)
 	return ;
 }
 
-std::vector<User *> const &Channel::getUsers(void) const{
+std::vector<User *> const &Channel::getUsers(void) const
+{
 	return this->_users;
 }
