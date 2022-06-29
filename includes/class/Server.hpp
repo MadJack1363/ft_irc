@@ -41,7 +41,7 @@ enum	e_rplNo
 	ERR_NICKNAMEINUSE = 433,
 };
 
-typedef bool	(Server::*t_fct)(User &user, std::string const &params);
+typedef bool	(Server::*t_fct)(User &user, std::string &params);
 
 class Server
 {
@@ -66,19 +66,19 @@ private:
 	
 	static std::string	toString(int const nb);
 
-	bool	cmdDie(User &user, std::string const &params);
-	bool	cmdJoin(User &user, std::string const &params);
-	bool	cmdKick(User &user, std::string const &params);
-	bool	cmdKill(User &user, std::string const &params);
-	bool	cmdMsg(User &user, std::string const &params);
-	bool	cmdNick(User &user, std::string const &params);
-	bool	cmdOper(User &user, std::string const &params);
-	bool	cmdPart(User &user, std::string const &params);
-	bool	cmdPass(User &user, std::string const &params);
-	bool	cmdPing(User &user, std::string const &params);
-	bool	cmdQuit(User &user, std::string const &params);
-	bool	cmdSet(User &user, std::string const &params);
-	bool	cmdUser(User &user, std::string const &params);
+	bool	cmdDie(User &user, std::string &params);
+	bool	cmdJoin(User &user, std::string &params);
+	bool	cmdKick(User &user, std::string &params);
+	bool	cmdKill(User &user, std::string &params);
+	bool	cmdMsg(User &user, std::string &params);
+	bool	cmdNick(User &user, std::string &params);
+	bool	cmdOper(User &user, std::string &params);
+	bool	cmdPart(User &user, std::string &params);
+	bool	cmdPass(User &user, std::string &params);
+	bool	cmdPing(User &user, std::string &params);
+	bool	cmdQuit(User &user, std::string &params);
+	bool	cmdSet(User &user, std::string &params);
+	bool	cmdUser(User &user, std::string &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
 	bool	reply(User const &user, std::string const &msg) const;

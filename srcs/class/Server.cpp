@@ -41,7 +41,7 @@ Server::~Server(void) {}
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdDie(User &user, std::string const &params)
+bool	Server::cmdDie(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") DIE " + params);
 	if (user.getIsOperator())
@@ -66,7 +66,7 @@ bool	Server::cmdDie(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdJoin(User &user, std::string const &params)
+bool	Server::cmdJoin(User &user, std::string &params)
 {
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
@@ -91,7 +91,7 @@ bool	Server::cmdJoin(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdKick(User &user, std::string const &params)
+bool	Server::cmdKick(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KICK " + params);
 	return true;
@@ -105,7 +105,7 @@ bool	Server::cmdKick(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdKill(User &user, std::string const &params)
+bool	Server::cmdKill(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KILL " + params);
 	return true;
@@ -119,7 +119,7 @@ bool	Server::cmdKill(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdMsg(User &user, std::string const &params)
+bool	Server::cmdMsg(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MSG " + params);
 	return true;
@@ -133,7 +133,7 @@ bool	Server::cmdMsg(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdNick(User &user, std::string const &params)
+bool	Server::cmdNick(User &user, std::string &params)
 {
 	std::map<int, User>::iterator	it;
 
@@ -157,7 +157,7 @@ bool	Server::cmdNick(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdOper(User &user, std::string const &params)
+bool	Server::cmdOper(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") OPER " + params);
 	return true;
@@ -171,18 +171,23 @@ bool	Server::cmdOper(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPart(User &user, std::string const &params)
+bool	Server::cmdPart(User &user, std::string &params)
 {
 	std::vector<std::string>	channel_left;
+
 	// size_t	val_char = 0;
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
 
-	Server::logMsg(RECEIVED, "params = " + params);
+	// Server::logMsg(RECEIVED, "params = " + params[0]);
+	params += params.find(':');
+	// cpy = *its;
 	while (params.find(',') != std::string::npos)
 	{
-		std::cout << "In the while" << std::endl;
 		channel_left.push_back(params.substr(0, params.find(',')));
+		// its += params.find(',');
+		// params = *its;
 	}
+	channel_left.push_back(params.substr(0, params.find(',')));
 	// for (std::string::const_iterator ite = params.begin(); ite != params.end(); ite++){
 	// 	params.find_first_of(',', ite);
 	// 	Server::logMsg(RECEIVED, "\t" + *ite);
@@ -206,7 +211,7 @@ bool	Server::cmdPart(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPass(User &user, std::string const &params)
+bool	Server::cmdPass(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PASS " + params);
 
@@ -225,7 +230,7 @@ bool	Server::cmdPass(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPing(User &user, std::string const &params)
+bool	Server::cmdPing(User &user, std::string &params)
 {
 	std::string	reply;
 
@@ -241,7 +246,7 @@ bool	Server::cmdPing(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdQuit(User &user, std::string const &params)
+bool	Server::cmdQuit(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command QUIT " + params);
 
@@ -257,7 +262,7 @@ bool	Server::cmdQuit(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdSet(User &user, std::string const &params)
+bool	Server::cmdSet(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command SET " + params);
 	return true;
@@ -271,7 +276,7 @@ bool	Server::cmdSet(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdUser(User &user, std::string const &params)
+bool	Server::cmdUser(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command USER " + params);
 	return true;
