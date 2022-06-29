@@ -70,9 +70,12 @@ bool	Server::cmdJoin(User &user, std::string const &params)
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
 	this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
+	
+	Channel &tm = this->_channels[params];
+
 	this->_channels[params].addUser(user);
-	Server::logMsg(INTERNAL, "(" + params + ")");
-	for (std::vector<User *>::const_iterator ite = this->_channels[params].getUsers().begin(); ite != this->_channels[params].getUsers().end(); ite++)
+	Server::logMsg(INTERNAL, "Utilisateur log in " + params);
+	for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
 	{
 		Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
 	}
@@ -332,6 +335,7 @@ bool	Server::recvAll(void)
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
 		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
+		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		while (retRecv > 0)
 		{
 			message.append(buff);
