@@ -40,7 +40,7 @@ Server::~Server(void) {}
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdDie(User &user, std::string const &params)
+bool	Server::cmdDie(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") DIE " + params);
 	if (user.getIsOperator())
@@ -65,7 +65,7 @@ bool	Server::cmdDie(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdJoin(User &user, std::string const &params)
+bool	Server::cmdJoin(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
 	return true;
@@ -79,7 +79,7 @@ bool	Server::cmdJoin(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdKick(User &user, std::string const &params)
+bool	Server::cmdKick(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KICK " + params);
 	return true;
@@ -93,7 +93,7 @@ bool	Server::cmdKick(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdKill(User &user, std::string const &params)
+bool	Server::cmdKill(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KILL " + params);
 	return true;
@@ -107,7 +107,7 @@ bool	Server::cmdKill(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdMsg(User &user, std::string const &params)
+bool	Server::cmdMsg(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MSG " + params);
 	return true;
@@ -121,7 +121,7 @@ bool	Server::cmdMsg(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdNick(User &user, std::string const &params)
+bool	Server::cmdNick(User &user, std::string &params)
 {
 	std::map<int, User>::iterator	it;
 
@@ -145,7 +145,7 @@ bool	Server::cmdNick(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdOper(User &user, std::string const &params)
+bool	Server::cmdOper(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") OPER " + params);
 	return true;
@@ -159,7 +159,7 @@ bool	Server::cmdOper(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPart(User &user, std::string const &params)
+bool	Server::cmdPart(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
 	return true;
@@ -173,14 +173,12 @@ bool	Server::cmdPart(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPass(User &user, std::string const &params)
+bool	Server::cmdPass(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PASS " + params);
-
-	// if (this->_password.empty())
-	// 	return true;
-	// if (params == this->_password)
-	// 	return true;
+	if (user.getIsRegistered())
+		return this->reply(user, "462 :You may not register");
+	user.setIsRegisterable(params == this->_password);
 	return true;
 }
 
@@ -192,11 +190,11 @@ bool	Server::cmdPass(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPing(User &user, std::string const &params)
+bool	Server::cmdPing(User &user, std::string &params)
 {
 	std::string	reply;
 
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command PING " + params);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PING " + params);
 	return this->reply(user, "PING " + user.getNickname());
 }
 
@@ -208,10 +206,9 @@ bool	Server::cmdPing(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdQuit(User &user, std::string const &params)
+bool	Server::cmdQuit(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command QUIT " + params);
-
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") QUIT " + params);
 	this->_state = STOPPED; // XXX To be removed, temporary solution to end properly the server.
 	return true;
 }
@@ -224,9 +221,9 @@ bool	Server::cmdQuit(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdSet(User &user, std::string const &params)
+bool	Server::cmdSet(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command SET " + params);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") SET " + params);
 	return true;
 }
 
@@ -238,10 +235,30 @@ bool	Server::cmdSet(User &user, std::string const &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdUser(User &user, std::string const &params)
+bool	Server::cmdUser(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command USER " + params);
-	return true;
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") USER " + params);
+	if (user.getIsRegistered())
+		return this->reply(user, "462 :You may not register");
+	if (params.empty())
+		return this->reply(user, "461 USER :Not enough parameters");
+	user.setUsername(params.substr(0, params.find(' ')));
+	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
+	if (params.empty())
+		return this->reply(user, "461 USER :Not enough parameters");
+	user.setHostname(params.substr(0, params.find(' ')));
+	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
+	if (params.empty())
+		return this->reply(user, "461 USER :Not enough parameters");
+	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
+	if (params.empty())
+		return this->reply(user, "461 USER :Not enough parameters");
+	params.erase(params.begin());
+	user.setRealname(params);
+	if (!this->_password.empty() && !user.getIsRegisterable())
+		return this->reply(user, "464 :Password incorrect");
+	user.setIsRegistered(true);
+	return this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());
 }
 
 /**
@@ -254,28 +271,35 @@ bool	Server::cmdUser(User &user, std::string const &params)
  */
 bool	Server::judge(User &user, std::string &msg)
 {
-	std::string	commandName;
-	std::string	params;
 	std::string	line;
-	t_fct		command;
+	std::string	prefix;
+	std::string	cmdName;
+	std::string	params;
+	t_fct		cmdCall;
 
 	do
 	{
-		line = msg.substr(0, msg.find('\n') - 1);
-		commandName = line.substr(0, line.find(' '));
-		params = line.substr(commandName.length());
+		line = msg.substr(0, msg.find('\n'));
+		if (*(line.end() - 1) == '\r')
+			line.erase(line.end() - 1);
+		if (line[0] == ':')
+			prefix = line.substr(1, line.find(' ') - 1);
+		cmdName = line.substr(prefix.length(), line.find(' ', prefix.length()));
+		params = line.substr(cmdName.length());
 		params.erase(0, params.find_first_not_of(' '));
-
-		command = this->_cmds[commandName];
-		if (!command)
+		params.erase(params.find_last_not_of(' ') + 1);
+		cmdCall = this->_cmds[cmdName];
+		if (!cmdCall)
 		{
-			if (!commandName.empty())
-				Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command " + commandName + RED " Unknown" RESET);
+			if (!cmdName.empty())
+			{
+				Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command " + cmdName + RED " Unknown" RESET);
+			}
 		}
-		else if (!(this->*command)(user, params))
+		else if (!(this->*cmdCall)(user, params))
 			return false;
 		msg.erase(0, msg.find('\n') + 1);
-	} while (!line.empty());
+	} while (!msg.empty());
 	return true;
 }
 
@@ -442,13 +466,27 @@ bool	Server::init(std::string const password)
  */
 bool	Server::run(void)
 {
+	static struct timespec			t0 = {0, 50000};
+	static struct timespec			t1 = {0, 0};
+	std::map<int, User>::iterator	it;
+
 	while (this->_state == RUNNING)
 	{
 		if (!this->welcomeDwarves() ||
-			!this->recvAll())
+			!this->recvAll() ||
+			nanosleep(&t0, &t1))
 		{
 			this->stop();
 			return false;
+		}
+		for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
+		{
+			if (!it->second.getIsRegistered())
+			{
+				Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
+				this->_users.erase(it);
+				break ;
+			}
 		}
 	}
 	return true;

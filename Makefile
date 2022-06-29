@@ -1,52 +1,52 @@
 ######################################
 #              COMMANDS              #
 ######################################
-CXX					= c++
-MKDIR				= mkdir -p
-RM					= rm -rf
+CXX			= c++
+MKDIR		= mkdir -p
+RM			= rm -rf
 
 ######################################
 #             EXECUTABLE             #
 ######################################
-NAME				= ircserv
+NAME		= ircserv
 
 #######################################
 #             DIRECTORIES             #
 #######################################
-OBJ_DIR				= objs/
-INC_DIR				= includes/
-SRC_DIR				= $(shell find srcs -type d)
+OBJ_DIR		= objs/
+INC_DIR		= includes/
+SRC_DIR		= $(shell find srcs -type d)
 
 vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC				=	\
-					main.cpp	\
-					Server.cpp	\
-					User.cpp
+SRC			=	\
+				main.cpp	\
+				Server.cpp	\
+				User.cpp
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-OBJ					= ${SRC:.cpp=.o}
-OBJ					:= ${addprefix ${OBJ_DIR}, ${OBJ}}
+OBJ			= ${SRC:.cpp=.o}
+OBJ			:= ${addprefix ${OBJ_DIR}, ${OBJ}}
 
-DEP					= ${OBJ:.o=.d}
+DEP			= ${OBJ:.o=.d}
 
 #######################################
 #                FLAGS                #
 #######################################
-CXXFLAGS			=	-c
-CXXFLAGS			+=	-Wall -Wextra# -Werror
-CXXFLAGS			+=	-Wshadow
-CXXFLAGS			+=	-std=c++98
-CXXFLAGS			+=	-MMD -MP
-CXXFLAGS			+=	-I${INC_DIR}
-# CXXFLAGS			+=	-Weffc++ -pedantic
+CXXFLAGS	=	-c
+CXXFLAGS	+=	-Wall -Wextra# -Werror
+CXXFLAGS	+=	-Wshadow
+CXXFLAGS	+=	-std=c++98
+CXXFLAGS	+=	-MMD -MP
+CXXFLAGS	+=	-I${INC_DIR}
+# CXXFLAGS	+=	-Weffc++ -pedantic
 
-LDFLAGS			=
+LDFLAGS		=
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
@@ -86,3 +86,5 @@ fclean:
 re: clean all
 
 fre: fclean all
+
+-include valgrind.mk

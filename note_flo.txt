@@ -156,6 +156,8 @@ rfc1459 :
 	> USER :
 		# Il est requis.
 
+		# Note : la commande USER n'est envoyee qu'a l'etablissement de la connection.
+
 		# Reponses numeriques possibles :
 			ERR_NEEDMOREPARAMS
 			ERR_ALREADYREGISTRED

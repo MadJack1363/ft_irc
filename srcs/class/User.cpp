@@ -78,6 +78,16 @@ bool	User::getIsOperator(void) const
 	return this->_isOperator;
 }
 
+bool	User::getIsRegisterable(void) const
+{
+	return this->_isRegisterable;
+}
+
+bool	User::getIsRegistered(void) const
+{
+	return this->_isRegistered;
+}
+
 void	User::setSocket(int const sockfd)
 {
 	this->_socket = sockfd;
@@ -121,4 +131,14 @@ void	User::setChannels(std::map<std::string, Channel *> const &channels)
 void	User::setIsOperator(bool const isOperator)
 {
 	this->_isOperator = isOperator;
+}
+
+void	User::setIsRegisterable(bool const isRegisterable)
+{
+	this->_isRegisterable = isRegisterable;
+}
+
+void	User::setIsRegistered(bool const isRegistered)
+{
+	this->_isRegistered = isRegistered;
 }
