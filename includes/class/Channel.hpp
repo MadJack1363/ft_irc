@@ -20,7 +20,8 @@ public:
 
 	void addUser(User &user);
 
-	std::vector<User *> const &getUsers(void) const;
+	std::vector<User *> const	&getUsers(void) const;
+	std::string	const			&getName(void) const;
 };
 
 #endif

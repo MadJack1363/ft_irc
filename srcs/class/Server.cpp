@@ -70,16 +70,17 @@ bool	Server::cmdJoin(User &user, std::string &params)
 {
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
+	// Need to find if the channel exist
 	this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
-	
-	Channel &tm = this->_channels[params];
-
 	this->_channels[params].addUser(user);
-	Server::logMsg(INTERNAL, "Utilisateur log in " + params);
-	for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
-	{
-		Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
-	}
+	
+	// Channel &tm = this->_channels[params];
+
+	// Server::logMsg(INTERNAL, "Utilisateur log in " + params);
+	// for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
+	// {
+	// 	Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
+	// }
 	return true;
 }
 
@@ -174,32 +175,26 @@ bool	Server::cmdOper(User &user, std::string &params)
 bool	Server::cmdPart(User &user, std::string &params)
 {
 	std::vector<std::string>	channel_left;
+	Channel						tmp;
 
-	// size_t	val_char = 0;
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
-
-	// Server::logMsg(RECEIVED, "params = " + params[0]);
-	params += params.find(':');
-	// cpy = *its;
+	params = params.c_str() + params.find(':') + 1;
 	while (params.find(',') != std::string::npos)
 	{
 		channel_left.push_back(params.substr(0, params.find(',')));
-		// its += params.find(',');
-		// params = *its;
+		params = params.c_str() + params.find(',') + 1;
 	}
 	channel_left.push_back(params.substr(0, params.find(',')));
-	// for (std::string::const_iterator ite = params.begin(); ite != params.end(); ite++){
-	// 	params.find_first_of(',', ite);
-	// 	Server::logMsg(RECEIVED, "\t" + *ite);
-	// }
-	// substr();
-	// do a parsing on every ','
-
-	/** after this left the channel for the @param user
-	 * And send a string for all user with the info of the user left the channel
-	 * if is the last user of the channel delete the channel
-	*/
-
+	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
+	{
+		// config for send a custom message or no of all user of any channel
+		tmp = this->_channels["#" + *ite];
+		// if (tmp.getUsers().size() == 1)
+		// 	// need to delete the channel
+		// else{
+		// 	// send value to all User inside the channel
+		// }
+	}
 	return true;
 }
 
