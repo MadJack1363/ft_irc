@@ -5,6 +5,9 @@
 #include <sstream>
 #include <string>
 #include "class/Server.hpp"
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #define PING 10
 
@@ -176,8 +179,8 @@ bool	Server::cmdOper(User &user, std::string &params)
  */
 bool	Server::cmdPart(User &user, std::string &params)
 {
-	std::vector<std::string>	channel_left;
-	Channel						tmp;
+	std::vector<std::string>		channel_left;
+	// std::vector<User *>::iterator	tmp2;
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
 	params = params.c_str() + params.find(':') + 1;
@@ -190,12 +193,15 @@ bool	Server::cmdPart(User &user, std::string &params)
 	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 	{
 		// config for send a custom message or no of all user of any channel
-		tmp = this->_channels[*ite];
-		// if (tmp.getUsers().size() == 1)
-		// 	// need to delete the channel
-		// else{
-		// 	// send value to all User inside the channel
-		// }
+		if (this->_channels[*ite].getUsers().size() == 1)
+		{
+			this->_channels.erase(*ite);
+		}
+		else
+		{
+			this->_channels[*ite].delUser(user);
+			// this.cmdPrivMsg()// need to send message to other user
+		}
 	}
 	return true;
 }
@@ -482,6 +488,16 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
+		// fcntl(newUser, F_SETFL, O_NONBLOCK);
+		// std::string hostaddr = inet_ntoa(addr.sin_addr);
+		// char hostname[NI_MAXHOST];
+		// if (getnameinfo((struct sockaddr *)&address, sizeof(address), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
+		// 	error("getnameinfo", false);
+		// else
+		// 	this->hostname = hostname;
+		// getHostbyname
+		hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
+		this->_users[newUser].setHostname(host->h_name);
 		this->_users[newUser].setSocket(newUser);
 		Server::printUser(this->_users[newUser]);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
