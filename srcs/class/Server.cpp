@@ -70,10 +70,12 @@ bool	Server::cmdJoin(User &user, std::string &params)
 {
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
-	// Need to find if the channel exist
-	this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
+	if (this->_channels.count(params) == 0){
+		params = params.c_str() + params.find('#') + 1;
+		this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
+	}
 	this->_channels[params].addUser(user);
-	
+
 	// Channel &tm = this->_channels[params];
 
 	// Server::logMsg(INTERNAL, "Utilisateur log in " + params);
@@ -188,7 +190,7 @@ bool	Server::cmdPart(User &user, std::string &params)
 	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 	{
 		// config for send a custom message or no of all user of any channel
-		tmp = this->_channels["#" + *ite];
+		tmp = this->_channels[*ite];
 		// if (tmp.getUsers().size() == 1)
 		// 	// need to delete the channel
 		// else{
