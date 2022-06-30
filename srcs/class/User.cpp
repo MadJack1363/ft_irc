@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "class/User.hpp"
+#include "class/Server.hpp"
 
 // ************************************************************************** //
 //                                Constructors                                //
@@ -78,6 +79,16 @@ bool	User::getIsOperator(void) const
 	return this->_isOperator;
 }
 
+bool	User::getIsRegisterable(void) const
+{
+	return this->_isRegisterable;
+}
+
+bool	User::getIsRegistered(void) const
+{
+	return this->_isRegistered;
+}
+
 void	User::setSocket(int const sockfd)
 {
 	this->_socket = sockfd;
@@ -123,13 +134,13 @@ void	User::setIsOperator(bool const isOperator)
 	this->_isOperator = isOperator;
 }
 
-std::ostream	&operator<<(std::ostream &ostream, User const &user)
+void	User::setIsRegisterable(bool const isRegisterable)
 {
-	ostream << "User : " << std::endl;
-	ostream << "\tSocket : " << user.getSocket() << std::endl;
-	ostream << "\tNickname : " << user.getNickname() << std::endl;
-	ostream << "\tHostname : " << user.getHostname() << std::endl;
-	ostream << "\tRealname : " << user.getRealname() << std::endl;
-	ostream << "\tPassword : " << user.getPassword() << std::endl; 
-	return ostream;
+	this->_isRegisterable = isRegisterable;
 }
+
+void	User::setIsRegistered(bool const isRegistered)
+{
+	this->_isRegistered = isRegistered;
+}
+

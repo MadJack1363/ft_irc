@@ -39,6 +39,9 @@ enum	e_rplNo
 	RPL_YOUREOPER = 381,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_NICKNAMEINUSE = 433,
+	ERR_NEEDMOREPARAMS = 461,
+	ERR_ALREADYREGISTRED = 462,
+	ERR_PASSWDMISMATCH = 464,
 };
 
 typedef bool	(Server::*t_fct)(User &user, std::string &params);
@@ -63,7 +66,8 @@ private:
 
 	// Member functions
 	static void	logMsg(enum e_logMsg const type, std::string const &msg);
-	
+	static void	printUser(User const &user);
+
 	static std::string	toString(int const nb);
 
 	bool	cmdDie(User &user, std::string &params);

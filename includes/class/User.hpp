@@ -51,6 +51,8 @@ public:
 	std::map<std::string, Channel *>	getChannels(void) const;
 
 	bool								getIsOperator(void) const;
+	bool								getIsRegisterable(void) const;
+	bool								getIsRegistered(void) const;
 
 	void								setSocket(int const sockfd);
 	void								setAddr(sockaddr_in const &addr);
@@ -61,15 +63,16 @@ public:
 	void								setPassword(std::string const &password);
 	void								setChannels(std::map<std::string, Channel *> const &channels);
 	void								setIsOperator(bool const isOperator);
+	void								setIsRegisterable(bool const isRegisterable);
+	void								setIsRegistered(bool const isRegistered);
 
 	// Member functions
 	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	void	disconnect(void);
+	// void	print(void) const;
 
 	bool	sendTo( User const & user ); // send private message
 	bool	sendToAll( Channel const & chan ); // send message to every user in the channel (except myself)
 };
-
-std::ostream	& operator<<(std::ostream &ostream, User const &user);
 
 #endif
