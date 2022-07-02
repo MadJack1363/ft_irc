@@ -15,8 +15,7 @@ User::User(void) :
 	_password(),
 	_channels(),
 	_isOperator(false),
-	_isRegistered(false),
-	_isRegisterable(false) {}
+	_isRegistered(false) {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -33,14 +32,14 @@ User::~User(void)
 //                                 Accessors                                 //
 // ************************************************************************* //
 
-sockaddr_in	User::getAddr(void) const
-{
-	return this->_addr;
-}
-
 int	User::getSocket(void) const
 {
 	return this->_socket;
+}
+
+sockaddr_in	User::getAddr(void) const
+{
+	return this->_addr;
 }
 
 std::string	User::getNickname(void) const
@@ -76,11 +75,6 @@ std::map<std::string, Channel *>	User::getChannels(void) const
 bool	User::getIsOperator(void) const
 {
 	return this->_isOperator;
-}
-
-bool	User::getIsRegisterable(void) const
-{
-	return this->_isRegisterable;
 }
 
 bool	User::getIsRegistered(void) const
@@ -131,11 +125,6 @@ void	User::setChannels(std::map<std::string, Channel *> const &channels)
 void	User::setIsOperator(bool const isOperator)
 {
 	this->_isOperator = isOperator;
-}
-
-void	User::setIsRegisterable(bool const isRegisterable)
-{
-	this->_isRegisterable = isRegisterable;
 }
 
 void	User::setIsRegistered(bool const isRegistered)

@@ -1,7 +1,7 @@
 #include <arpa/inet.h>
 #include <cstdio> // perror()
 #include <cstdlib> // abs()
-#include <ctime> // time(), localtime(), strftime()
+#include <netdb.h> // gethostbyname()
 #include <sstream>
 #include "class/Server.hpp"
 
@@ -14,8 +14,10 @@
 Server::Server(void) :
 	_state(STOPPED),
 	_socket(-1),
-	_name(),
+	_name("ircserv"),
+	_version("1.0"),
 	_password(),
+	_creationTime(),
 	_pollfds(),
 	_users(),
 	_channels(),
@@ -100,16 +102,16 @@ bool	Server::cmdKill(User &user, std::string &params)
 }
 
 /**
- * @brief	Send a message either to a channel or to an user.
+ * @brief	
  * 
  * @param	user The user that ran the command.
  * @param	params The parameters of the command.
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdMsg(User &user, std::string &params)
+bool	Server::cmdMode(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MSG " + params);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MODE " + params);
 	return true;
 }
 
@@ -178,7 +180,9 @@ bool	Server::cmdPass(User &user, std::string &params)
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PASS " + params);
 	if (user.getIsRegistered())
 		return this->reply(user, "462 :You may not register");
-	user.setIsRegisterable(params == this->_password);
+	if (params.empty())
+		return this->reply(user, "461 PASS :not enough parameters");
+	user.setPassword(params);
 	return true;
 }
 
@@ -196,6 +200,20 @@ bool	Server::cmdPing(User &user, std::string &params)
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PING " + params);
 	return this->reply(user, "PING " + user.getNickname());
+}
+
+/**
+ * @brief	Send a message either to a channel or to an user.
+ * 
+ * @param	user The user that ran the command.
+ * @param	params The parameters of the command.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::cmdPrivMsg(User &user, std::string &params)
+{
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
+	return true;
 }
 
 /**
@@ -246,6 +264,7 @@ bool	Server::cmdUser(User &user, std::string &params)
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
 		return this->reply(user, "461 USER :Not enough parameters");
+	
 	user.setHostname(params.substr(0, params.find(' ')));
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
@@ -255,10 +274,15 @@ bool	Server::cmdUser(User &user, std::string &params)
 		return this->reply(user, "461 USER :Not enough parameters");
 	params.erase(params.begin());
 	user.setRealname(params);
-	if (!this->_password.empty() && !user.getIsRegisterable())
+	if (!this->_password.empty() && this->_password != user.getPassword())
 		return this->reply(user, "464 :Password incorrect");
 	user.setIsRegistered(true);
-	return this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());
+	return
+		this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname()) &&
+		this->reply(user, "002 " + user.getNickname() + " :Your host is " + this->_name + ", running version 1.0") &&
+		this->reply(user, "003 " + user.getNickname() + " :This server was created " + this->_creationTime) &&
+		this->reply(user, "004 " + user.getNickname() + " :" + this->_name + " " + this->_version + " o");
+
 }
 
 /**
@@ -310,16 +334,16 @@ bool	Server::judge(User &user, std::string &msg)
  */
 void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
 {
-	char	logtime[64];
+	char	nowtime[64];
 	time_t	rawtime;
 	int		idx;
 
 	for (idx = 0 ; idx < 3 && _lookupLogMsgTypes[idx].first != type ; ++idx);
 	time(&rawtime);
-	strftime(logtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
+	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
 	std::cout
 	<< "["
-	<< logtime
+	<< nowtime
 	<< "]["
 	<< _lookupLogMsgTypes[idx].second
 	<< "] "
@@ -360,7 +384,7 @@ bool	Server::recvAll(void)
 			perror("recv");
 			return false;
 		}
-		if (!retRecv)
+		if (!retRecv) // Check whith the PING
 		{
 			Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
 			this->_users.erase(it);
@@ -383,8 +407,9 @@ bool	Server::recvAll(void)
  */
 bool	Server::reply(User const &user, std::string const &msg) const
 {
-	std::string	toSend(":" + this->_name + " " + msg + "\r\n");
+	std::string	toSend(": " + msg + "\r\n");
 
+	Server::logMsg(DEBUG, "toSend: [" + toSend + "]");
 	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
 	{
 		perror("send");
@@ -432,6 +457,7 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
 		this->_users[newUser].setSocket(newUser);
+		this->_users[newUser].setAddr(addr);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
 	}
 	return true;
@@ -448,11 +474,15 @@ bool	Server::welcomeDwarves(void)
  */
 bool	Server::init(std::string const password)
 {
+	char												nowtime[64];
+	time_t												rawtime;
 	int													idx;
 	std::map<std::string const, t_fct const>::iterator	it;
 
-	this->_name = "ircserv";
 	this->_password = password;
+	time(&rawtime);
+	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
+	this->_creationTime = nowtime;
 	for (idx = 0 ; Server::_lookupCmds[idx].second ; ++idx)
 		this->_cmds.insert(Server::_lookupCmds[idx]);
 	return true;
@@ -530,12 +560,14 @@ bool	Server::start(uint16_t const port)
 		perror("bind");
 		return false;
 	}
+	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket bound");
 	if (listen(this->_socket, SOMAXCONN))
 	{
 		this->stop();
 		perror("listen");
 		return false;
 	}
+	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket listening");
 	_pollfds.push_back(pollfd());
 	_pollfds.back().fd = this->_socket;
 	_pollfds.back().events = POLLIN;
@@ -568,12 +600,13 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 	std::make_pair<std::string const, t_fct const>(std::string("JOIN"), &Server::cmdJoin),
 	std::make_pair<std::string const, t_fct const>(std::string("KICK"), &Server::cmdKick),
 	std::make_pair<std::string const, t_fct const>(std::string("KILL"), &Server::cmdKill),
-	std::make_pair<std::string const, t_fct const>(std::string("MSG"), &Server::cmdMsg),
+	std::make_pair<std::string const, t_fct const>(std::string("MODE"), &Server::cmdMode),
 	std::make_pair<std::string const, t_fct const>(std::string("NICK"), &Server::cmdNick),
 	std::make_pair<std::string const, t_fct const>(std::string("OPER"), &Server::cmdOper),
 	std::make_pair<std::string const, t_fct const>(std::string("PART"), &Server::cmdPart),
 	std::make_pair<std::string const, t_fct const>(std::string("PASS"), &Server::cmdPass),
 	std::make_pair<std::string const, t_fct const>(std::string("PING"), &Server::cmdPing),
+	std::make_pair<std::string const, t_fct const>(std::string("PRIVMSG"), &Server::cmdPrivMsg),
 	std::make_pair<std::string const, t_fct const>(std::string("QUIT"), &Server::cmdQuit),
 	std::make_pair<std::string const, t_fct const>(std::string("SET"), &Server::cmdSet),
 	std::make_pair<std::string const, t_fct const>(std::string("USER"), &Server::cmdUser),
@@ -584,4 +617,5 @@ std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] 
 	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
+	std::make_pair<enum e_logMsg const, char const *>(DEBUG, YELLOW "  Debug " RESET),
 };
