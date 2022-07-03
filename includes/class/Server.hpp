@@ -1,15 +1,16 @@
 #ifndef SERVER_CLASS_HPP
 # define SERVER_CLASS_HPP
 
+# include <ctime> // time_t
+# include <fcntl.h> //   "
 # include <iostream>
 # include <map>
+# include <netinet/in.h>// sockaddr_in
+# include <poll.h>
 # include <string>
 # include <sys/types.h> // socket, bind, listen, recv, send
 # include <sys/socket.h>//   "      "      "      "     "
-# include <netinet/in.h>// sockaddr_in
 # include <unistd.h>// fcntl
-# include <fcntl.h> //   "
-# include <poll.h>
 # include "color.h"
 # include "class/User.hpp"
 # include "class/Channel.hpp"
@@ -31,11 +32,15 @@ enum	e_logMsg
 	INTERNAL,
 	RECEIVED,
 	SENT,
+	DEBUG,
 };
 
 enum	e_rplNo
 {
 	RPL_WELCOME = 001,
+	RPL_YOURHOST = 002,
+	RPL_CREATED = 003,
+	RPL_MYINFO = 004,
 	RPL_YOUREOPER = 381,
 	ERR_NONICKNAMEGIVEN = 431,
 	ERR_NICKNAMEINUSE = 433,
@@ -54,9 +59,12 @@ private:
 	int												_socket;
 
 	std::string										_name;
+	std::string										_version;
 	std::string										_password;
+	std::string										_creationTime;
 
 	std::vector<pollfd>								_pollfds;
+	
 	std::map<int, User>								_users; // int is for id/socket
 	std::map<std::string, Channel>					_channels; // string is for the name's channel
 	std::map<std::string const, t_fct const>		_cmds;
@@ -74,7 +82,8 @@ private:
 	bool	cmdJoin(User &user, std::string &params);
 	bool	cmdKick(User &user, std::string &params);
 	bool	cmdKill(User &user, std::string &params);
-	bool	cmdMsg(User &user, std::string &params);
+	bool	cmdPrivMsg(User &user, std::string &params);
+	bool	cmdMode(User &user, std::string &params);
 	bool	cmdNick(User &user, std::string &params);
 	bool	cmdOper(User &user, std::string &params);
 	bool	cmdPart(User &user, std::string &params);

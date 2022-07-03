@@ -28,7 +28,6 @@ private:
 
 	bool								_isOperator;
 	bool								_isRegistered;
-	bool								_isRegisterable;
 
 public:
 	// Constructors
@@ -38,9 +37,9 @@ public:
 	virtual ~User( void );
 
 	// Accessors
-	sockaddr_in							getAddr(void) const;
-
 	int									getSocket(void) const;
+
+	sockaddr_in							getAddr(void) const;
 
 	std::string							getNickname(void) const;
 	std::string							getUsername(void) const;
@@ -51,7 +50,6 @@ public:
 	std::map<std::string, Channel *>	getChannels(void) const;
 
 	bool								getIsOperator(void) const;
-	bool								getIsRegisterable(void) const;
 	bool								getIsRegistered(void) const;
 
 	void								setSocket(int const sockfd);
@@ -63,7 +61,6 @@ public:
 	void								setPassword(std::string const &password);
 	void								setChannels(std::map<std::string, Channel *> const &channels);
 	void								setIsOperator(bool const isOperator);
-	void								setIsRegisterable(bool const isRegisterable);
 	void								setIsRegistered(bool const isRegistered);
 
 	// Member functions

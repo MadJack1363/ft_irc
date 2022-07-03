@@ -52,11 +52,11 @@ LDFLAGS		=
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
 	# CXXFLAGS	+=	-fstandalone-debug
-	CXXFLAGS	+=	-DDEBUG
+	CXXFLAGS	+=	-DDBG
 else \
 ifeq (${DEBUG}, 2)
 	CXXFLAGS	+=	-g
-	CXXFLAGS	+=	-DDEBUG
+	CXXFLAGS	+=	-DDBG
 	CXXFLAGS	+=	-fsanitize=address
 	LDFLAGS		+=	-fsanitize=address
 endif
