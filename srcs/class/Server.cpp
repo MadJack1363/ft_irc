@@ -3,6 +3,7 @@
 #include <cstdlib> // abs()
 #include <netdb.h> // gethostbyname()
 #include <sstream>
+#include <string>
 #include "class/Server.hpp"
 
 #define PING 10
@@ -61,7 +62,21 @@ bool	Server::cmdDie(User &user, std::string &params)
  */
 bool	Server::cmdJoin(User &user, std::string &params)
 {
+
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
+	if (this->_channels.count(params) == 0){
+		params = params.c_str() + params.find('#') + 1;
+		this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
+	}
+	this->_channels[params].addUser(user);
+
+	// Channel &tm = this->_channels[params];
+
+	// Server::logMsg(INTERNAL, "Utilisateur log in " + params);
+	// for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
+	// {
+	// 	Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
+	// }
 	return true;
 }
 
@@ -157,7 +172,27 @@ bool	Server::cmdOper(User &user, std::string &params)
  */
 bool	Server::cmdPart(User &user, std::string &params)
 {
+	std::vector<std::string>	channel_left;
+	Channel						tmp;
+
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
+	params = params.c_str() + params.find(':') + 1;
+	while (params.find(',') != std::string::npos)
+	{
+		channel_left.push_back(params.substr(0, params.find(',')));
+		params = params.c_str() + params.find(',') + 1;
+	}
+	channel_left.push_back(params.substr(0, params.find(',')));
+	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
+	{
+		// config for send a custom message or no of all user of any channel
+		tmp = this->_channels[*ite];
+		// if (tmp.getUsers().size() == 1)
+		// 	// need to delete the channel
+		// else{
+		// 	// send value to all User inside the channel
+		// }
+	}
 	return true;
 }
 
@@ -344,6 +379,21 @@ void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
 }
 
 /**
+ * @brief	Write all information of the user in the log.
+ * 
+ * @param	user The user to write.
+ */
+void	Server::printUser(User const &user)
+{
+	Server::logMsg(INTERNAL, "User : ");
+	Server::logMsg(INTERNAL, "\tSocket : " + user.getSocket());
+	Server::logMsg(INTERNAL, "\tNickname : " + user.getNickname());
+	Server::logMsg(INTERNAL, "\tHostname : " + user.getHostname());
+	Server::logMsg(INTERNAL, "\tRealname : " + user.getRealname());
+	Server::logMsg(INTERNAL, "\tPassword : " + user.getPassword());
+}
+
+/**
  * @brief	Check every user socket connection, receive messages from
  * 			each of them, and process the received messages.
  * 
@@ -365,6 +415,7 @@ bool	Server::recvAll(void)
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
 		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
+		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
 		while (retRecv > 0)
 		{
 			buff[retRecv] = 0;
@@ -453,7 +504,9 @@ bool	Server::welcomeDwarves(void)
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
 		this->_users[newUser].setSocket(newUser);
 		this->_users[newUser].setAddr(addr);
+		Server::printUser(this->_users[newUser]);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
+		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine");
 	}
 	return true;
 }

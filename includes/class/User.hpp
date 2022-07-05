@@ -24,7 +24,7 @@ private:
 	std::string							_realname;
 	std::string							_password;
 
-	std::map<std::string, Channel *>	_channels;
+	std::map<std::string, Channel *>	_channels;// ??
 
 	bool								_isOperator;
 	bool								_isRegistered;
@@ -68,6 +68,7 @@ public:
 	// Member functions
 	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	void	disconnect(void);
+	// void	print(void) const;
 
 	bool	sendTo( User const & user ); // send private message
 	bool	sendToAll( Channel const & chan ); // send message to every user in the channel (except myself)

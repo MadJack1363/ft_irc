@@ -10,13 +10,18 @@ class User;
 class Channel {
 private:
 
+	std::string			_name;
 	std::vector<User *>	_users;
 
 public:
 
-	Channel( void );
-	virtual ~Channel( void ) {};
+	Channel(std::string name = "Empty");
+	virtual ~Channel( void );
 
+	void addUser(User &user);
+
+	std::vector<User *> const	&getUsers(void) const;
+	std::string	const			&getName(void) const;
 };
 
 #endif

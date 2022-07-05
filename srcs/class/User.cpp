@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include "class/User.hpp"
+#include "class/Server.hpp"
 
 // ************************************************************************** //
 //                                Constructors                                //
@@ -136,3 +137,4 @@ void	User::setIsRegistered(bool const isRegistered)
 {
 	this->_isRegistered = isRegistered;
 }
+

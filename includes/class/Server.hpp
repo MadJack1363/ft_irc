@@ -77,7 +77,8 @@ private:
 
 	// Member functions
 	static void	logMsg(enum e_logMsg const type, std::string const &msg);
-	
+	static void	printUser(User const &user);
+
 	static std::string	toString(int const nb);
 
 	bool	cmdDie(User &user, std::string &params);

@@ -22,10 +22,11 @@ vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 ######################################
 #            SOURCE FILES            #
 ######################################
-SRC			=	\
-				main.cpp	\
-				Server.cpp	\
-				User.cpp
+SRC				=	\
+					main.cpp	\
+					Server.cpp	\
+					User.cpp	\
+					Channel.cpp
 
 ######################################
 #            OBJECT FILES            #
@@ -50,7 +51,8 @@ LDFLAGS		=
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
-	CXXFLAGS	+=	-DDBG
+	# CXXFLAGS	+=	-fstandalone-debug
+	CXXFLAGS	+=	-DDEBUG
 else \
 ifeq (${DEBUG}, 2)
 	CXXFLAGS	+=	-g
