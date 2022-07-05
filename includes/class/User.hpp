@@ -28,7 +28,6 @@ private:
 
 	bool								_isOperator;
 	bool								_isRegistered;
-	bool								_isRegisterable;
 
 public:
 	// Constructors

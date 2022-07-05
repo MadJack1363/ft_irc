@@ -15,8 +15,7 @@ User::User(void) :
 	_password(),
 	_channels(),
 	_isOperator(false),
-	_isRegistered(false),
-	_isRegisterable(false) {}
+	_isRegistered(false) {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -131,11 +130,6 @@ void	User::setChannels(std::map<std::string, Channel *> const &channels)
 void	User::setIsOperator(bool const isOperator)
 {
 	this->_isOperator = isOperator;
-}
-
-void	User::setIsRegisterable(bool const isRegisterable)
-{
-	this->_isRegisterable = isRegisterable;
 }
 
 void	User::setIsRegistered(bool const isRegistered)
