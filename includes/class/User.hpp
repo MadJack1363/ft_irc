@@ -38,33 +38,33 @@ public:
 	virtual ~User( void );
 
 	// Accessors
-	sockaddr_in							getAddr(void) const;
+	sockaddr_in const						&getAddr(void) const;
 
-	int									getSocket(void) const;
+	int const								&getSocket(void) const;
 
-	std::string							getNickname(void) const;
-	std::string							getUsername(void) const;
-	std::string							getHostname(void) const;
-	std::string							getRealname(void) const;
-	std::string							getPassword(void) const;
+	std::string const						&getNickname(void) const;
+	std::string const						&getUsername(void) const;
+	std::string const						&getHostname(void) const;
+	std::string const						&getRealname(void) const;
+	std::string const						&getPassword(void) const;
 
-	std::map<std::string, Channel *>	getChannels(void) const;
+	std::map<std::string, Channel *> const	&getChannels(void) const;
 
-	bool								getIsOperator(void) const;
-	bool								getIsRegisterable(void) const;
-	bool								getIsRegistered(void) const;
+	bool const								&getIsOperator(void) const;
+	bool const								&getIsRegisterable(void) const;
+	bool const								&getIsRegistered(void) const;
 
-	void								setSocket(int const sockfd);
-	void								setAddr(sockaddr_in const &addr);
-	void								setNickname(std::string const &nickname);
-	void								setUsername(std::string const &username);
-	void								setHostname(std::string const &hostname);
-	void								setRealname(std::string const &realname);
-	void								setPassword(std::string const &password);
-	void								setChannels(std::map<std::string, Channel *> const &channels);
-	void								setIsOperator(bool const isOperator);
-	void								setIsRegisterable(bool const isRegisterable);
-	void								setIsRegistered(bool const isRegistered);
+	void									setSocket(int const sockfd);
+	void									setAddr(sockaddr_in const &addr);
+	void									setNickname(std::string const &nickname);
+	void									setUsername(std::string const &username);
+	void									setHostname(std::string const &hostname);
+	void									setRealname(std::string const &realname);
+	void									setPassword(std::string const &password);
+	void									setChannels(std::map<std::string, Channel *> const &channels);
+	void									setIsOperator(bool const isOperator);
+	void									setIsRegisterable(bool const isRegisterable);
+	void									setIsRegistered(bool const isRegistered);
 
 	// Member functions
 	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd

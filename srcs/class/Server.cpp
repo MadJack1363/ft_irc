@@ -14,8 +14,13 @@
 Server::Server(void) :
 	_state(STOPPED),
 	_socket(-1),
-	_name(),
+	_ip("127.0.0.1"),
+	_name("Khazad-Dum"),
+	_version("1.0"),
 	_password(),
+	_creationTime("a long time ago, in a galaxy far, far away..."),
+	_availableUserModes("o"),
+	_availableChannelModes("iop"),
 	_pollfds(),
 	_users(),
 	_channels(),
@@ -43,17 +48,6 @@ Server::~Server(void) {}
 bool	Server::cmdDie(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") DIE " + params);
-	if (user.getIsOperator())
-	{
-		Server::logMsg(SENT, "DIE " + params + ", To " + user.getNickname());
-		this->_state = STOPPED;
-		return true;
-	}
-	else
-	{
-		Server::logMsg(SENT, "DIE " + params + ", To " + user.getNickname() + "; ERROR: Not an operator");
-		return false;
-	}
 	return true;
 }
 
@@ -107,9 +101,9 @@ bool	Server::cmdKill(User &user, std::string &params)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdMsg(User &user, std::string &params)
+bool	Server::cmdPrivMsg(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MSG " + params);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
 	return true;
 }
 
@@ -134,6 +128,8 @@ bool	Server::cmdNick(User &user, std::string &params)
 	if (it != this->_users.end())
 		return this->reply(user, "433 " + user.getNickname() + " :Nickname already in use");
 	user.setNickname(params);
+	if (!user.getIsRegistered())
+		return true;
 	return this->reply(user, "NICK " + user.getNickname());
 }
 
@@ -192,8 +188,6 @@ bool	Server::cmdPass(User &user, std::string &params)
  */
 bool	Server::cmdPing(User &user, std::string &params)
 {
-	std::string	reply;
-
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PING " + params);
 	return this->reply(user, "PING " + user.getNickname());
 }
@@ -209,6 +203,7 @@ bool	Server::cmdPing(User &user, std::string &params)
 bool	Server::cmdQuit(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") QUIT " + params);
+	this->_users.erase(user.getSocket());
 	this->_state = STOPPED; // XXX To be removed, temporary solution to end properly the server.
 	return true;
 }
@@ -258,7 +253,11 @@ bool	Server::cmdUser(User &user, std::string &params)
 	if (!this->_password.empty() && !user.getIsRegisterable())
 		return this->reply(user, "464 :Password incorrect");
 	user.setIsRegistered(true);
-	return this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());
+
+	return this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + '!' + user.getUsername() + '@' + this->_name + '.')
+		&& this->reply(user, "002 " + user.getNickname() + " :Your host is " + this->_name + ", running version " + this->_version + '.')
+		&& this->reply(user, "003 " + user.getNickname() + " :This server was created " + this->_creationTime + '.')
+		&& this->reply(user, "004 " + user.getNickname() + " :" + this->_name + ' ' + this->_version + ' ' + this->_availableUserModes + ' ' + this->_availableChannelModes + '.');
 }
 
 /**
@@ -335,10 +334,11 @@ void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
  */
 bool	Server::recvAll(void)
 {
-	std::map<int, User>::iterator	it;
-	std::string						message;
-	char							buff[BUFFER_SIZE];
+	size_t const					originalSize = this->_users.size();
+	char							buff[BUFFER_SIZE + 1];
 	ssize_t							retRecv;
+	std::string						msg;
+	std::map<int, User>::iterator	it;
 
 	if (poll(&_pollfds[0], _pollfds.size(), (PING * 1000) / 10) == -1)
 	{
@@ -350,8 +350,9 @@ bool	Server::recvAll(void)
 		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
 		while (retRecv > 0)
 		{
-			message.append(buff);
-			if (message.find("\r\n") != std::string::npos)
+			buff[retRecv] = 0;
+			msg.append(buff);
+			if (msg.find("\r\n") != std::string::npos)
 				break ;
 			retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
 		}
@@ -363,12 +364,13 @@ bool	Server::recvAll(void)
 		if (!retRecv)
 		{
 			Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
-			this->_users.erase(it);
-			return true;
+			this->_users.erase(std::map<int, User>::iterator(it));
 		}
-		if (!this->judge(it->second, message))
+		else if (!this->judge(it->second, msg))
 			return false;
-		message.clear();
+		if (originalSize != this->_users.size())
+			break ;
+		msg.clear();
 	}
 	return true;
 }
@@ -383,7 +385,7 @@ bool	Server::recvAll(void)
  */
 bool	Server::reply(User const &user, std::string const &msg) const
 {
-	std::string	toSend(":" + this->_name + " " + msg + "\r\n");
+	std::string	toSend(':' + this->_name + ' ' + msg + "\r\n");
 
 	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
 	{
@@ -451,7 +453,6 @@ bool	Server::init(std::string const password)
 	int													idx;
 	std::map<std::string const, t_fct const>::iterator	it;
 
-	this->_name = "ircserv";
 	this->_password = password;
 	for (idx = 0 ; Server::_lookupCmds[idx].second ; ++idx)
 		this->_cmds.insert(Server::_lookupCmds[idx]);
@@ -521,7 +522,7 @@ bool	Server::start(uint16_t const port)
 	}
 	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket options set");
 
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // ip hard code for now
+	addr.sin_addr.s_addr = inet_addr(this->_ip.c_str());
 	addr.sin_port = htons(port);
 	addr.sin_family = AF_INET;
 	if (bind(this->_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)))
@@ -568,12 +569,12 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 	std::make_pair<std::string const, t_fct const>(std::string("JOIN"), &Server::cmdJoin),
 	std::make_pair<std::string const, t_fct const>(std::string("KICK"), &Server::cmdKick),
 	std::make_pair<std::string const, t_fct const>(std::string("KILL"), &Server::cmdKill),
-	std::make_pair<std::string const, t_fct const>(std::string("MSG"), &Server::cmdMsg),
 	std::make_pair<std::string const, t_fct const>(std::string("NICK"), &Server::cmdNick),
 	std::make_pair<std::string const, t_fct const>(std::string("OPER"), &Server::cmdOper),
 	std::make_pair<std::string const, t_fct const>(std::string("PART"), &Server::cmdPart),
 	std::make_pair<std::string const, t_fct const>(std::string("PASS"), &Server::cmdPass),
 	std::make_pair<std::string const, t_fct const>(std::string("PING"), &Server::cmdPing),
+	std::make_pair<std::string const, t_fct const>(std::string("PRIVMSG"), &Server::cmdPrivMsg),
 	std::make_pair<std::string const, t_fct const>(std::string("QUIT"), &Server::cmdQuit),
 	std::make_pair<std::string const, t_fct const>(std::string("SET"), &Server::cmdSet),
 	std::make_pair<std::string const, t_fct const>(std::string("USER"), &Server::cmdUser),

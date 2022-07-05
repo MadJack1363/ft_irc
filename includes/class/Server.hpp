@@ -53,10 +53,16 @@ private:
 	int												_state;
 	int												_socket;
 
+	std::string										_ip;
 	std::string										_name;
+	std::string										_version;
 	std::string										_password;
+	std::string										_creationTime;
+	std::string										_availableUserModes;
+	std::string										_availableChannelModes;
 
 	std::vector<pollfd>								_pollfds;
+
 	std::map<int, User>								_users; // int is for id/socket
 	std::map<std::string, Channel>					_channels; // string is for the name's channel
 	std::map<std::string const, t_fct const>		_cmds;
@@ -73,12 +79,12 @@ private:
 	bool	cmdJoin(User &user, std::string &params);
 	bool	cmdKick(User &user, std::string &params);
 	bool	cmdKill(User &user, std::string &params);
-	bool	cmdMsg(User &user, std::string &params);
 	bool	cmdNick(User &user, std::string &params);
 	bool	cmdOper(User &user, std::string &params);
 	bool	cmdPart(User &user, std::string &params);
 	bool	cmdPass(User &user, std::string &params);
 	bool	cmdPing(User &user, std::string &params);
+	bool	cmdPrivMsg(User &user, std::string &params);
 	bool	cmdQuit(User &user, std::string &params);
 	bool	cmdSet(User &user, std::string &params);
 	bool	cmdUser(User &user, std::string &params);
