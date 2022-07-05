@@ -78,11 +78,6 @@ bool const	&User::getIsOperator(void) const
 	return this->_isOperator;
 }
 
-bool const	&User::getIsRegisterable(void) const
-{
-	return this->_isRegisterable;
-}
-
 bool const	&User::getIsRegistered(void) const
 {
 	return this->_isRegistered;

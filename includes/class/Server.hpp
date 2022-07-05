@@ -32,7 +32,7 @@ enum	e_logMsg
 	INTERNAL,
 	RECEIVED,
 	SENT,
-	DEBUG,
+	DBG,
 };
 
 enum	e_rplNo

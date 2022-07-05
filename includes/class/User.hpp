@@ -50,7 +50,6 @@ public:
 	std::map<std::string, Channel *> const	&getChannels(void) const;
 
 	bool const								&getIsOperator(void) const;
-	bool const								&getIsRegisterable(void) const;
 	bool const								&getIsRegistered(void) const;
 
 	void									setSocket(int const sockfd);
@@ -62,7 +61,6 @@ public:
 	void									setPassword(std::string const &password);
 	void									setChannels(std::map<std::string, Channel *> const &channels);
 	void									setIsOperator(bool const isOperator);
-	void									setIsRegisterable(bool const isRegisterable);
 	void									setIsRegistered(bool const isRegistered);
 
 	// Member functions

@@ -109,16 +109,16 @@ bool	Server::cmdKill(User &user, std::string &params)
 }
 
 /**
- * @brief	
+ * @brief	Change the privileges of either an user or a channel.
  * 
  * @param	user The user that ran the command.
  * @param	params The parameters of the command.
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::cmdPrivMsg(User &user, std::string &params)
+bool	Server::cmdMode(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MODE " + params);
 	return true;
 }
 
@@ -455,7 +455,6 @@ bool	Server::reply(User const &user, std::string const &msg) const
 {
 	std::string	toSend(':' + this->_name + ' ' + msg + "\r\n");
 
-	Server::logMsg(DEBUG, "toSend: [" + toSend + "]");
 	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
 	{
 		perror("send");
@@ -504,9 +503,7 @@ bool	Server::welcomeDwarves(void)
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
 		this->_users[newUser].setSocket(newUser);
 		this->_users[newUser].setAddr(addr);
-		Server::printUser(this->_users[newUser]);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
-		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine");
 	}
 	return true;
 }
@@ -648,7 +645,7 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 	std::make_pair<std::string const, t_fct const>(std::string("JOIN"), &Server::cmdJoin),
 	std::make_pair<std::string const, t_fct const>(std::string("KICK"), &Server::cmdKick),
 	std::make_pair<std::string const, t_fct const>(std::string("KILL"), &Server::cmdKill),
-	std::make_pair<std::string const, t_fct const>(std::string("MODE"), &Server::cmdMode),x
+	std::make_pair<std::string const, t_fct const>(std::string("MODE"), &Server::cmdMode),
 	std::make_pair<std::string const, t_fct const>(std::string("NICK"), &Server::cmdNick),
 	std::make_pair<std::string const, t_fct const>(std::string("OPER"), &Server::cmdOper),
 	std::make_pair<std::string const, t_fct const>(std::string("PART"), &Server::cmdPart),
@@ -665,5 +662,5 @@ std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] 
 	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
-	std::make_pair<enum e_logMsg const, char const *>(DEBUG, YELLOW "  Debug " RESET),
+	std::make_pair<enum e_logMsg const, char const *>(DBG, YELLOW "  Debug " RESET),
 };
