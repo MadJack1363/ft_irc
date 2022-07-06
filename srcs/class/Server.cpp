@@ -318,11 +318,17 @@ bool	Server::cmdUser(User &user, std::string &params)
 	if (!this->_password.empty() && this->_password != user.getPassword())
 		return this->reply(user, "464 :Password incorrect");
 	user.setIsRegistered(true);
-	return
-		this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname()) &&
-		this->reply(user, "002 " + user.getNickname() + " :Your host is " + this->_name + ", running version 1.0") &&
-		this->reply(user, "003 " + user.getNickname() + " :This server was created " + this->_creationTime) &&
-		this->reply(user, "004 " + user.getNickname() + " :" + this->_name + " " + this->_version + " o");
+	this->reply(user, "001 "+ user.getNickname() +" :Welcome to the Mine" + user.getNickname() + " !" + user.getUsername() + "@" + user.getHostname());//Dosent work here but line 536 WHY (probably check poll)
+	// this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine ");// + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());
+	// this->reply(user, "002 " + user.getNickname() + " : Your host is " + this->_name + ", running version 1.0");
+	// this->reply(user, "003 " + user.getNickname() + " : This server was created " + this->_creationTime);
+	// this->reply(user, "004 " + user.getNickname() + " : " + this->_name + " " + this->_version + " o");
+	return true;
+	// return
+	// 	this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname()) &&
+	// 	this->reply(user, "002 " + user.getNickname() + " :Your host is " + this->_name + ", running version 1.0") &&
+	// 	this->reply(user, "003 " + user.getNickname() + " :This server was created " + this->_creationTime) &&
+	// 	this->reply(user, "004 " + user.getNickname() + " :" + this->_name + " " + this->_version + " o");
 
 }
 
@@ -466,7 +472,7 @@ bool	Server::reply(User const &user, std::string const &msg) const
 {
 	std::string	toSend(": " + msg + "\r\n");
 
-	Server::logMsg(DEBUG, "toSend: [" + toSend + "]");
+	// Server::logMsg(DEBUG, "toSend: [" + toSend + "]");
 	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
 	{
 		perror("send");
@@ -527,7 +533,10 @@ bool	Server::welcomeDwarves(void)
 		Server::printUser(this->_users[newUser]);
 		this->_users[newUser].setAddr(addr);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
-		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine");
+		// this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine" + this->_users[newUser].getNickname() + " !" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());
+		// this->reply(this->_users[newUser], "002 "+ this->_users[newUser].getNickname() + " :Your host is " + this->_name + ", running version 1.0");
+		// this->reply(this->_users[newUser], "003 " + this->_users[newUser].getNickname() + " : This server was created " + this->_creationTime);
+		// this->reply(this->_users[newUser], "004 " + this->_users[newUser].getNickname() + " : " + this->_name + " " + this->_version + " o");
 	}
 	return true;
 }
@@ -639,7 +648,7 @@ bool	Server::start(uint16_t const port)
 	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket listening");
 	_pollfds.push_back(pollfd());
 	_pollfds.back().fd = this->_socket;
-	_pollfds.back().events = POLLIN;
+	_pollfds.back().events = POLLIN | POLLOUT;
 	this->_state = RUNNING;
 	return true;
 }
