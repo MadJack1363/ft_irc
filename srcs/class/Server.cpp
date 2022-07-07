@@ -318,7 +318,10 @@ bool	Server::cmdUser(User &user, std::string &params)
 	if (!this->_password.empty() && this->_password != user.getPassword())
 		return this->reply(user, "464 :Password incorrect");
 	user.setIsRegistered(true);
-	this->reply(user, "001 "+ user.getNickname() +" :Welcome to the Mine" + user.getNickname() + " !" + user.getUsername() + "@" + user.getHostname());//Dosent work here but line 536 WHY (probably check poll)
+	Server::printUser(user);
+	// (":Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host + "\r\n")
+	// this->reply(user, "001 "+ user.getNickname() +" :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());//Dosent work here but line 536 WHY (probably check poll)
+	// this->reply(user, "001 "+ user.getNickname() + " :Welcome to the Internet Relay Network " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());//Dosent work here but line 536 WHY (probably check poll)
 	// this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine ");// + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());
 	// this->reply(user, "002 " + user.getNickname() + " : Your host is " + this->_name + ", running version 1.0");
 	// this->reply(user, "003 " + user.getNickname() + " : This server was created " + this->_creationTime);
@@ -405,12 +408,12 @@ void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
  */
 void	Server::printUser(User const &user)
 {
-	Server::logMsg(INTERNAL, "User : ");
-	Server::logMsg(INTERNAL, "\tSocket : " + user.getSocket());
-	Server::logMsg(INTERNAL, "\tNickname : " + user.getNickname());
-	Server::logMsg(INTERNAL, "\tHostname : " + user.getHostname());
-	Server::logMsg(INTERNAL, "\tRealname : " + user.getRealname());
-	Server::logMsg(INTERNAL, "\tPassword : " + user.getPassword());
+	Server::logMsg(DEBUG, "User : ");
+	Server::logMsg(DEBUG, "\tSocket : " + Server::toString(user.getSocket()));
+	Server::logMsg(DEBUG, "\tNickname : " + user.getNickname());
+	Server::logMsg(DEBUG, "\tHostname : " + user.getHostname());
+	Server::logMsg(DEBUG, "\tRealname : " + user.getRealname());
+	Server::logMsg(DEBUG, "\tPassword : " + user.getPassword());
 }
 
 /**
@@ -478,7 +481,7 @@ bool	Server::reply(User const &user, std::string const &msg) const
 		perror("send");
 		return false;
 	}
-	Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + msg);
+	Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + msg + "\\r\\n");
 	return true;
 }
 
@@ -530,10 +533,11 @@ bool	Server::welcomeDwarves(void)
 		hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
 		this->_users[newUser].setHostname(host->h_name);
 		this->_users[newUser].setSocket(newUser);
-		Server::printUser(this->_users[newUser]);
+		// Server::printUser(this->_users[newUser]);
 		this->_users[newUser].setAddr(addr);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
-		// this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine" + this->_users[newUser].getNickname() + " !" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());
+		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() + " :Welcome to the Internet Relay Network " + this->_users[newUser].getNickname() + "!" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());//Dosent work here but line 536 WHY (probably check poll)
+		// this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine" );//+ this->_users[newUser].getNickname() + " !" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());
 		// this->reply(this->_users[newUser], "002 "+ this->_users[newUser].getNickname() + " :Your host is " + this->_name + ", running version 1.0");
 		// this->reply(this->_users[newUser], "003 " + this->_users[newUser].getNickname() + " : This server was created " + this->_creationTime);
 		// this->reply(this->_users[newUser], "004 " + this->_users[newUser].getNickname() + " : " + this->_name + " " + this->_version + " o");
