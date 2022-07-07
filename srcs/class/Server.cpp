@@ -536,11 +536,11 @@ bool	Server::welcomeDwarves(void)
 		// Server::printUser(this->_users[newUser]);
 		this->_users[newUser].setAddr(addr);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
-		this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() + " :Welcome to the Internet Relay Network " + this->_users[newUser].getNickname() + "!" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());//Dosent work here but line 536 WHY (probably check poll)
-		// this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() +" :Welcome to the Mine" );//+ this->_users[newUser].getNickname() + " !" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());
+		// Test 001 and 002 003 004 BUT only 1 of us work the client can receive ONLY 1 OF THEIR check if fcntl or recv can change that
+		// this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() + " :Welcome to the Mine " + this->_users[newUser].getNickname() + "!" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());//Dosent work here but line 536 WHY (probably check poll)
 		// this->reply(this->_users[newUser], "002 "+ this->_users[newUser].getNickname() + " :Your host is " + this->_name + ", running version 1.0");
 		// this->reply(this->_users[newUser], "003 " + this->_users[newUser].getNickname() + " : This server was created " + this->_creationTime);
-		// this->reply(this->_users[newUser], "004 " + this->_users[newUser].getNickname() + " : " + this->_name + " " + this->_version + " o");
+		this->reply(this->_users[newUser], "004 " + this->_users[newUser].getNickname() + " : " + this->_name + " " + this->_version + " o");
 	}
 	return true;
 }
