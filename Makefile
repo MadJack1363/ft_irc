@@ -13,20 +13,36 @@ NAME		= ircserv
 #######################################
 #             DIRECTORIES             #
 #######################################
+SRC_DIR		= srcs/
 OBJ_DIR		= objs/
 INC_DIR		= includes/
-SRC_DIR		= $(shell find srcs -type d)
-
-vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
 
 ######################################
 #            SOURCE FILES            #
 ######################################
 SRC				=	\
-					main.cpp	\
-					Server.cpp	\
-					User.cpp	\
-					Channel.cpp
+					${addprefix class/, 	\
+						${addprefix cmd/,	\
+							DIE.cpp			\
+							JOIN.cpp		\
+							KICK.cpp		\
+							KILL.cpp		\
+							MODE.cpp		\
+							NICK.cpp		\
+							OPER.cpp		\
+							PART.cpp		\
+							PASS.cpp		\
+							PING.cpp		\
+							PRIVMSG.cpp		\
+							QUIT.cpp		\
+							SET.cpp			\
+							USER.cpp		\
+						}					\
+						Channel.cpp			\
+						Server.cpp			\
+						User.cpp			\
+					}						\
+					main.cpp
 
 ######################################
 #            OBJECT FILES            #
@@ -73,11 +89,9 @@ all: ${NAME}
 
 -include ${DEP}
 
-${OBJ_DIR}%.o: %.cpp | ${OBJ_DIR}
+${OBJ_DIR}%.o: ${SRC_DIR}%.cpp
+	@${MKDIR} ${@D}
 	${CXX} -c ${OUTPUT_OPTION} ${CXXFLAGS} $<
-
-${OBJ_DIR}:
-	${MKDIR} ${@D}
 
 clean:
 	${RM} ${OBJ_DIR} ${NAME}

@@ -47,6 +47,7 @@ enum	e_rplNo
 	ERR_NEEDMOREPARAMS = 461,
 	ERR_ALREADYREGISTRED = 462,
 	ERR_PASSWDMISMATCH = 464,
+	ERR_UNKNOWNMODE = 472,
 };
 
 typedef bool	(Server::*t_fct)(User &user, std::string &params);
@@ -81,20 +82,20 @@ private:
 
 	static std::string	toString(int const nb);
 
-	bool	cmdDie(User &user, std::string &params);
-	bool	cmdJoin(User &user, std::string &params);
-	bool	cmdKick(User &user, std::string &params);
-	bool	cmdKill(User &user, std::string &params);
-	bool	cmdMode(User &user, std::string &params);
-	bool	cmdNick(User &user, std::string &params);
-	bool	cmdOper(User &user, std::string &params);
-	bool	cmdPart(User &user, std::string &params);
-	bool	cmdPass(User &user, std::string &params);
-	bool	cmdPing(User &user, std::string &params);
-	bool	cmdPrivMsg(User &user, std::string &params);
-	bool	cmdQuit(User &user, std::string &params);
-	bool	cmdSet(User &user, std::string &params);
-	bool	cmdUser(User &user, std::string &params);
+	bool	DIE(User &user, std::string &params);
+	bool	JOIN(User &user, std::string &params);
+	bool	KICK(User &user, std::string &params);
+	bool	KILL(User &user, std::string &params);
+	bool	MODE(User &user, std::string &params);
+	bool	NICK(User &user, std::string &params);
+	bool	OPER(User &user, std::string &params);
+	bool	PART(User &user, std::string &params);
+	bool	PASS(User &user, std::string &params);
+	bool	PING(User &user, std::string &params);
+	bool	PRIVMSG(User &user, std::string &params);
+	bool	QUIT(User &user, std::string &params);
+	bool	SET(User &user, std::string &params);
+	bool	USER(User &user, std::string &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
 	bool	reply(User const &user, std::string const &msg) const;

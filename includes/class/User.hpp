@@ -24,10 +24,12 @@ private:
 	std::string							_realname;
 	std::string							_password;
 
-	std::map<std::string, Channel *>	_channels;// ??
+	std::map<std::string, Channel *>	_channels; // ??
 
 	bool								_isOperator;
 	bool								_isRegistered;
+	bool								_isInvisible;
+	bool								_isAway;
 
 public:
 	// Constructors
