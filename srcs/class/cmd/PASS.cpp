@@ -12,9 +12,9 @@ bool	Server::PASS(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PASS " + params);
 	if (user.getIsRegistered())
-		return this->reply(user, "462 :You may not register");
+		return this->replyPush("462 :You may not reregister");
 	if (params.empty())
-		return this->reply(user, "461 PASS :not enough parameters");
+		return this->replyPush("461 PASS :not enough parameters");
 	user.setPassword(params);
 	return true;
 }

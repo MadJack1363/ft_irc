@@ -16,12 +16,13 @@ Server::Server(void) :
 	_state(STOPPED),
 	_socket(-1),
 	_ip("127.0.0.1"),
+	_msg(),
 	_name("Khazad-Dum"),
 	_version("1.0"),
 	_password(),
 	_creationTime("a long time ago, in a galaxy far, far away..."),
 	_availableUserModes("o"),
-	_availableChannelModes("iop"),
+	_availableChannelModes(),
 	_pollfds(),
 	_users(),
 	_channels(),
@@ -159,7 +160,8 @@ bool	Server::recvAll(void)
 			Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
 			this->_users.erase(std::map<int, User>::iterator(it));
 		}
-		else if (!this->judge(it->second, msg))
+		else if (!this->judge(it->second, msg)
+			|| (!this->_msg.empty() && !this->replySend(it->second)))
 			return false;
 		if (originalSize != this->_users.size())
 			break ;
@@ -169,23 +171,45 @@ bool	Server::recvAll(void)
 }
 
 /**
- * @brief	Send a reply message to an user client.
+ * @brief	Append a line to the message to send to an user client.
  * 
- * @param	user The user to send the reply message to.
- * @param	msg The message to send.
+ * @param	line The line to append.
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::reply(User const &user, std::string const &msg) const
+bool	Server::replyPush(std::string const &line)
 {
-	std::string	toSend(':' + this->_name + ' ' + msg + "\r\n");
+	if (!this->_msg.empty())
+		this->_msg.append("\n");
+	this->_msg.append(":" + this->_name + " " + line);
+	return true;
+}
 
-	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
+/**
+ * @brief	Send a reply message to an user client.
+ * 
+ * @param	user The user to send the reply message to.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::replySend(User const &user)
+{
+	std::string	line;
+
+	this->_msg.append("\r\n");
+	if (send(user.getSocket(), this->_msg.c_str(), this->_msg.size() + 1, 0) == -1)
 	{
 		perror("send");
 		return false;
 	}
-	Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + msg);
+	while (!this->_msg.empty())
+	{
+		line = this->_msg.substr(0, this->_msg.find('\n'));
+		this->_msg.erase(0, this->_msg.find('\n') + 1);
+		if (_msg.empty())
+			line.erase(line.end() - 1);
+		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
+	}
 	return true;
 }
 

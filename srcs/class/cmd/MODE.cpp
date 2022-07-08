@@ -24,7 +24,7 @@ bool	Server::MODE(User &user, std::string &params)
 
 	params.erase(0, params.find(' ') + 1);
 	if (params.empty())
-		return this->reply(user, "461 MODE :Not enough parameters");
+		return this->replyPush("461 MODE :Not enough parameters");
 	if (params[0] == '#')
 		return __channelMode(user, params);
 	return __userMode(user, params);

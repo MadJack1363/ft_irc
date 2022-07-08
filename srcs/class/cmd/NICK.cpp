@@ -14,14 +14,12 @@ bool	Server::NICK(User &user, std::string &params)
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") NICK " + params);
 	if (params.empty())
-		return this->reply(user, "431 " + user.getNickname() + " :No nickname given");
+		return this->replyPush("431 " + user.getNickname() + " :No nickname given");
 	for (it = this->_users.begin() ;
 		it != this->_users.end() && it->second.getNickname() != params ;
 		++it);
 	if (it != this->_users.end())
-		return this->reply(user, "433 " + user.getNickname() + " :Nickname already in use");
+		return this->replyPush("433 " + user.getNickname() + " :Nickname already in use");
 	user.setNickname(params);
-	if (!user.getIsRegistered())
-		return true;
-	return this->reply(user, "NICK " + user.getNickname());
+	return this->replyPush("NICK " + user.getNickname());
 }

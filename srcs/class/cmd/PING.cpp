@@ -11,5 +11,5 @@
 bool	Server::PING(User &user, std::string &params)
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PING " + params);
-	return this->reply(user, "PONG " + this->_name);
+	return this->replyPush("PONG " + this->_name);
 }

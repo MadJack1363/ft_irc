@@ -60,6 +60,7 @@ private:
 	int												_socket;
 
 	std::string										_ip;
+	std::string										_msg;
 	std::string										_name;
 	std::string										_version;
 	std::string										_password;
@@ -82,6 +83,7 @@ private:
 
 	static std::string	toString(int const nb);
 
+
 	bool	DIE(User &user, std::string &params);
 	bool	JOIN(User &user, std::string &params);
 	bool	KICK(User &user, std::string &params);
@@ -98,7 +100,8 @@ private:
 	bool	USER(User &user, std::string &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
-	bool	reply(User const &user, std::string const &msg) const;
+	bool	replyPush(std::string const &line);
+	bool	replySend(User const &user);
 	bool	welcomeDwarves(void);
 
 public:
