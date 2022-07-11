@@ -40,6 +40,8 @@ public:
 	std::string	const			&getName(void) const;
 
 	// Member functions
+	static std::string	availableModes(void);
+
 	void addUser(User &user);
 };
 

@@ -133,6 +133,25 @@ void	User::setChannels(std::map<std::string, Channel *> const &channels)
 	this->_channels = channels;
 }
 
+// ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+/**
+ * @brief	Get the different available modes for an user.
+ * 
+ * @return	The available user mode identifiers as a string.
+ */
+std::string	User::availableModes(void)
+{
+	std::string	output;
+	uint		idx;
+
+	for (idx = 0U ; User::_lookupModes[idx].first ; ++idx)
+		output.push_back(User::_lookupModes[idx].first);
+	return output;
+}
+
 // ************************************************************************** //
 //                             Private Attributes                             //
 // ************************************************************************** //

@@ -6,7 +6,7 @@
 #include <netinet/in.h>// sockaddr_in
 #include <string>
 #include <sys/types.h> // socket, bind, listen, recv, send
-#include <sys/socket.h>//   "      "      "      "     "
+#include <sys/socket.h> //   "      "      "      "     "
 #include "class/Channel.hpp"
 
 class Channel;
@@ -76,12 +76,11 @@ public:
 	void									setChannels(std::map<std::string, Channel *> const &channels);
 
 	// Member functions
-	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
-	void	disconnect(void);
-	// void	print(void) const;
+	static std::string	availableModes(void);
 
-	bool	sendTo(User const & user); // send private message
-	bool	sendToAll(Channel const & chan); // send message to every user in the channel (except myself)
+	bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
+	bool		sendTo(User const & user); // send private message
+	bool		sendToAll(Channel const & chan); // send message to every user in the channel (except myself)
 };
 
 #endif

@@ -21,8 +21,6 @@ Server::Server(void) :
 	_version("1.0"),
 	_password(),
 	_creationTime("a long time ago, in a galaxy far, far away..."),
-	_availableUserModes(),
-	_availableChannelModes(),
 	_pollfds(),
 	_users(),
 	_channels() {}

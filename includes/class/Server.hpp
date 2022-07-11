@@ -64,8 +64,6 @@ private:
 	std::string							_version;
 	std::string							_password;
 	std::string							_creationTime;
-	std::string							_availableUserModes;
-	std::string							_availableChannelModes;
 
 	std::vector<pollfd>					_pollfds;
 
@@ -76,8 +74,8 @@ private:
 	static std::pair<uint const, char const *> const		_lookupLogMsgTypes[];
 
 	// Member functions
-	static void	logMsg(uint const type, std::string const &msg);
-	static void	printUser(User const &user);
+	static void			logMsg(uint const type, std::string const &msg);
+	static void			printUser(User const &user);
 
 	static std::string	toString(int const nb);
 

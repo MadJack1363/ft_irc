@@ -34,5 +34,5 @@ bool	Server::USER(User &user, std::string &params)
 	return this->replyPush("001 " + user.getNickname() + " :Welcome to the Mine.")
 		&& this->replyPush("002 " + user.getNickname() + " :Your host is " + this->_name + ", running version " + this->_version + '.')
 		&& this->replyPush("003 " + user.getNickname() + " :This server was created " + this->_creationTime + '.')
-		&& this->replyPush("004 " + user.getNickname() + " :" + this->_name + " " + this->_version + ' ' + this->_availableChannelModes + ' ' + this->_availableUserModes + '.');
+		&& this->replyPush("004 " + user.getNickname() + " :" + this->_name + " " + this->_version + ' ' + Channel::availableModes() + ' ' + User::availableModes() + '.');
 }
