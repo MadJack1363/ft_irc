@@ -36,11 +36,9 @@ int	main(int const argc, char const *const *const argv)
 	if (argc != 3)
 	{
 		std::cerr
-		<< RED
-		<< "Error: Wrong usage"
-		<< '\n'
-		<< YELLOW
-		<< "" GREEN "./ircserv <port> <password>" RESET << std::endl;
+		<< RED "Error: Wrong usage\n"
+		<< YELLOW "./ircserv <port> <password>\n"
+		<< RESET;
 		return EXIT_FAILURE;
 	}
 	if (!__getPort(argv[1], port) ||
@@ -48,6 +46,7 @@ int	main(int const argc, char const *const *const argv)
 		!server.start(port) ||
 		!server.run())
 		return EXIT_FAILURE;
+	server.stop();
 	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << std::endl;
 	return EXIT_SUCCESS;
 }

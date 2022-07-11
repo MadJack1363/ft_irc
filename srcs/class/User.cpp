@@ -33,52 +33,52 @@ User::~User(void)
 //                                 Accessors                                 //
 // ************************************************************************* //
 
-int	User::getSocket(void) const
-{
-	return this->_socket;
-}
-
-sockaddr_in	User::getAddr(void) const
+sockaddr_in const	&User::getAddr(void) const
 {
 	return this->_addr;
 }
 
-std::string	User::getNickname(void) const
+int const	&User::getSocket(void) const
+{
+	return this->_socket;
+}
+
+std::string const	&User::getNickname(void) const
 {
 	return this->_nickname;
 }
 
-std::string	User::getUsername(void) const
+std::string const	&User::getUsername(void) const
 {
 	return this->_username;
 }
 
-std::string	User::getHostname(void) const
+std::string const	&User::getHostname(void) const
 {
 	return this->_hostname;
 }
 
-std::string	User::getRealname(void) const
+std::string const	&User::getRealname(void) const
 {
 	return this->_realname;
 }
 
-std::string	User::getPassword(void) const
+std::string const	&User::getPassword(void) const
 {
 	return this->_password;
 }
 
-std::map<std::string, Channel *>	User::getChannels(void) const
+std::map<std::string, Channel *> const	&User::getChannels(void) const
 {
 	return this->_channels;
 }
 
-bool	User::getIsOperator(void) const
+bool const	&User::getIsOperator(void) const
 {
 	return this->_isOperator;
 }
 
-bool	User::getIsRegistered(void) const
+bool const	&User::getIsRegistered(void) const
 {
 	return this->_isRegistered;
 }

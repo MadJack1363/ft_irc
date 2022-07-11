@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#define PING 10
+#define TIMEOUT 10
 
 // ************************************************************************** //
 //                                Constructors                                //
@@ -18,10 +18,14 @@
 Server::Server(void) :
 	_state(STOPPED),
 	_socket(-1),
-	_name("ircserv"),
+	_ip("127.0.0.1"),
+	_msg(),
+	_name("Khazad-Dum"),
 	_version("1.0"),
 	_password(),
-	_creationTime(),
+	_creationTime("a long time ago, in a galaxy far, far away..."),
+	_availableUserModes("o"),
+	_availableChannelModes(),
 	_pollfds(),
 	_users(),
 	_channels(),
@@ -36,304 +40,6 @@ Server::~Server(void) {}
 // ************************************************************************** //
 //                          Private Member Functions                          //
 // ************************************************************************** //
-
-/**
- * @brief	Terminate the IRC server.
- * 			This command is reserved for IRC operators.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdDie(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") DIE " + params);
-	if (user.getIsOperator())
-	{
-		Server::logMsg(SENT, "DIE " + params + ", To " + user.getNickname());
-		this->_state = STOPPED;
-		return true;
-	}
-	else
-	{
-		Server::logMsg(SENT, "DIE " + params + ", To " + user.getNickname() + "; ERROR: Not an operator");
-		return false;
-	}
-	return true;
-}
-
-/**
- * @brief	Make an user joining a channel.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdJoin(User &user, std::string &params)
-{
-
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
-	if (this->_channels.count(params) == 0){
-		params = params.c_str() + params.find('#') + 1;
-		this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
-	}
-	this->_channels[params].addUser(user);
-
-	// Channel &tm = this->_channels[params];
-
-	// Server::logMsg(INTERNAL, "Utilisateur log in " + params);
-	// for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
-	// {
-	// 	Server::logMsg(INTERNAL, "\t" + (*ite)->getNickname());
-	// }
-	return true;
-}
-
-/**
- * @brief	Kick an user from a channel.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdKick(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KICK " + params);
-	return true;
-}
-
-/**
- * @brief	Remove an user from the network.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdKill(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KILL " + params);
-	return true;
-}
-
-/**
- * @brief	
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdMode(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") MODE " + params);
-	return true;
-}
-
-/**
- * @brief	Set a new nickname for an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdNick(User &user, std::string &params)
-{
-	std::map<int, User>::iterator	it;
-
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") NICK " + params);
-	if (params.empty())
-		return this->reply(user, "431 " + user.getNickname() + " :No nickname given");
-	for (it = this->_users.begin() ;
-		it != this->_users.end() && it->second.getNickname() != params ;
-		++it);
-	if (it != this->_users.end())
-		return this->reply(user, "433 " + user.getNickname() + " :Nickname already in use");
-	user.setNickname(params);
-	return this->reply(user, "NICK " + user.getNickname());
-}
-
-/**
- * @brief	Make an user being promoted to operator status.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdOper(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") OPER " + params);
-	return true;
-}
-
-/**
- * @brief	Make an user leaving a channel.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPart(User &user, std::string &params)
-{
-	std::vector<std::string>		channel_left;
-	// std::vector<User *>::iterator	tmp2;
-
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
-	params = params.c_str() + params.find(':') + 1;
-	while (params.find(',') != std::string::npos)
-	{
-		channel_left.push_back(params.substr(0, params.find(',')));
-		params = params.c_str() + params.find(',') + 1;
-	}
-	channel_left.push_back(params.substr(0, params.find(',')));
-	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
-	{
-		// config for send a custom message or no of all user of any channel
-		if (this->_channels[*ite].getUsers().size() == 1)
-		{
-			this->_channels.erase(*ite);
-		}
-		else
-		{
-			this->_channels[*ite].delUser(user);
-			// this.cmdPrivMsg()// need to send message to other user
-		}
-	}
-	return true;
-}
-
-/**
- * @brief	Check if a provided password is correct to connect to the server.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPass(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PASS " + params);
-	if (user.getIsRegistered())
-		return this->reply(user, "462 :You may not register");
-	if (params.empty())
-		return this->reply(user, "461 PASS :not enough parameters");
-	user.setPassword(params);
-	return true;
-}
-
-/**
- * @brief 
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPing(User &user, std::string &params)
-{
-	std::string	reply;
-
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PING " + params);
-	return this->reply(user, "PING " + user.getNickname());
-}
-
-/**
- * @brief	Send a message either to a channel or to an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdPrivMsg(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
-	return true;
-}
-
-/**
- * @brief	Disconnect an user from the server.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdQuit(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") QUIT " + params);
-	this->_state = STOPPED; // XXX To be removed, temporary solution to end properly the server.
-	return true;
-}
-
-/**
- * @brief	Update data of an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdSet(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") SET " + params);
-	return true;
-}
-
-/**
- * @brief	Set a new username, hostname and realname for an user.
- * 
- * @param	user The user that ran the command.
- * @param	params The parameters of the command.
- * 
- * @return	true if success, false otherwise.
- */
-bool	Server::cmdUser(User &user, std::string &params)
-{
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") USER " + params);
-	if (user.getIsRegistered())
-		return this->reply(user, "462 :You may not register");
-	if (params.empty())
-		return this->reply(user, "461 USER :Not enough parameters");
-	user.setUsername(params.substr(0, params.find(' ')));
-	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
-		return this->reply(user, "461 USER :Not enough parameters");
-	
-	user.setHostname(params.substr(0, params.find(' ')));
-	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
-		return this->reply(user, "461 USER :Not enough parameters");
-	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
-		return this->reply(user, "461 USER :Not enough parameters");
-	params.erase(params.begin());
-	user.setRealname(params);
-	if (!this->_password.empty() && this->_password != user.getPassword())
-		return this->reply(user, "464 :Password incorrect");
-	user.setIsRegistered(true);
-	Server::printUser(user);
-	// (":Welcome to the Internet Relay Network " + nick + "!" + user + "@" + host + "\r\n")
-	// this->reply(user, "001 "+ user.getNickname() +" :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());//Dosent work here but line 536 WHY (probably check poll)
-	// this->reply(user, "001 "+ user.getNickname() + " :Welcome to the Internet Relay Network " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());//Dosent work here but line 536 WHY (probably check poll)
-	// this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine ");// + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname());
-	// this->reply(user, "002 " + user.getNickname() + " : Your host is " + this->_name + ", running version 1.0");
-	// this->reply(user, "003 " + user.getNickname() + " : This server was created " + this->_creationTime);
-	// this->reply(user, "004 " + user.getNickname() + " : " + this->_name + " " + this->_version + " o");
-	return true;
-	// return
-	// 	this->reply(user, "001 " + user.getNickname() + " :Welcome to the Mine " + user.getNickname() + "!" + user.getUsername() + "@" + user.getHostname()) &&
-	// 	this->reply(user, "002 " + user.getNickname() + " :Your host is " + this->_name + ", running version 1.0") &&
-	// 	this->reply(user, "003 " + user.getNickname() + " :This server was created " + this->_creationTime) &&
-	// 	this->reply(user, "004 " + user.getNickname() + " :" + this->_name + " " + this->_version + " o");
-
-}
 
 /**
  * @brief	Determine what to do depending on the given `msg`.
@@ -424,12 +130,13 @@ void	Server::printUser(User const &user)
  */
 bool	Server::recvAll(void)
 {
-	std::map<int, User>::iterator	it;
-	std::string						message;
-	char							buff[BUFFER_SIZE];
+	size_t const					originalSize = this->_users.size();
+	char							buff[BUFFER_SIZE + 1];
 	ssize_t							retRecv;
+	std::string						msg;
+	std::map<int, User>::iterator	it;
 
-	if (poll(&_pollfds[0], _pollfds.size(), (PING * 1000) / 10) == -1)
+	if (poll(&_pollfds[0], _pollfds.size(), (TIMEOUT * 1000) / 10) == -1)
 	{
 		perror("poll");
 		return false;
@@ -440,8 +147,9 @@ bool	Server::recvAll(void)
 		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
 		while (retRecv > 0)
 		{
-			message.append(buff);
-			if (message.find("\r\n") != std::string::npos)
+			buff[retRecv] = 0;
+			msg.append(buff);
+			if (msg.find("\r\n") != std::string::npos)
 				break ;
 			retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
 		}
@@ -453,13 +161,30 @@ bool	Server::recvAll(void)
 		if (!retRecv) // Check whith the PING
 		{
 			Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
-			this->_users.erase(it);
-			return true;
+			this->_users.erase(std::map<int, User>::iterator(it));
 		}
-		if (!this->judge(it->second, message))
+		else if (!this->judge(it->second, msg)
+			|| (!this->_msg.empty() && !this->replySend(it->second)))
 			return false;
-		message.clear();
+		if (originalSize != this->_users.size())
+			break ;
+		msg.clear();
 	}
+	return true;
+}
+
+/**
+ * @brief	Append a line to the message to send to an user client.
+ * 
+ * @param	line The line to append.
+ * 
+ * @return	true if success, false otherwise.
+ */
+bool	Server::replyPush(std::string const &line)
+{
+	if (!this->_msg.empty())
+		this->_msg.append("\n");
+	this->_msg.append(":" + this->_name + " " + line);
 	return true;
 }
 
@@ -467,21 +192,27 @@ bool	Server::recvAll(void)
  * @brief	Send a reply message to an user client.
  * 
  * @param	user The user to send the reply message to.
- * @param	msg The message to send.
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::reply(User const &user, std::string const &msg) const
+bool	Server::replySend(User const &user)
 {
-	std::string	toSend(": " + msg + "\r\n");
+	std::string	line;
 
-	// Server::logMsg(DEBUG, "toSend: [" + toSend + "]");
-	if (send(user.getSocket(), toSend.c_str(), toSend.size() + 1, 0) == -1)
+	this->_msg.append("\r\n");
+	if (send(user.getSocket(), this->_msg.c_str(), this->_msg.size() + 1, 0) == -1)
 	{
 		perror("send");
 		return false;
 	}
-	Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + msg + "\\r\\n");
+	while (!this->_msg.empty())
+	{
+		line = this->_msg.substr(0, this->_msg.find('\n'));
+		this->_msg.erase(0, this->_msg.find('\n') + 1);
+		if (_msg.empty())
+			line.erase(line.end() - 1);
+		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
+	}
 	return true;
 }
 
@@ -533,14 +264,8 @@ bool	Server::welcomeDwarves(void)
 		hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
 		this->_users[newUser].setHostname(host->h_name);
 		this->_users[newUser].setSocket(newUser);
-		// Server::printUser(this->_users[newUser]);
 		this->_users[newUser].setAddr(addr);
 		Server::logMsg(INTERNAL, "(" + this->toString(newUser) + ") Connection established");
-		// Test 001 and 002 003 004 BUT only 1 of us work the client can receive ONLY 1 OF THEIR check if fcntl or recv can change that
-		// this->reply(this->_users[newUser], "001 "+ this->_users[newUser].getNickname() + " :Welcome to the Mine " + this->_users[newUser].getNickname() + "!" + this->_users[newUser].getUsername() + "@" + this->_users[newUser].getHostname());//Dosent work here but line 536 WHY (probably check poll)
-		// this->reply(this->_users[newUser], "002 "+ this->_users[newUser].getNickname() + " :Your host is " + this->_name + ", running version 1.0");
-		// this->reply(this->_users[newUser], "003 " + this->_users[newUser].getNickname() + " : This server was created " + this->_creationTime);
-		this->reply(this->_users[newUser], "004 " + this->_users[newUser].getNickname() + " : " + this->_name + " " + this->_version + " o");
 	}
 	return true;
 }
@@ -591,15 +316,6 @@ bool	Server::run(void)
 			this->stop();
 			return false;
 		}
-		for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
-		{
-			if (!it->second.getIsRegistered())
-			{
-				Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
-				this->_users.erase(it);
-				break ;
-			}
-		}
 	}
 	return true;
 }
@@ -633,7 +349,7 @@ bool	Server::start(uint16_t const port)
 	}
 	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket options set");
 
-	addr.sin_addr.s_addr = inet_addr("127.0.0.1"); // ip hard code for now
+	addr.sin_addr.s_addr = inet_addr(this->_ip.c_str());
 	addr.sin_port = htons(port);
 	addr.sin_family = AF_INET;
 	if (bind(this->_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)))
@@ -678,20 +394,20 @@ void	Server::stop(void)
 // ************************************************************************** //
 
 std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
-	std::make_pair<std::string const, t_fct const>(std::string("DIE"), &Server::cmdDie),
-	std::make_pair<std::string const, t_fct const>(std::string("JOIN"), &Server::cmdJoin),
-	std::make_pair<std::string const, t_fct const>(std::string("KICK"), &Server::cmdKick),
-	std::make_pair<std::string const, t_fct const>(std::string("KILL"), &Server::cmdKill),
-	std::make_pair<std::string const, t_fct const>(std::string("MODE"), &Server::cmdMode),
-	std::make_pair<std::string const, t_fct const>(std::string("NICK"), &Server::cmdNick),
-	std::make_pair<std::string const, t_fct const>(std::string("OPER"), &Server::cmdOper),
-	std::make_pair<std::string const, t_fct const>(std::string("PART"), &Server::cmdPart),
-	std::make_pair<std::string const, t_fct const>(std::string("PASS"), &Server::cmdPass),
-	std::make_pair<std::string const, t_fct const>(std::string("PING"), &Server::cmdPing),
-	std::make_pair<std::string const, t_fct const>(std::string("PRIVMSG"), &Server::cmdPrivMsg),
-	std::make_pair<std::string const, t_fct const>(std::string("QUIT"), &Server::cmdQuit),
-	std::make_pair<std::string const, t_fct const>(std::string("SET"), &Server::cmdSet),
-	std::make_pair<std::string const, t_fct const>(std::string("USER"), &Server::cmdUser),
+	std::make_pair<std::string const, t_fct const>(std::string("DIE"), &Server::DIE),
+	std::make_pair<std::string const, t_fct const>(std::string("JOIN"), &Server::JOIN),
+	std::make_pair<std::string const, t_fct const>(std::string("KICK"), &Server::KICK),
+	std::make_pair<std::string const, t_fct const>(std::string("KILL"), &Server::KILL),
+	std::make_pair<std::string const, t_fct const>(std::string("MODE"), &Server::MODE),
+	std::make_pair<std::string const, t_fct const>(std::string("NICK"), &Server::NICK),
+	std::make_pair<std::string const, t_fct const>(std::string("OPER"), &Server::OPER),
+	std::make_pair<std::string const, t_fct const>(std::string("PART"), &Server::PART),
+	std::make_pair<std::string const, t_fct const>(std::string("PASS"), &Server::PASS),
+	std::make_pair<std::string const, t_fct const>(std::string("PING"), &Server::PING),
+	std::make_pair<std::string const, t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
+	std::make_pair<std::string const, t_fct const>(std::string("QUIT"), &Server::QUIT),
+	std::make_pair<std::string const, t_fct const>(std::string("SET"), &Server::SET),
+	std::make_pair<std::string const, t_fct const>(std::string("USER"), &Server::USER),
 	std::make_pair<std::string const, t_fct const>(std::string(""), NULL),
 };
 
@@ -699,5 +415,5 @@ std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] 
 	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
-	std::make_pair<enum e_logMsg const, char const *>(DEBUG, YELLOW "  Debug " RESET),
+	std::make_pair<enum e_logMsg const, char const *>(DBG, YELLOW "  Debug " RESET),
 };
