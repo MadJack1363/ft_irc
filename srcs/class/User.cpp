@@ -14,9 +14,9 @@ User::User(void) :
 	_hostname(),
 	_realname(),
 	_password(),
-	_channels(),
-	_isOperator(false),
-	_isRegistered(false) {}
+	_isRegistered(),
+	_modes(),
+	_channels() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -68,19 +68,19 @@ std::string const	&User::getPassword(void) const
 	return this->_password;
 }
 
-std::map<std::string, Channel *> const	&User::getChannels(void) const
-{
-	return this->_channels;
-}
-
-bool const	&User::getIsOperator(void) const
-{
-	return this->_isOperator;
-}
-
 bool const	&User::getIsRegistered(void) const
 {
 	return this->_isRegistered;
+}
+
+uint8_t const	&User::getModes(void) const
+{
+	return this->_modes;
+}
+
+std::map<std::string, Channel *> const	&User::getChannels(void) const
+{
+	return this->_channels;
 }
 
 void	User::setSocket(int const sockfd)
@@ -118,18 +118,29 @@ void	User::setPassword(std::string const &password)
 	this->_password = password;
 }
 
-void	User::setChannels(std::map<std::string, Channel *> const &channels)
-{
-	this->_channels = channels;
-}
-
-void	User::setIsOperator(bool const isOperator)
-{
-	this->_isOperator = isOperator;
-}
-
 void	User::setIsRegistered(bool const isRegistered)
 {
 	this->_isRegistered = isRegistered;
 }
 
+void	User::setModes(uint8_t const modes)
+{
+	this->_modes = modes;
+}
+
+void	User::setChannels(std::map<std::string, Channel *> const &channels)
+{
+	this->_channels = channels;
+}
+
+// ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+std::pair<char const, uint const>	User::_lookupModes[] =
+{
+	std::make_pair('a', User::AWAY),
+	std::make_pair('o', User::OPERATOR),
+	std::make_pair('i', User::INVISIBLE),
+	std::make_pair(0, 0U)
+};

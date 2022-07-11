@@ -11,7 +11,8 @@
 
 class Channel;
 
-class User {
+class User
+{
 private:
 	// Attributes
 	int									_socket;
@@ -24,19 +25,27 @@ private:
 	std::string							_realname;
 	std::string							_password;
 
+	bool								_isRegistered;
+
+	uint8_t								_modes;
+
 	std::map<std::string, Channel *>	_channels; // ??
 
-	bool								_isOperator;
-	bool								_isRegistered;
-	bool								_isInvisible;
-	bool								_isAway;
+	static std::pair<char const, uint const>	_lookupModes[];
 
 public:
+	enum	e_mode
+	{
+		AWAY,
+		OPERATOR,
+		INVISIBLE,
+	};
+
 	// Constructors
 	User(void);
 
 	// Destructors
-	virtual ~User( void );
+	virtual ~User(void);
 
 	// Accessors
 	sockaddr_in const						&getAddr(void) const;
@@ -49,10 +58,11 @@ public:
 	std::string const						&getRealname(void) const;
 	std::string const						&getPassword(void) const;
 
-	std::map<std::string, Channel *> const	&getChannels(void) const;
-
-	bool const								&getIsOperator(void) const;
 	bool const								&getIsRegistered(void) const;
+
+	uint8_t const							&getModes(void) const;
+
+	std::map<std::string, Channel *> const	&getChannels(void) const;
 
 	void									setSocket(int const sockfd);
 	void									setAddr(sockaddr_in const &addr);
@@ -61,17 +71,17 @@ public:
 	void									setHostname(std::string const &hostname);
 	void									setRealname(std::string const &realname);
 	void									setPassword(std::string const &password);
-	void									setChannels(std::map<std::string, Channel *> const &channels);
-	void									setIsOperator(bool const isOperator);
 	void									setIsRegistered(bool const isRegistered);
+	void									setModes(uint8_t const modes);
+	void									setChannels(std::map<std::string, Channel *> const &channels);
 
 	// Member functions
 	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	void	disconnect(void);
 	// void	print(void) const;
 
-	bool	sendTo( User const & user ); // send private message
-	bool	sendToAll( Channel const & chan ); // send message to every user in the channel (except myself)
+	bool	sendTo(User const & user); // send private message
+	bool	sendToAll(Channel const & chan); // send message to every user in the channel (except myself)
 };
 
 #endif

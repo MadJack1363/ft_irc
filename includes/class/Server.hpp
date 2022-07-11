@@ -21,64 +21,62 @@
 
 class Server;
 
-enum	e_state
-{
-	STOPPED,
-	RUNNING,
-};
-
-enum	e_logMsg
-{
-	INTERNAL,
-	RECEIVED,
-	SENT,
-	DBG,
-};
-
-enum	e_rplNo
-{
-	RPL_WELCOME = 001,
-	RPL_YOURHOST = 002,
-	RPL_CREATED = 003,
-	RPL_MYINFO = 004,
-	RPL_YOUREOPER = 381,
-	ERR_NONICKNAMEGIVEN = 431,
-	ERR_NICKNAMEINUSE = 433,
-	ERR_NEEDMOREPARAMS = 461,
-	ERR_ALREADYREGISTRED = 462,
-	ERR_PASSWDMISMATCH = 464,
-	ERR_UNKNOWNMODE = 472,
-};
-
 typedef bool	(Server::*t_fct)(User &user, std::string &params);
 
 class Server
 {
 private:
+	enum	e_state
+	{
+		STOPPED,
+		RUNNING,
+	};
+
+	enum	e_logMsg
+	{
+		INTERNAL,
+		RECEIVED,
+		SENT,
+	};
+
+	enum	e_rplNo
+	{
+		RPL_WELCOME = 001,
+		RPL_YOURHOST = 002,
+		RPL_CREATED = 003,
+		RPL_MYINFO = 004,
+		RPL_YOUREOPER = 381,
+		ERR_NONICKNAMEGIVEN = 431,
+		ERR_NICKNAMEINUSE = 433,
+		ERR_NEEDMOREPARAMS = 461,
+		ERR_ALREADYREGISTRED = 462,
+		ERR_PASSWDMISMATCH = 464,
+		ERR_UNKNOWNMODE = 472,
+	};
+
 	// Attributes
-	int												_state;
-	int												_socket;
+	int									_state;
+	int									_socket;
 
-	std::string										_ip;
-	std::string										_msg;
-	std::string										_name;
-	std::string										_version;
-	std::string										_password;
-	std::string										_creationTime;
-	std::string										_availableUserModes;
-	std::string										_availableChannelModes;
+	std::string							_ip;
+	std::string							_msg;
+	std::string							_name;
+	std::string							_version;
+	std::string							_password;
+	std::string							_creationTime;
+	std::string							_availableUserModes;
+	std::string							_availableChannelModes;
 
-	std::vector<pollfd>								_pollfds;
+	std::vector<pollfd>					_pollfds;
 
-	std::map<int, User>								_users; // int is for id/socket
-	std::map<std::string, Channel>					_channels; // string is for the name's channel
-	std::map<std::string const, t_fct const>		_cmds;
+	std::map<int, User>					_users; // int is for id/socket
+	std::map<std::string, Channel>		_channels; // string is for the name's channel
 
-	static std::pair<std::string const, t_fct const> const		_lookupCmds[];
-	static std::pair<enum e_logMsg const, char const *> const	_lookupLogMsgTypes[];
+	static std::pair<std::string const, t_fct const> const	_lookupCmds[];
+	static std::pair<uint const, char const *> const		_lookupLogMsgTypes[];
 
 	// Member functions
-	static void	logMsg(enum e_logMsg const type, std::string const &msg);
+	static void	logMsg(uint const type, std::string const &msg);
 	static void	printUser(User const &user);
 
 	static std::string	toString(int const nb);

@@ -21,12 +21,11 @@ Server::Server(void) :
 	_version("1.0"),
 	_password(),
 	_creationTime("a long time ago, in a galaxy far, far away..."),
-	_availableUserModes("o"),
+	_availableUserModes(),
 	_availableChannelModes(),
 	_pollfds(),
 	_users(),
-	_channels(),
-	_cmds() {}
+	_channels() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -52,7 +51,7 @@ bool	Server::judge(User &user, std::string &msg)
 	std::string	prefix;
 	std::string	cmdName;
 	std::string	params;
-	t_fct		cmdCall;
+	uint		idx;
 
 	do
 	{
@@ -62,18 +61,15 @@ bool	Server::judge(User &user, std::string &msg)
 		if (line[0] == ':')
 			prefix = line.substr(1, line.find(' ') - 1);
 		cmdName = line.substr(prefix.length(), line.find(' ', prefix.length()));
+		if (cmdName.empty())
+			continue;
 		params = line.substr(cmdName.length());
 		params.erase(0, params.find_first_not_of(' '));
 		params.erase(params.find_last_not_of(' ') + 1);
-		cmdCall = this->_cmds[cmdName];
-		if (!cmdCall)
-		{
-			if (!cmdName.empty())
-			{
-				Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command " + cmdName + RED " Unknown" RESET);
-			}
-		}
-		else if (!(this->*cmdCall)(user, params))
+		for (idx = 0U ; !Server::_lookupCmds[idx].first.empty() && cmdName != Server::_lookupCmds[idx].first ; ++idx);
+		if (!Server::_lookupCmds[idx].second)
+			Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") Command " + cmdName + RED " Unknown" RESET);
+		else if (!(this->*Server::_lookupCmds[idx].second)(user, params))
 			return false;
 		msg.erase(0, msg.find('\n') + 1);
 	} while (!msg.empty());
@@ -85,7 +81,7 @@ bool	Server::judge(User &user, std::string &msg)
  * 
  * @param	msg The message to write.
  */
-void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
+void	Server::logMsg(uint const type, std::string const &msg)
 {
 	char	nowtime[64];
 	time_t	rawtime;
@@ -179,9 +175,17 @@ bool	Server::recvAll(void)
  */
 bool	Server::replyPush(std::string const &line)
 {
-	if (!this->_msg.empty())
-		this->_msg.append("\n");
-	this->_msg.append(":" + this->_name + " " + line);
+	try
+	{
+		if (!this->_msg.empty())
+			this->_msg.append("\n");
+		this->_msg.append(":" + this->_name + " " + line);
+	}
+	catch (std::exception const &e)
+	{
+		std::cerr << "Exception: " << e.what() << '\n';
+		return false;
+	}
 	return true;
 }
 
@@ -268,17 +272,13 @@ bool	Server::welcomeDwarves(void)
  */
 bool	Server::init(std::string const password)
 {
-	char												nowtime[64];
-	time_t												rawtime;
-	int													idx;
-	std::map<std::string const, t_fct const>::iterator	it;
+	char	nowtime[64];
+	time_t	rawtime;
 
 	this->_password = password;
 	time(&rawtime);
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
 	this->_creationTime = nowtime;
-	for (idx = 0 ; Server::_lookupCmds[idx].second ; ++idx)
-		this->_cmds.insert(Server::_lookupCmds[idx]);
 	return true;
 }
 
@@ -368,7 +368,6 @@ void	Server::stop(void)
 {
 	this->_users.clear();
 	this->_channels.clear();
-	this->_cmds.clear();
 	if (this->_socket >= 0)
 		close(this->_socket);
 	this->_socket = -1;
@@ -398,9 +397,8 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 	std::make_pair<std::string const, t_fct const>(std::string(""), NULL),
 };
 
-std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] = {
-	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
-	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
-	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
-	std::make_pair<enum e_logMsg const, char const *>(DBG, YELLOW "  Debug " RESET),
+std::pair<uint const, char const *> const	Server::_lookupLogMsgTypes[] = {
+	std::make_pair<uint const, char const *>(INTERNAL, WHITE "Internal" RESET),
+	std::make_pair<uint const, char const *>(RECEIVED, GREEN "Received" RESET),
+	std::make_pair<uint const, char const *>(SENT, MAGENTA "  Sent  " RESET),
 };
