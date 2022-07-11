@@ -22,7 +22,7 @@ void	Channel::delUser(User &user)
 	return ;
 }
 
-std::vector<User *>	const		&Channel::getUsers(void) const
+std::vector<User *>		&Channel::getUsers(void)
 {
 	return this->_users;
 }

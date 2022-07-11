@@ -114,12 +114,12 @@ void	Server::logMsg(enum e_logMsg const type, std::string const &msg)
  */
 void	Server::printUser(User const &user)
 {
-	Server::logMsg(DEBUG, "User : ");
-	Server::logMsg(DEBUG, "\tSocket : " + Server::toString(user.getSocket()));
-	Server::logMsg(DEBUG, "\tNickname : " + user.getNickname());
-	Server::logMsg(DEBUG, "\tHostname : " + user.getHostname());
-	Server::logMsg(DEBUG, "\tRealname : " + user.getRealname());
-	Server::logMsg(DEBUG, "\tPassword : " + user.getPassword());
+	Server::logMsg(INTERNAL, "User : ");
+	Server::logMsg(INTERNAL, "\tSocket : " + Server::toString(user.getSocket()));
+	Server::logMsg(INTERNAL, "\tNickname : " + user.getNickname());
+	Server::logMsg(INTERNAL, "\tHostname : " + user.getHostname());
+	Server::logMsg(INTERNAL, "\tRealname : " + user.getRealname());
+	Server::logMsg(INTERNAL, "\tPassword : " + user.getPassword());
 }
 
 /**
@@ -414,6 +414,5 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] = {
 	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
-	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
-	std::make_pair<enum e_logMsg const, char const *>(DBG, YELLOW "  Debug " RESET),
+	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET)
 };
