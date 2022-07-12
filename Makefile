@@ -44,6 +44,7 @@ DEP					= ${OBJ:.o=.d}
 CXXFLAGS			=	-c
 CXXFLAGS			+=	-Wall -Wextra -Werror
 CXXFLAGS			+=	-Wshadow
+CXXFLAGS			+=	-Wno-unused
 CXXFLAGS			+=	-std=c++98
 CXXFLAGS			+=	-MMD -MP
 CXXFLAGS			+=	-I${INC_DIR}

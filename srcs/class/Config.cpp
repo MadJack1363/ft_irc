@@ -53,7 +53,8 @@ bool	Config::getConfig( char const * fileName ) {
 			value = line.substr(posEqual + 1, line.size());
 			__delSpace(name);
 			__delSpace(value);
-			_val[name] = value;
+			if (_val.find(name) != _val.end())
+				_val[name] = value;
 			name.clear();
 			value.clear();
 		}
@@ -62,8 +63,6 @@ bool	Config::getConfig( char const * fileName ) {
 		std::cerr << "Config: getConfig: an error occured" << std::endl;
 		return false;
 	}
-	for (std::map<std::string, std::string>::iterator it = _val.begin(); it != _val.end(); it++)
-		std::cout << it->first << " = " << it->second << '\n';
 	return true;
 }
 
