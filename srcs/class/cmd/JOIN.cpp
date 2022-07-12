@@ -18,7 +18,7 @@ bool	Server::JOIN(User &user, std::string &params)
 	}
 	this->_channels[params].addUser(user);
 
-	// Channel &tm = this->_channels[params];
+	Channel &tm = this->_channels[params];
 
 	// Server::logMsg(INTERNAL, "Utilisateur log in " + params);
 	// for (std::vector<User *>::const_iterator ite = tm.getUsers().begin(); ite != tm.getUsers().end(); ite++)
