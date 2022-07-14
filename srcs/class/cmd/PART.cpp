@@ -11,6 +11,7 @@
 bool	Server::PART(User &user, std::string &params)
 {
 	std::vector<std::string>	channel_left;
+	std::string					left_message = " has left the channel";
 
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
 	params = params.c_str() + params.find(':') + 1;
@@ -19,20 +20,29 @@ bool	Server::PART(User &user, std::string &params)
 		channel_left.push_back(params.substr(0, params.find(',')));
 		params = params.c_str() + params.find(',') + 1;
 	}
-	channel_left.push_back(params.substr(0, params.find(',')));
-	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
-	{
-		Channel	&myChan = this->_channels[*ite];
-		if (myChan.getUsers().size() == 1)
+	channel_left.push_back(params.substr(0, params.find(' ')));
+	params = params.c_str() + params.find(' ');
+	if (params.length() > 1)
+		left_message = params;
+	try {
+		for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 		{
-			this->_channels.erase(*ite);
+			Channel	&myChan = this->_channels[*ite];
+			if (myChan.getUsers().size() == 1)
+			{
+				this->_channels.erase(*ite);
+			}
+			else
+			{
+				myChan;
+				myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
+				std::string	cpy = *ite + left_message;
+				PRIVMSG(user, cpy);
+			}
 		}
-		else
-		{
-			myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), user));
-			std::string	cpy = *ite + " has left the channel";
-			PRIVMSG(user, cpy);
-		}
+	}
+	catch( const std::exception & e ) {
+		Server::logMsg(ERROR, e.what());
 	}
 	return true;
 }

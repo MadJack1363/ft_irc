@@ -22,6 +22,11 @@ void	Channel::delUser(User &user)
 	return ;
 }
 
+void	Channel::setName(std::string name)
+{
+	this->_name = name;
+}
+
 std::vector<User *>		&Channel::getUsers(void)
 {
 	return this->_users;

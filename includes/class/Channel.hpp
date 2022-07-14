@@ -21,6 +21,7 @@ public:
 
 	void	addUser(User &user);
 	void	delUser(User &user);
+	void	setName(std::string name);
 
 	// std::vector<User *>	const	&getUsers(void) const;
 	std::vector<User *>			&getUsers(void);

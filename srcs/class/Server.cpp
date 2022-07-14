@@ -143,8 +143,8 @@ bool	Server::recvAll(void)
 	}
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
-		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
-		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
+		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
+		retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
 		while (retRecv > 0)
 		{
 			buff[retRecv] = 0;
@@ -153,11 +153,11 @@ bool	Server::recvAll(void)
 				break ;
 			retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, 0);
 		}
-		if (retRecv == -1)
-		{
-			perror("recv");
-			return false;
-		}
+		// if (retRecv == -1)
+		// {
+		// 	perror("recv");
+		// 	return false;
+		// }
 		if (!retRecv) // Check whith the PING
 		{
 			Server::logMsg(INTERNAL, "(" + this->toString(it->second.getSocket()) + ") Connection lost");
@@ -253,7 +253,7 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		this->_users.insert(std::make_pair<int, User>(newUser, User()));
-		// fcntl(newUser, F_SETFL, O_NONBLOCK);
+		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
 		// std::string hostaddr = inet_ntoa(addr.sin_addr);
 		// char hostname[NI_MAXHOST];
 		// if (getnameinfo((struct sockaddr *)&address, sizeof(address), hostname, NI_MAXHOST, NULL, 0, NI_NUMERICSERV) != 0)
@@ -414,5 +414,6 @@ std::pair<std::string const, t_fct const> const	Server::_lookupCmds[] = {
 std::pair<enum e_logMsg const, char const *> const	Server::_lookupLogMsgTypes[] = {
 	std::make_pair<enum e_logMsg const, char const *>(INTERNAL, WHITE "Internal" RESET),
 	std::make_pair<enum e_logMsg const, char const *>(RECEIVED, GREEN "Received" RESET),
-	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET)
+	std::make_pair<enum e_logMsg const, char const *>(SENT, MAGENTA "  Sent  " RESET),
+	std::make_pair<enum e_logMsg const, char const *>(ERROR, RED "  Error " RESET)
 };
