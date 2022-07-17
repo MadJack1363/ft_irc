@@ -10,6 +10,5 @@
  */
 bool	Server::OPER(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") OPER " + params);
 	return true;
 }

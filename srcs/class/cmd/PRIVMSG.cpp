@@ -16,10 +16,10 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());
 
 	Server::replyPush(msg_send);
-	for (std::map<int, User>::iterator ite = this->_users.begin() ; ite != this->_users.end() ; ite++)
+	for (std::list<User>::iterator ite = this->_users.begin() ; ite != this->_users.end() ; ite++)
 	{
-		if (ite->second.getNickname().compare(recipient) == 0){
-			Server::replySend(ite->second);
+		if (ite->getNickname().compare(recipient) == 0){
+			Server::replySend(*ite);
 			return true;
 		}
 	}

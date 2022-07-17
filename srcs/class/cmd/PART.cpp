@@ -13,7 +13,6 @@ bool	Server::PART(User &user, std::string &params)
 	std::vector<std::string>	channel_left;
 	std::string					left_message = " has left the channel";
 
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PART " + params);
 	params = params.c_str() + params.find(':') + 1;
 	while (params.find(',') != std::string::npos)
 	{

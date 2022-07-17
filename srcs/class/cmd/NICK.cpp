@@ -10,16 +10,12 @@
  */
 bool	Server::NICK(User &user, std::string &params)
 {
-	std::map<int, User>::iterator	it;
-
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") NICK " + params);
 	if (params.empty())
 		return this->replyPush("431 " + user.getNickname() + " :No nickname given");
-	for (it = this->_users.begin() ;
-		it != this->_users.end() && it->second.getNickname() != params ;
-		++it);
-	if (it != this->_users.end())
+	if (this->_finder.find(params) != this->_finder.end())
 		return this->replyPush("433 " + user.getNickname() + " :Nickname already in use");
+	this->_finder.erase(user.getNickname());
 	user.setNickname(params);
+	this->_finder.insert(std::pair<std::string, User *const>(user.getNickname(), &user));
 	return this->replyPush("NICK " + user.getNickname());
 }

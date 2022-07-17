@@ -10,6 +10,5 @@
  */
 bool	Server::SET(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") SET " + params);
 	return true;
 }

@@ -11,6 +11,8 @@
  */
 bool	Server::DIE(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") DIE " + params);
+	if (!(user.getModes() & (1 << User::OPERATOR)))
+		return this->replyPush("481 :Permission Denied - You're not an IRC operator");
+	this->_state = STOPPED;
 	return true;
 }

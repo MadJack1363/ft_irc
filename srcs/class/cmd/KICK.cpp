@@ -10,6 +10,5 @@
  */
 bool	Server::KICK(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") KICK " + params);
 	return true;
 }

@@ -10,7 +10,6 @@
  */
 bool	Server::USER(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") USER " + params);
 	if (user.getIsRegistered())
 		return this->replyPush("462 :You may not reregister");
 	if (params.empty())
@@ -29,10 +28,10 @@ bool	Server::USER(User &user, std::string &params)
 	params.erase(params.begin());
 	user.setRealname(params);
 	if (!this->_password.empty() && this->_password != user.getPassword())
-		return this->replyPush("462 :Password incorrect");
+		return this->replyPush("464 " + user.getNickname() + " :Password incorrect");
 	user.setIsRegistered(true);
 	return this->replyPush("001 " + user.getNickname() + " :Welcome to the Mine.")
 		&& this->replyPush("002 " + user.getNickname() + " :Your host is " + this->_name + ", running version " + this->_version + '.')
 		&& this->replyPush("003 " + user.getNickname() + " :This server was created " + this->_creationTime + '.')
-		&& this->replyPush("004 " + user.getNickname() + " :" + this->_name + " " + this->_version + ' ' + this->_availableChannelModes + ' ' + this->_availableUserModes + '.');
+		&& this->replyPush("004 " + user.getNickname() + " :" + this->_name + " " + this->_version + ' ' + User::availableModes() + ' ' + Channel::availableModes() + '.');
 }
