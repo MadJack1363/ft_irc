@@ -39,6 +39,7 @@ SRC				=	\
 							USER.cpp		\
 						}					\
 						Channel.cpp			\
+						Config.cpp			\
 						Server.cpp			\
 						User.cpp			\
 					}						\

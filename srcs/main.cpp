@@ -1,10 +1,8 @@
 #include <cerrno>
 #include <cstdlib>
-
-#include <cstdio> // perror
-
 #include <iostream>
 #include "color.h"
+#include "class/Config.hpp"
 #include "class/Server.hpp"
 
 inline static bool	__getPort(std::string const str, uint16_t &port)
@@ -30,6 +28,7 @@ inline static bool	__getPort(std::string const str, uint16_t &port)
 
 int	main(int const argc, char const *const *const argv)
 {
+	Config		conf;
 	Server		server;
 	uint16_t	port;
 
@@ -48,5 +47,13 @@ int	main(int const argc, char const *const *const argv)
 		return EXIT_FAILURE;
 	server.stop();
 	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << std::endl;
+	
+
+	conf.getConfig("config/default.conf");
+	for (std::map<std::string, std::string>::iterator it = conf._val.begin(); it != conf._val.end() ; it++)
+	{
+		std::cout << it->first << " = " << it->second << '\n';
+	}
+	
 	return EXIT_SUCCESS;
 }
