@@ -62,9 +62,9 @@ void	Channel::addUser(User &user)
 // ************************************************************************** //
 
 std::pair<char const, uint const>	Channel::_lookupModes[] = {
-	std::make_pair('s', Channel::SECRET),
-	std::make_pair('p', Channel::PRIVATE),
-	std::make_pair('i', Channel::INVITE_ONLY),
-	std::make_pair('n', Channel::INSIDE_ONLY),
-	std::make_pair(0, 0U)
+	std::pair<char const, uint const>('s', Channel::SECRET),
+	std::pair<char const, uint const>('p', Channel::PRIVATE),
+	std::pair<char const, uint const>('i', Channel::INVITE_ONLY),
+	std::pair<char const, uint const>('n', Channel::INSIDE_ONLY),
+	std::pair<char const, uint const>(0, 0U)
 };

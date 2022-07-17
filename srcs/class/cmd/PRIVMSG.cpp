@@ -10,6 +10,5 @@
  */
 bool	Server::PRIVMSG(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
 	return true;
 }

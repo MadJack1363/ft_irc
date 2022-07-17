@@ -2,15 +2,16 @@
 # define SERVER_CLASS_HPP
 
 # include <ctime> // time_t
-# include <fcntl.h> //   "
+# include <fcntl.h> //  "
 # include <iostream>
+# include <list>
 # include <map>
 # include <netinet/in.h>// sockaddr_in
 # include <poll.h>
 # include <string>
 # include <sys/types.h> // socket, bind, listen, recv, send
-# include <sys/socket.h>//   "      "      "      "     "
-# include <unistd.h>// fcntl
+# include <sys/socket.h> //   "      "      "      "     "
+# include <unistd.h> // fcntl
 # include "color.h"
 # include "class/User.hpp"
 # include "class/Channel.hpp"
@@ -34,6 +35,7 @@ private:
 
 	enum	e_logMsg
 	{
+		ERROR,
 		INTERNAL,
 		RECEIVED,
 		SENT,
@@ -45,13 +47,21 @@ private:
 		RPL_YOURHOST = 002,
 		RPL_CREATED = 003,
 		RPL_MYINFO = 004,
+
+		RPL_UMODEIS = 221,
 		RPL_YOUREOPER = 381,
+
+		ERR_NOSUCHNICK = 401,
+		ERR_NOSUCHCHANNEL = 403,
 		ERR_NONICKNAMEGIVEN = 431,
 		ERR_NICKNAMEINUSE = 433,
 		ERR_NEEDMOREPARAMS = 461,
 		ERR_ALREADYREGISTRED = 462,
 		ERR_PASSWDMISMATCH = 464,
 		ERR_UNKNOWNMODE = 472,
+		ERR_NOPRIVILEGES = 481,
+		ERR_UMODEUNKNOWNFLAG = 501,
+		ERR_USERSDONTMATCH = 502,
 	};
 
 	// Attributes
@@ -67,7 +77,9 @@ private:
 
 	std::vector<pollfd>					_pollfds;
 
-	std::map<int, User>					_users; // int is for id/socket
+	std::list<User>						_users;
+
+	std::map<std::string, User *const>	_finder;
 	std::map<std::string, Channel>		_channels; // string is for the name's channel
 
 	static std::pair<std::string const, t_fct const> const	_lookupCmds[];

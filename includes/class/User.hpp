@@ -15,9 +15,9 @@ class User
 {
 private:
 	// Attributes
-	int									_socket;
-
 	sockaddr_in							_addr;
+
+	int									_socket;
 
 	std::string							_nickname; // Max length is 9 chars
 	std::string							_username;
@@ -42,7 +42,8 @@ public:
 	};
 
 	// Constructors
-	User(void);
+	User(sockaddr_in const &addr = sockaddr_in(), int sockfd = -1);
+	User(User const &src);
 
 	// Destructors
 	virtual ~User(void);
@@ -78,9 +79,14 @@ public:
 	// Member functions
 	static std::string	availableModes(void);
 
+	void		addMode(char const c);
+	void		delMode(char const c);
+
 	bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	bool		sendTo(User const & user); // send private message
 	bool		sendToAll(Channel const & chan); // send message to every user in the channel (except myself)
+
+	std::string	activeModes(void) const;
 };
 
 #endif

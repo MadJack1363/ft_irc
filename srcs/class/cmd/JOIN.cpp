@@ -10,8 +10,6 @@
  */
 bool	Server::JOIN(User &user, std::string &params)
 {
-
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") JOIN " + params);
 	if (this->_channels.count(params) == 0){
 		params = params.c_str() + params.find('#') + 1;
 		this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));

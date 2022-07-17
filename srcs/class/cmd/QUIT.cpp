@@ -10,8 +10,8 @@
  */
 bool	Server::QUIT(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") QUIT " + params);
-	this->_users.erase(user.getSocket());
-	this->_state = STOPPED; // XXX To be removed, temporary solution to end properly the server.
+	close(user.getSocket());
+	user.setSocket(-1);
+	this->_finder.erase(user.getNickname());
 	return true;
 }
