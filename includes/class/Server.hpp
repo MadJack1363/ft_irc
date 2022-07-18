@@ -70,7 +70,6 @@ private:
 
 	Config										_config;
 
-	std::string									_msg;
 	std::string									_creationTime;
 
 	std::vector<pollfd>							_pollfds;
@@ -106,8 +105,8 @@ private:
 	bool	USER(User &user, std::string &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
-	bool	replyPush(std::string const &line);
-	bool	replySend(User const &user);
+	bool	replyPush(User &user, std::string const &line);
+	bool	replySend(User &user);
 	bool	welcomeDwarves(void);
 
 public:

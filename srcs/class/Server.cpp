@@ -16,7 +16,6 @@ Server::Server(void) :
 	_state(STOPPED),
 	_socket(-1),
 	_config(),
-	_msg(),
 	_creationTime(),
 	_pollfds(),
 	_users(),
@@ -135,7 +134,7 @@ bool	Server::recvAll(void)
 			this->_users.erase(it);
 		}
 		else if (!this->judge(*it, msg)
-			|| (!this->_msg.empty() && !this->replySend(*it)))
+			|| (!it->getMsg().empty() && !this->replySend(*it)))
 			return false;
 		if (it->getSocket() == -1)
 			it = this->_users.erase(it);
@@ -151,13 +150,13 @@ bool	Server::recvAll(void)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::replyPush(std::string const &line)
+bool	Server::replyPush(User &user, std::string const &line)
 {
 	try
 	{
-		if (!this->_msg.empty())
-			this->_msg.append("\n");
-		this->_msg.append(":" + this->_config["server_name"] + " " + line);
+		if (!user.getMsg().empty())
+			user.setMsg(std::string(user.getMsg()).append("\n"));
+		user.setMsg(std::string(user.getMsg()).append(":" + this->_config["server_name"] + " " + line));
 	}
 	catch (std::exception const &e)
 	{
@@ -174,21 +173,21 @@ bool	Server::replyPush(std::string const &line)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::replySend(User const &user)
+bool	Server::replySend(User &user)
 {
 	std::string	line;
 
-	this->_msg.append("\r\n");
-	if (send(user.getSocket(), this->_msg.c_str(), this->_msg.size() + 1, 0) == -1)
+	user.setMsg(std::string(user.getMsg()).append("\r\n"));
+	if (send(user.getSocket(), user.getMsg().c_str(), user.getMsg().size() + 1, 0) == -1)
 	{
 		Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
 		return false;
 	}
-	while (!this->_msg.empty())
+	while (!user.getMsg().empty())
 	{
-		line = this->_msg.substr(0, this->_msg.find('\n'));
-		this->_msg.erase(0, this->_msg.find('\n') + 1);
-		if (_msg.empty())
+		line = user.getMsg().substr(0, user.getMsg().find('\n'));
+		user.setMsg(std::string(user.getMsg()).erase(0, user.getMsg().find('\n') + 1));
+		if (user.getMsg().empty())
 			line.erase(line.end() - 1);
 		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
 	}

@@ -24,6 +24,7 @@ private:
 	std::string							_hostname;
 	std::string							_realname;
 	std::string							_password;
+	std::string							_msg;
 
 	bool								_isRegistered;
 
@@ -58,6 +59,7 @@ public:
 	std::string const						&getHostname(void) const;
 	std::string const						&getRealname(void) const;
 	std::string const						&getPassword(void) const;
+	std::string const						&getMsg(void) const;
 
 	bool const								&getIsRegistered(void) const;
 
@@ -72,6 +74,7 @@ public:
 	void									setHostname(std::string const &hostname);
 	void									setRealname(std::string const &realname);
 	void									setPassword(std::string const &password);
+	void									setMsg(std::string const &msg);
 	void									setIsRegistered(bool const isRegistered);
 	void									setModes(uint8_t const modes);
 	void									setChannels(std::map<std::string, Channel *> const &channels);
