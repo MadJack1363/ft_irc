@@ -16,7 +16,8 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_password(),
 	_isRegistered(),
 	_modes(),
-	_channels() {}
+	_channels(),
+	_lastActivity(0) {}
 
 User::User(User const &src) :
 	_addr(src._addr),
@@ -28,7 +29,8 @@ User::User(User const &src) :
 	_password(src._password),
 	_isRegistered(src._isRegistered),
 	_modes(src._modes),
-	_channels(src._channels) {}
+	_channels(src._channels),
+	_lastActivity(src._lastActivity) {}
 
 // ************************************************************************* //
 //                                Destructors                                //

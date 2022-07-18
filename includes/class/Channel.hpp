@@ -43,7 +43,6 @@ public:
 	// Accessors
 	std::vector<User *>			&getUsers(void);
 	std::string	const			&getName(void) const;
-
 	// Member functions
 	static std::string	availableModes(void);
 };

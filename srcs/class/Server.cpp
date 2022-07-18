@@ -142,14 +142,14 @@ bool	Server::recvAll(void)
 	}
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
-		retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
+		retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		while (retRecv > 0)
 		{
 			buff[retRecv] = 0;
 			msg.append(buff);
 			if (msg.find("\r\n") != std::string::npos)
 				break ;
-			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, 0);
+			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		}
 		// if (retRecv == -1)
 		// {
@@ -163,9 +163,11 @@ bool	Server::recvAll(void)
 			this->_finder.erase(it->getNickname());
 			this->_users.erase(it);
 		}
-		else if (!this->judge(*it, msg)
+		else {// have to modif
+			if (!this->judge(*it, msg)
 			|| (!this->_msg.empty() && !this->replySend(*it)))
 			return false;
+		}
 		if (it->getSocket() == -1)
 			it = this->_users.erase(it);
 		msg.clear();

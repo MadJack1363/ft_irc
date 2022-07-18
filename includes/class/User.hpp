@@ -15,21 +15,23 @@ class User
 {
 private:
 	// Attributes
-	sockaddr_in							_addr;
+	sockaddr_in									_addr;
 
-	int									_socket;
+	int											_socket;
 
-	std::string							_nickname; // Max length is 9 chars
-	std::string							_username;
-	std::string							_hostname;
-	std::string							_realname;
-	std::string							_password;
+	std::string									_nickname; // Max length is 9 chars
+	std::string									_username;
+	std::string									_hostname;
+	std::string									_realname;
+	std::string									_password;
 
-	bool								_isRegistered;
+	bool										_isRegistered;
 
-	uint8_t								_modes;
+	uint8_t										_modes;
 
-	std::map<std::string, Channel *>	_channels; // ??
+	time_t										_lastActivity;
+
+	std::map<std::string, Channel *>			_channels; // ??
 
 	static std::pair<char const, uint const>	_lookupModes[];
 
@@ -62,6 +64,8 @@ public:
 	bool const								&getIsRegistered(void) const;
 
 	uint8_t const							&getModes(void) const;
+
+	time_t const							&getLastActivity(void) const;
 
 	std::map<std::string, Channel *> const	&getChannels(void) const;
 
