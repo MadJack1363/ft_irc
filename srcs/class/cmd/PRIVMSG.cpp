@@ -10,5 +10,8 @@
  */
 bool	Server::PRIVMSG(User &user, std::string &params)
 {
+	// Temporary to silent unused parameter warning
+	(void)user;
+	(void)params;
 	return true;
 }

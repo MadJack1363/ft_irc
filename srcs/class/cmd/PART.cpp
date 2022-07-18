@@ -23,7 +23,7 @@ bool	Server::PART(User &user, std::string &params)
 	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 	{
 		// config for send a custom message or no of all user of any channel
-		tmp = this->_channels[*ite];
+		tmp = this->_lookupChannels[*ite];
 		// if (tmp.getUsers().size() == 1)
 		// 	// need to delete the channel
 		// else{

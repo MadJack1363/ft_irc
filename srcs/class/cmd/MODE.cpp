@@ -26,7 +26,7 @@ bool	Server::MODE(User &user, std::string &params)
 	}
 	else // user mode
 	{
-		if (this->_finder.find(targetName) == this->_finder.end())
+		if (this->_lookupUsers.find(targetName) == this->_lookupUsers.end())
 			return this->replyPush("401 " + targetName + " :No such nick/channel");
 		if (targetName != user.getNickname())
 			return this->replyPush("502 :Cant change mode for other users");
@@ -44,7 +44,7 @@ bool	Server::MODE(User &user, std::string &params)
 			}
 			else if (*it == '-')
 			{
-				for (++it ; it != params.end() && *it != ' ' && *it != '-' ; ++it)
+				for (++it ; it != params.end() && *it != ' ' && *it != '+' ; ++it)
 				{
 					if (user.availableModes().find(*it) == std::string::npos)
 						return this->replyPush(std::string("472 ") + *it + " :is unknown mode char to me");

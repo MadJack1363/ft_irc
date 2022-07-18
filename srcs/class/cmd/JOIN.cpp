@@ -10,11 +10,11 @@
  */
 bool	Server::JOIN(User &user, std::string &params)
 {
-	if (this->_channels.count(params) == 0){
+	if (this->_lookupChannels.count(params) == 0){
 		params = params.c_str() + params.find('#') + 1;
-		this->_channels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
+		this->_lookupChannels.insert(std::make_pair<std::string, Channel>(params, Channel(params)));
 	}
-	this->_channels[params].addUser(user);
+	this->_lookupChannels[params].addUser(user);
 
 	// Channel &tm = this->_channels[params];
 

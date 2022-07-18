@@ -1,23 +1,32 @@
 #ifndef CONFIG_CLASS_HPP
 # define CONFIG_CLASS_HPP
 
-#include <iostream>
-#include <string>
 #include <fstream>
+#include <iostream>
 #include <map>
+#include <string>
 
+class Config
+{
+private:
+	std::map<std::string const, std::string>	_lookupValues;
 
-class Config {
+	static std::pair<std::string const, std::string const>	_arrayValues[];
+
 public:
+	// Constructors
+	Config(void);
 
-	static std::pair<std::string, std::string>	_initTable[];
+	// Destructors
+	virtual ~Config(void);
 
-	std::map<std::string, std::string>			_val;
+	// Accessors
+	std::string const	&getValue(std::string const &key) const;
 
-	Config( void );
-	virtual ~Config( void );
+	void				setValue(std::pair<std::string const, std::string const> keyval);
 
-	bool	getConfig( char const * fileName );
+	// Member functions
+	bool	init(char const *fileName);
 
 };
 

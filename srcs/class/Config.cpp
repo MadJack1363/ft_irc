@@ -1,80 +1,76 @@
-#include "../../includes/Config.class.hpp"
-#include <cctype>
+#include <sys/types.h>
+#include "class/Config.hpp"
 
-Config::Config( void ) {
-	for (size_t i = 0; !_initTable[i].first.empty(); i++)
-		_val.insert(_initTable[i]);
-	return;
+// ************************************************************************** //
+//                                Constructors                                //
+// ************************************************************************** //
+
+Config::Config(void)
+{
+	uint	idx;
+
+	for (idx = 0U ; !Config::_arrayValues[idx].first.empty() ; ++idx)
+		this->_lookupValues.insert(_arrayValues[idx]);
 }
 
-Config::~Config( void ) {
-	_val.clear();
-	return;
+// ************************************************************************* //
+//                                Destructors                                //
+// ************************************************************************* //
+
+Config::~Config(void)
+{
+	this->_lookupValues.clear();
 }
 
-static inline bool	__delSpace( std::string & str ) {
-	std::string	tmp(str);
-	size_t	i;
-	size_t	begin;
-
-	for (i = 0; str[i]; i++){
-		if (!isspace(str[i])){
-			begin = i;
-			break;
-		}
-	}
-	i++;
-	for (; str[i]; i++){
-		if (isspace(str[i]))
-			break;
-	}
-	str = tmp.substr(begin, i);
-	return true;
-}
-
-bool	Config::getConfig( char const * fileName ) {
+bool	Config::init(char const *fileName)
+{
 	std::ifstream	infile;
 	std::string		line;
-	size_t			posEqual;
 	std::string		name;
 	std::string		value;
+	size_t			posEqual;
 
 	infile.open(fileName);
-	if (infile.is_open() == false){
-		std::cerr << "Config: getConfig: open failed" << std::endl;
+	if (infile.is_open() == false)
+	{
+		std::cerr << "Config: getConfig: open() failed\n";
 		return false;
 	}
-	while (infile.good()){
-		std::getline(infile, line);
+	while (infile.good() && std::getline(infile, line))
+	{
 		if (line[0] == '#')
-			continue;
-		else if ((posEqual = line.find('=')) != std::string::npos){
+			continue ;
+		else if ((posEqual = line.find('=')) != std::string::npos)
+		{
 			name = line.substr(0, posEqual);
 			value = line.substr(posEqual + 1, line.size());
-			__delSpace(name);
-			__delSpace(value);
-			if (_val.find(name) != _val.end())
-				_val[name] = value;
+			name.erase(0, name.find_first_not_of(' '));
+			name.erase(name.find_last_not_of(' ') + 1);
+			value.erase(0, value.find_first_not_of(' '));
+			value.erase(value.find_last_not_of(' ') + 1);
+			if (this->_lookupValues.find(name) != this->_lookupValues.end())
+				this->_lookupValues[name] = value;
 			name.clear();
 			value.clear();
 		}
 	}
-	if (infile.eof() == false){
-		std::cerr << "Config: getConfig: an error occured" << std::endl;
+	if (infile.eof() == false)
+	{
+		std::cerr << "Config: getConfig: an error occured\n";
 		return false;
 	}
 	return true;
 }
 
-std::pair<std::string, std::string>	Config::_initTable[] = {
-	std::make_pair<std::string, std::string>("server_name", "IrcServ"),
-	std::make_pair<std::string, std::string>("motd", "config/motd.txt"),
-	std::make_pair<std::string, std::string>("host", "127.0.0.1"),
-	std::make_pair<std::string, std::string>("max_user", "1024"),
-	std::make_pair<std::string, std::string>("ping", "10"),
-	std::make_pair<std::string, std::string>("timeout", "30"),
-	std::make_pair<std::string, std::string>("backlog", "1024"),
-	std::make_pair<std::string, std::string>("oper_name", "admin"),
-	std::make_pair<std::string, std::string>("oper_password", "admin"),
-	std::make_pair<std::string, std::string>("", "")
+std::pair<std::string const, std::string const>	Config::_arrayValues[] = {
+	std::pair<std::string const, std::string const>("server_name", "IrcServ"),
+	std::pair<std::string const, std::string const>("motd", "config/motd.txt"),
+	std::pair<std::string const, std::string const>("host", "127.0.0.1"),
+	std::pair<std::string const, std::string const>("max_user", "1024"),
+	std::pair<std::string const, std::string const>("ping", "10"),
+	std::pair<std::string const, std::string const>("timeout", "30"),
+	std::pair<std::string const, std::string const>("backlog", "1024"),
+	std::pair<std::string const, std::string const>("oper_name", "admin"),
+	std::pair<std::string const, std::string const>("oper_password", "admin"),
+	std::pair<std::string const, std::string const>("", "")
 };

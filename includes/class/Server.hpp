@@ -20,13 +20,12 @@
 #  define BUFFER_SIZE 4096
 # endif
 
-class Server;
-
-typedef bool	(Server::*t_fct)(User &user, std::string &params);
 
 class Server
 {
 private:
+	typedef bool	(Server::*t_fct)(User &user, std::string &params);
+
 	enum	e_state
 	{
 		STOPPED,
@@ -65,32 +64,32 @@ private:
 	};
 
 	// Attributes
-	int									_state;
-	int									_socket;
+	int											_state;
+	int											_socket;
 
-	std::string							_ip;
-	std::string							_msg;
-	std::string							_name;
-	std::string							_version;
-	std::string							_password;
-	std::string							_creationTime;
+	std::string									_ip;
+	std::string									_msg;
+	std::string									_name;
+	std::string									_version;
+	std::string									_password;
+	std::string									_creationTime;
 
-	std::vector<pollfd>					_pollfds;
+	std::vector<pollfd>							_pollfds;
 
-	std::list<User>						_users;
+	std::list<User>								_users;
 
-	std::map<std::string, User *const>	_finder;
-	std::map<std::string, Channel>		_channels; // string is for the name's channel
+	std::map<std::string const, t_fct const>	_lookupCmds;
+	std::map<std::string, User *const>			_lookupUsers;
+	std::map<std::string, Channel>				_lookupChannels;
+	std::map<uint const, std::string const>		_lookupLogMsgTypes;
 
-	static std::pair<std::string const, t_fct const> const	_lookupCmds[];
-	static std::pair<uint const, char const *> const		_lookupLogMsgTypes[];
+	static std::pair<std::string const, t_fct const> const	_arrayCmds[];
+	static std::pair<uint const, char const *const> const	_arrayLogMsgTypes[];
 
 	// Member functions
-	static void			logMsg(uint const type, std::string const &msg);
-	static void			printUser(User const &user);
-
 	static std::string	toString(int const nb);
 
+	void	logMsg(uint const type, std::string const &msg);
 
 	bool	DIE(User &user, std::string &params);
 	bool	JOIN(User &user, std::string &params);
@@ -114,7 +113,7 @@ private:
 
 public:
 	// Constructors
-	Server( void );
+	Server(void);
 
 	// Destructors
 	virtual ~Server(void);
