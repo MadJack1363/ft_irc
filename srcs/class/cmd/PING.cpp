@@ -8,7 +8,8 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::PING(User &user, std::string &params)
+bool	Server::PING(User &user, std::string &params)// FIXME Have to fix CMD PING
 {
+	(void)params;
 	return this->replyPush("PONG :" + this->_name);
 }
