@@ -8,24 +8,25 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::PRIVMSG(User &user, std::string &params)
+bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
 
-	std::string	recipient = params.substr(0, params.find(':') - 1);
+	std::string	target_name = params.substr(0, params.find(':') - 1);
 	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());
 
-	Server::replyPush(msg_send);
+	Server::replyPush("PRIVMSG :" + msg_send);
+	//TODO : check with a if for # for chan or user
 	for (std::list<User>::iterator ite = this->_users.begin() ; ite != this->_users.end() ; ite++)
 	{
-		if (ite->getNickname().compare(recipient) == 0){
+		if (ite->getNickname().compare(target_name) == 0){
 			Server::replySend(*ite);
 			return true;
 		}
 	}
 	for (std::map<std::string, Channel>::iterator ite = this->_channels.begin() ; ite != this->_channels.end() ; ite++)
 	{
-		if (ite->second.getName().compare(recipient)){
+		if (ite->second.getName().compare(target_name)){
 			for (std::vector<User *>::iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
 				Server::replySend(*(*itv));
 			return true;
