@@ -43,11 +43,6 @@ std::string const			&Channel::getName(void) const
 	return this->_name;
 }
 
-time_t const				&Channel::getLastActivity(void) const
-{
-	return this->_lastActivity;
-}
-
 // ************************************************************************* //
 //                          Public Member Functions                          //
 // ************************************************************************* //
@@ -67,7 +62,11 @@ std::string	Channel::availableModes(void)
 	return output;
 }
 
-// TODO Write the function comment
+/**
+ * @brief	Use for add user to the channel
+ * 
+ * @param user The user add inside the channel
+ */
 void	Channel::addUser(User &user)
 {
 	this->_users.push_back(&user);
