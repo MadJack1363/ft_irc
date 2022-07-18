@@ -16,8 +16,10 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_password(),
 	_isRegistered(),
 	_modes(),
-	_channels(),
-	_lastActivity(0) {}
+	_channels()
+{
+	time(&_lastActivity);
+}
 
 User::User(User const &src) :
 	_addr(src._addr),
@@ -90,6 +92,11 @@ bool const	&User::getIsRegistered(void) const
 uint8_t const	&User::getModes(void) const
 {
 	return this->_modes;
+}
+
+time_t const	&User::getLastActivity(void) const
+{
+	return this->_lastActivity;
 }
 
 std::map<std::string, Channel *> const	&User::getChannels(void) const
@@ -208,6 +215,15 @@ void	User::delMode(char const c)
 	for (idx = 0U ; User::_lookupModes[idx].first && c != User::_lookupModes[idx].first ; ++idx);
 	if (User::_lookupModes[idx].first)
 		this->_modes &= ~(1 << User::_lookupModes[idx].second);
+}
+
+/**
+ * @brief Update the value _lastActivity for the ping
+ * 
+ */
+void	User::updateLastActivity(void)
+{
+	time(&this->_lastActivity);
 }
 
 // ************************************************************************** //
