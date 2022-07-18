@@ -15,47 +15,17 @@
 # include "color.h"
 # include "class/User.hpp"
 # include "class/Channel.hpp"
+# include "class/Config.hpp"
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 4096
 # endif
 
-class Server;
-
-enum	e_state
-{
-	STOPPED,
-	RUNNING,
-};
-
-enum	e_logMsg
-{
-	INTERNAL,
-	RECEIVED,
-	SENT,
-	ERROR,
-};
-
-enum	e_rplNo
-{
-	RPL_WELCOME = 001,
-	RPL_YOURHOST = 002,
-	RPL_CREATED = 003,
-	RPL_MYINFO = 004,
-	RPL_YOUREOPER = 381,
-	ERR_NONICKNAMEGIVEN = 431,
-	ERR_NICKNAMEINUSE = 433,
-	ERR_NEEDMOREPARAMS = 461,
-	ERR_ALREADYREGISTRED = 462,
-	ERR_PASSWDMISMATCH = 464,
-	ERR_UNKNOWNMODE = 472,
-};
-
-typedef bool	(Server::*t_fct)(User &user, std::string &params);
-
 class Server
 {
 private:
+	typedef bool	(Server::*t_fct)(User &user, std::string &params);
+
 	enum	e_state
 	{
 		STOPPED,
@@ -94,32 +64,30 @@ private:
 	};
 
 	// Attributes
-	int									_state;
-	int									_socket;
+	int											_state;
+	int											_socket;
 
-	std::string							_ip;
-	std::string							_msg;
-	std::string							_name;
-	std::string							_version;
-	std::string							_password;
-	std::string							_creationTime;
+	Config										_config;
 
-	std::vector<pollfd>					_pollfds;
+	std::string									_creationTime;
 
-	std::list<User>						_users;
+	std::vector<pollfd>							_pollfds;
 
-	std::map<std::string, User *const>	_finder;
-	std::map<std::string, Channel>		_channels; // string is for the name's channel
+	std::list<User>								_users;
 
-	static std::pair<std::string const, t_fct const> const	_lookupCmds[];
-	static std::pair<uint const, char const *> const		_lookupLogMsgTypes[];
+	std::map<std::string const, t_fct const>	_lookupCmds;
+	std::map<std::string, User *const>			_lookupUsers;
+	std::map<std::string, Channel>				_lookupChannels;
+	std::map<uint const, std::string const>		_lookupLogMsgTypes;
+
+	static std::pair<std::string const, t_fct const> const	_arrayCmds[];
+	static std::pair<uint const, char const *const> const	_arrayLogMsgTypes[];
 
 	// Member functions
-	static void			logMsg(uint const type, std::string const &msg);
-	static void			printUser(User const &user);
-
 	static std::string	toString(int const nb);
 
+	void	logMsg(uint const type, std::string const &msg);
+	void	printUser(User const &user);
 
 	bool	DIE(User &user, std::string &params);
 	bool	JOIN(User &user, std::string &params);
@@ -137,13 +105,13 @@ private:
 	bool	USER(User &user, std::string &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
-	bool	replyPush(std::string const &line);
-	bool	replySend(User const &user);
+	bool	replyPush(User &user, std::string const &line);
+	bool	replySend(User &user);
 	bool	welcomeDwarves(void);
 
 public:
 	// Constructors
-	Server( void );
+	Server(void);
 
 	// Destructors
 	virtual ~Server(void);

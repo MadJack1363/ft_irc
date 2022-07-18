@@ -11,5 +11,5 @@
 bool	Server::PING(User &user, std::string &params)// FIXME Have to fix CMD PING
 {
 	(void)params;
-	return this->replyPush("PONG :" + this->_name);
+	return this->replyPush(user, "PONG :" + this->_config["server_name"]);
 }

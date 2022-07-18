@@ -1,10 +1,8 @@
 #include <cerrno>
 #include <cstdlib>
-
-#include <cstdio> // perror
-
 #include <iostream>
 #include "color.h"
+#include "class/Config.hpp"
 #include "class/Server.hpp"
 
 inline static bool	__getPort(std::string const str, uint16_t &port)
@@ -15,14 +13,14 @@ inline static bool	__getPort(std::string const str, uint16_t &port)
 	{
 		if (!isdigit(*it))
 		{
-			std::cerr << "error: port: wrong value" << std::endl;
+			std::cerr << "error: port: wrong value\n";
 			return false;
 		}
 	}
 	port = strtol(str.c_str(), NULL, 10);
 	if (errno == ERANGE)
 	{
-		std::cerr << "error: port: out of range" << std::endl;
+		std::cerr << "error: port: out of range\n";
 		return false;
 	}
 	return true;
@@ -47,6 +45,6 @@ int	main(int const argc, char const *const *const argv)
 		!server.run())
 		return EXIT_FAILURE;
 	server.stop();
-	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << std::endl;
+	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << '\n';
 	return EXIT_SUCCESS;
 }

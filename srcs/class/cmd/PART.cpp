@@ -13,6 +13,9 @@ bool	Server::PART(User &user, std::string &params)
 	std::vector<std::string>	channel_left;
 	std::string					left_message = " has left the channel";
 
+	// REMIND: Temporary to silent unused parameter warning
+	(void)user;
+
 	params = params.c_str() + params.find(':') + 1;
 	while (params.find(',') != std::string::npos)
 	{
@@ -26,14 +29,13 @@ bool	Server::PART(User &user, std::string &params)
 	try {
 		for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 		{
-			Channel	&myChan = this->_channels[*ite];
+			Channel	&myChan = this->_lookupChannels[*ite];
 			if (myChan.getUsers().size() == 1)
 			{
-				this->_channels.erase(*ite);
+				this->_lookupChannels.erase(*ite);
 			}
 			else
 			{
-				myChan;
 				myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
 				std::string	cpy = *ite + left_message;
 				PRIVMSG(user, cpy);

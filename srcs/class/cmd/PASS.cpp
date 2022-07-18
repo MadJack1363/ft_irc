@@ -11,9 +11,9 @@
 bool	Server::PASS(User &user, std::string &params)
 {
 	if (user.getIsRegistered())
-		return this->replyPush("462 :You may not reregister");
+		return this->replyPush(user, "462 :You may not reregister");
 	if (params.empty())
-		return this->replyPush("461 PASS :not enough parameters");
+		return this->replyPush(user, "461 PASS :not enough parameters");
 	user.setPassword(params);
 	return true;
 }

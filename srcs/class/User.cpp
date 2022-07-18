@@ -84,6 +84,11 @@ std::string const	&User::getPassword(void) const
 	return this->_password;
 }
 
+std::string const	&User::getMsg(void) const
+{
+	return this->_msg;
+}
+
 bool const	&User::getIsRegistered(void) const
 {
 	return this->_isRegistered;
@@ -137,6 +142,11 @@ void	User::setRealname(std::string const &realname)
 void	User::setPassword(std::string const &password)
 {
 	this->_password = password;
+}
+
+void	User::setMsg(std::string const &msg)
+{
+	this->_msg = msg;
 }
 
 void	User::setIsRegistered(bool const isRegistered)

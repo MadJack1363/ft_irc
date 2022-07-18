@@ -10,5 +10,8 @@
  */
 bool	Server::KICK(User &user, std::string &params)
 {
+	// REMIND: Temporary to silent unused parameter warning
+	(void)user;
+	(void)params;
 	return true;
 }
