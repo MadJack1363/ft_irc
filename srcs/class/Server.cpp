@@ -156,17 +156,30 @@ bool	Server::recvAll(void)
 		// 	perror("recv");
 		// 	return false;
 		// }
-		if (!retRecv) // Check whith the PING
+
+		time_t	time_tmp;
+		time(&time_tmp);
+		if (!retRecv || time_tmp - it->getLastActivity() >= 30)//TODO Modif the value with the config
 		{
-			Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
-			close(it->getSocket());
-			this->_finder.erase(it->getNickname());
-			this->_users.erase(it);
+			std::string	tmp;
+			Server::logMsg(INTERNAL,"Check the ping");
+			if (this->PING(*it, tmp))// TODO Check if the ping work of not work
+				it->updateLastActivity();
+			else
+			{
+				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
+				close(it->getSocket());
+				this->_finder.erase(it->getNickname());
+				this->_users.erase(it);
+			}
 		}
-		else {// have to modif
-			if (!this->judge(*it, msg)
-			|| (!this->_msg.empty() && !this->replySend(*it)))
-			return false;
+		else {
+			if (!this->judge(*it, msg) || (!this->_msg.empty() && !this->replySend(*it)))
+				return false;
+			if (retRecv > 0)
+			{
+				it->updateLastActivity();
+			}
 		}
 		if (it->getSocket() == -1)
 			it = this->_users.erase(it);
@@ -263,8 +276,6 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
-		// hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
-		// this->_users[newUser].setHostname(host->h_name);
 		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
 	return true;
