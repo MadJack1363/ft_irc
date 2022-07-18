@@ -13,6 +13,8 @@ bool	Server::MODE(User &user, std::string &params)
 	std::string				targetName;
 	std::string::iterator	it;
 
+	if (!this->replyPush("MODE " + params))
+		return false;
 	params.erase(0, params.find_first_not_of(' '));
 	if (params.empty())
 		return this->replyPush("461 MODE :Not enough parameters");
@@ -22,7 +24,7 @@ bool	Server::MODE(User &user, std::string &params)
 		return this->replyPush("461 MODE :Not enough parameters");
 	if (*targetName.begin() == '#') // channel mode
 	{
-		
+		return true;
 	}
 	else // user mode
 	{
@@ -38,7 +40,7 @@ bool	Server::MODE(User &user, std::string &params)
 				{
 					if (user.availableModes().find(*it) == std::string::npos)
 						return this->replyPush(std::string("472 ") + *it + " :is unknown mode char to me");
-					// if (*it != 'o') // REMIND: uncomment this line when OPER is implemented
+					if (*it != 'o')
 						user.addMode(*it);
 				}
 			}
@@ -51,12 +53,11 @@ bool	Server::MODE(User &user, std::string &params)
 					user.delMode(*it);
 				}
 			}
-			else if (*it == ' ')
+			else if (*it != ' ')
 				return this->replyPush("501 :Unknown MODE flag");
 			else
 				++it;
 		}
-		return this->replyPush("221 " + user.activeModes());
+		return this->replyPush("221 " + user.getNickname() + " :" + user.activeModes());
 	}
-	return true;
 }

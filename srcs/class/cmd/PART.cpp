@@ -13,6 +13,9 @@ bool	Server::PART(User &user, std::string &params)
 	std::vector<std::string>	channel_left;
 	Channel						tmp;
 
+	// REMIND: Temporary to silent unused parameter warning
+	(void)user;
+
 	params = params.c_str() + params.find(':') + 1;
 	while (params.find(',') != std::string::npos)
 	{

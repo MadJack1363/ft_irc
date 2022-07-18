@@ -15,11 +15,8 @@
 Server::Server(void) :
 	_state(STOPPED),
 	_socket(-1),
-	_ip("127.0.0.1"),
+	_config(),
 	_msg(),
-	_name("Khazad-Dum"),
-	_version("1.0"),
-	_password(),
 	_creationTime(),
 	_pollfds(),
 	_users(),
@@ -160,7 +157,7 @@ bool	Server::replyPush(std::string const &line)
 	{
 		if (!this->_msg.empty())
 			this->_msg.append("\n");
-		this->_msg.append(":" + this->_name + " " + line);
+		this->_msg.append(":" + this->_config["server_name"] + " " + line);
 	}
 	catch (std::exception const &e)
 	{
@@ -255,7 +252,7 @@ bool	Server::init(std::string const password)
 	uint	idx;
 
 
-	this->_password = password;
+	this->_config["server_password"] = password;
 	time(&rawtime);
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
 	this->_creationTime = nowtime;
@@ -320,7 +317,7 @@ bool	Server::start(uint16_t const port)
 	}
 	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket options set");
 
-	addr.sin_addr.s_addr = inet_addr(this->_ip.c_str());
+	addr.sin_addr.s_addr = inet_addr(this->_config["host"].c_str());
 	addr.sin_port = htons(port);
 	addr.sin_family = AF_INET;
 	if (bind(this->_socket, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)))
@@ -350,16 +347,16 @@ bool	Server::start(uint16_t const port)
  */
 void	Server::stop(void)
 {
-	this->_users.clear();
-	this->_lookupCmds.clear();
-	this->_lookupUsers.clear();
-	this->_lookupChannels.clear();
+	Server::logMsg(INTERNAL, "    Server stopped");
 	this->_lookupLogMsgTypes.clear();
+	this->_lookupChannels.clear();
+	this->_lookupUsers.clear();
+	this->_lookupCmds.clear();
+	this->_users.clear();
 	if (this->_socket >= 0)
 		close(this->_socket);
 	this->_socket = -1;
 	this->_state = STOPPED;
-	Server::logMsg(INTERNAL, "    Server stopped");
 }
 
 // ************************************************************************** //

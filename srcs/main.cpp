@@ -28,7 +28,6 @@ inline static bool	__getPort(std::string const str, uint16_t &port)
 
 int	main(int const argc, char const *const *const argv)
 {
-	Config		config;
 	Server		server;
 	uint16_t	port;
 

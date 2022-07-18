@@ -10,6 +10,8 @@
  */
 bool	Server::NICK(User &user, std::string &params)
 {
+	if (!this->replyPush("NICK " + params))
+		return false;
 	if (params.empty())
 		return this->replyPush("431 " + user.getNickname() + " :No nickname given");
 	if (this->_lookupUsers.find(params) != this->_lookupUsers.end())
@@ -17,5 +19,5 @@ bool	Server::NICK(User &user, std::string &params)
 	this->_lookupUsers.erase(user.getNickname());
 	user.setNickname(params);
 	this->_lookupUsers.insert(std::pair<std::string, User *const>(user.getNickname(), &user));
-	return this->replyPush("NICK " + user.getNickname());
+	return true;
 }

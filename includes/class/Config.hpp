@@ -20,14 +20,11 @@ public:
 	// Destructors
 	virtual ~Config(void);
 
-	// Accessors
-	std::string const	&getValue(std::string const &key) const;
-
-	void				setValue(std::pair<std::string const, std::string const> keyval);
-
 	// Member functions
 	bool	init(char const *fileName);
 
+	// Operators
+	std::string	&operator[](std::string const &key);
 };
 
 #endif

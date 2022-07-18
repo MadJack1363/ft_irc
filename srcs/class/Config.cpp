@@ -22,6 +22,17 @@ Config::~Config(void)
 	this->_lookupValues.clear();
 }
 
+// ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+/**
+ * @brief	Load the configuration file to initialize values.
+ * 
+ * @param	fileName The name of the configuration file.
+ * 
+ * @return	true if success, false otherwise.
+ */
 bool	Config::init(char const *fileName)
 {
 	std::ifstream	infile;
@@ -62,8 +73,31 @@ bool	Config::init(char const *fileName)
 	return true;
 }
 
+// ************************************************************************* //
+//                                 Operators                                 //
+// ************************************************************************* //
+
+/**
+ * @brief	Access to an element of the Config.
+ * 
+ * @param	key The key of the element to access.
+ * 
+ * @return	The value of the element.
+ */
+std::string	&Config::operator[](std::string const &key)
+{
+	return this->_lookupValues[key];
+}
+
+// ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
 std::pair<std::string const, std::string const>	Config::_arrayValues[] = {
-	std::pair<std::string const, std::string const>("server_name", "IrcServ"),
+	std::pair<std::string const, std::string const>("server_name", "Khazad-Dum"),
+	std::pair<std::string const, std::string const>("server_version", "1.0"),
+	std::pair<std::string const, std::string const>("server_port", "6667"),
+	std::pair<std::string const, std::string const>("server_password", ""),
 	std::pair<std::string const, std::string const>("motd", "config/motd.txt"),
 	std::pair<std::string const, std::string const>("host", "127.0.0.1"),
 	std::pair<std::string const, std::string const>("max_user", "1024"),

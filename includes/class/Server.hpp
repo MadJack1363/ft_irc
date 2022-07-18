@@ -15,6 +15,7 @@
 # include "color.h"
 # include "class/User.hpp"
 # include "class/Channel.hpp"
+# include "class/Config.hpp"
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 4096
@@ -67,11 +68,9 @@ private:
 	int											_state;
 	int											_socket;
 
-	std::string									_ip;
+	Config										_config;
+
 	std::string									_msg;
-	std::string									_name;
-	std::string									_version;
-	std::string									_password;
 	std::string									_creationTime;
 
 	std::vector<pollfd>							_pollfds;

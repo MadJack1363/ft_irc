@@ -27,11 +27,11 @@ bool	Server::USER(User &user, std::string &params)
 		return this->replyPush("461 USER :Not enough parameters");
 	params.erase(params.begin());
 	user.setRealname(params);
-	if (!this->_password.empty() && this->_password != user.getPassword())
+	if (!this->_config["server_password"].empty() && this->_config["server_password"] != user.getPassword())
 		return this->replyPush("464 " + user.getNickname() + " :Password incorrect");
 	user.setIsRegistered(true);
 	return this->replyPush("001 " + user.getNickname() + " :Welcome to the Mine.")
-		&& this->replyPush("002 " + user.getNickname() + " :Your host is " + this->_name + ", running version " + this->_version + '.')
+		&& this->replyPush("002 " + user.getNickname() + " :Your host is " + this->_config["server_name"] + ", running version " + this->_config["server_version"] + '.')
 		&& this->replyPush("003 " + user.getNickname() + " :This server was created " + this->_creationTime + '.')
-		&& this->replyPush("004 " + user.getNickname() + " :" + this->_name + " " + this->_version + ' ' + User::availableModes() + ' ' + Channel::availableModes() + '.');
+		&& this->replyPush("004 " + user.getNickname() + " :" + this->_config["server_name"] + " " + this->_config["server_version"] + ' ' + User::availableModes() + ' ' + Channel::availableModes() + '.');
 }
