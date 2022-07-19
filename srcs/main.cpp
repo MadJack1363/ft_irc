@@ -1,21 +1,50 @@
+#include <cerrno>
 #include <cstdlib>
 #include <iostream>
 #include "color.h"
-#include "parsing_argv.hpp"
+#include "class/Config.hpp"
+#include "class/Server.hpp"
 
-int	main(int argc, char **argv){
-	if (argc != 3){
-		std::cerr << "Error use ircserv like " GREEN "./ircserv <port> <password>" RESET << std::endl;
-		return (EXIT_FAILURE);
+inline static bool	__getPort(std::string const str, uint16_t &port)
+{
+	std::string::const_iterator it;
+
+	for (it = str.begin(); it != str.end(); ++it)
+	{
+		if (!isdigit(*it))
+		{
+			std::cerr << "error: port: wrong value\n";
+			return false;
+		}
 	}
-	unsigned int	port;
-	std::string		password(argv[2]);
+	port = strtol(str.c_str(), NULL, 10);
+	if (errno == ERANGE)
+	{
+		std::cerr << "error: port: out of range\n";
+		return false;
+	}
+	return true;
+}
 
-	if (getPort(argv[1], port))
-		return (EXIT_FAILURE);
-	std::cout << "port = " << port << '\n';
-	std::cout << "password = " << password << '\n';
+int	main(int const argc, char const *const *const argv)
+{
+	Server		server;
+	uint16_t	port;
 
-	std::cout << "Project is not working Yet " RED "We're Sorry" RESET << std::endl;
-	return (EXIT_SUCCESS);
+	if (argc != 3)
+	{
+		std::cerr
+		<< RED "Error: Wrong usage\n"
+		<< YELLOW "./ircserv <port> <password>\n"
+		<< RESET;
+		return EXIT_FAILURE;
+	}
+	if (!__getPort(argv[1], port) ||
+		!server.init(argv[2]) ||
+		!server.start(port) ||
+		!server.run())
+		return EXIT_FAILURE;
+	server.stop();
+	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << '\n';
+	return EXIT_SUCCESS;
 }

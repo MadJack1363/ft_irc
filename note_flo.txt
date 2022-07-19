@@ -1,11 +1,11 @@
-Note des fonction
+Note des fonctions
 
 socket :
 	proto :
 		int socket(int domain, int type, int protocol);
 	include need :
-		- #include <sys/types.h>
-		- #include <sys/socket.h>
+		- sys/types.h
+		- sys/socket.h
 	Description :
 		- Creer un point d'entree pour les communications renvoie un FD qui pointe vers le point d'entree.
 		- param entree domain et le port qu'il va ecoute
@@ -26,8 +26,8 @@ setsockopt :
 	proto :
 		int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
 	include need :
-		- #include <sys/types.h>
-		- #include <sys/socket.h>
+		- sys/types.h
+		- sys/socket.h
 	Description :
 		- Permet de manipuler les options des sockets.
 
@@ -36,7 +36,7 @@ getsockname :
 	proto :
 		int getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 	include need :
-		- #include <sys/socket.h>
+		- sys/socket.h
 	Description :
 		- Renvoie l'adresse du sock_fd
 
@@ -44,7 +44,7 @@ getprotobyname :
 	proto :
 		struct protoent *getprotobyname(const char *name);
 	include need :
-		- #include <netdb.h>
+		- netdb.h
 	description :
 		- renvoie une struct protoent les entree de la base de donnes qui on match. Une connection est necessaire.
 
@@ -52,7 +52,7 @@ gethostbyname :
 	proto :
 		struct hostent *gethostbyname(const char *name);
 	include need :
-		- #include <netdb.h>
+		- netdb.h
 	description :
 		- renvoie une structure de type hostent pour le param d'entre name. (check doc pour les histoire IPV4)
 
@@ -60,9 +60,9 @@ getaddrinfo :
 	proto :
 		int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res);
 	include need :
-		- #include <sys/types.h>
-		- #include <sys/socket.h>
-		- #include <netdb.h>
+		- sys/types.h
+		- sys/socket.h
+		- netdb.h
 	Description :
 		- Renvoie une ou plusiseur `addinfo`. Elle contienne chacune une addresse internet qui peut etre use par bind() ou connect().
 		- Cette fonction permet de retirer les dependances IPV4 et IPV6.
@@ -74,30 +74,32 @@ bind :
 	proto :
 		int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 	include need :
-		- #include <sys/types.h>
-		- #include <sys/socket.h>
+		- sys/types.h
+		- sys/socket.h
 	Description :
-		- Quand on utilise socket(2) on obtient une famille d'adresse mais aucun adresse d'asignation.
+		- Quand on utilise socket(2) on obtient une famille d'adresse
+			mais aucun adresse d'asignation.
 		- Bind donne une address precise a addr.
 
 connect :
 	proto :
 		int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 	include need :
-		- #include <sys/types.h>
-		- #include <sys/socket.h>
+		- sys/types.h
+		- sys/socket.h
 	Description :
 		- Connecte le socket donne en option d'entre a l'addresse donne par l'addr.
 		- Addrlen est la taille de addr.
 
-listen :
+listen :#
 	proto :
 		int listen(int sockfd, int backlog);
 	include need :
-		- #include <sys/types.h>
-		- #include <sys/socket.h>
+		- sys/types.h
+		- sys/socket.h
 	Description :
-		- Listen va marque la socket(sockfd) en passive. Elle sera utilise pour accepter les demande de connections. (accept)
+		- Listen va marque la socket(sockfd) en passive.
+			Elle sera utilise pour accepter les demande de connections. (accept)
 
 
 
@@ -105,23 +107,90 @@ poll :
 	proto :
 		 int poll(struct pollfd *fds, nfds_t nfds, const struct timespec *tmo_p, const sigset_t *sigmask);
 	include need :
-		- #include <signal.h>
-		- #include <poll.h>
+		- signal.h
+		- poll.h
 	description :
 	 - need to do this
 
+##########################################################################
+rfc1459 :
+
+- Messages :
+	> Chaque message IRC peut contenir jusqu'à trois parties :
+		le préfixe (optionnel) ;
+		la commande ;
+		les paramètres de la commande (il peut y en avoir jusqu'à 15).
+	Le préfixe, la commande, et tous les paramètres sont séparés
+	par un (ou plusieurs) caractère(s) ASCII espace (0x20).
+
+	> La commande doit être soit une commande IRC valide,
+	soit un nombre de 3 chiffres représentés en texte ASCII.
+
+	> Les messages IRC sont toujours des lignes de caractères
+	terminés par une paire CR-LF (retour chariot - saut de ligne)
+
+	> Les messages IRC ne doivent pas depasser 512 octets.
+
+- Etablissement de connexion :
+	> Le client doit fournir les informations suivantes lors de l'Etablissement
+	de la connexion au serveur :
+		PASS <password> (optionnel)
+		NICK <nickname>
+		USER <username> <hostname> <servername> :<realname>
+
+	> PASS :
+		# Plusieurs commandes PASS peuvent etre envoyees, mais seule la derniere
+		sera prise en compte.
+
+		# Reponses numeriques possibles :
+			ERR_NEEDMOREPARAMS
+			ERR_ALREADYREGISTRED
+
+	> NICK :
+		# Il est requis et doit etre unique.
+
+		# Reponses numeriques possibles :
+			ERR_NONICKNAMEGIVEN
+			ERR_NICKCOLLISION
+
+	> USER :
+		# Il est requis.
+
+		# Note : la commande USER n'est envoyee qu'a l'etablissement de la connection.
+
+		# Reponses numeriques possibles :
+			ERR_NEEDMOREPARAMS
+			ERR_ALREADYREGISTRED
+
+- Une fois connecte :
+	> OPER :
+		# Sera toujours recu sous la forme suivante :
+			OPER <nickname> <password>
+
+		# En cas de succes, le serveur envoie au reste du reseau le message :
+			MODE <nickname> +o
+
+		# Reponses numeriques possibles :
+			ERR_NEEDMOREPARAMS
+			RPL_YOUREOPER
+			ERR_NOOPERHOST
+			ERR_PASSWDMISMATCH
+
+	> QUIT :
+		# Sera toujours recu sous la forme suivante :
+			QUIT :<quit message>
 
 ##########################################################################
 rfc2812 :
 
 - Server :
-	> Les server sont identifie par leurs nom. Il ne peuvent avoir que au maximum 63 caractere.
+	> Les serveurs sont identifies par leur nom. Il ne peuvent avoir qu'au maximum 63 caracteres.
 
 - Client :
-	> Les utilisateur doivent avec un identifiant unique.
+	> Les utilisateurs doivent avec un identifiant unique.
 
 - Users :
-	> Les Utilisateurs sont differencie par leurs nom d'utilisateurs (Taille max de 9 Caractere).
+	> Les Utilisateurs sont differencie par leurs nom d'utilisateurs (Taille max de 9 caracteres).
 	> Une plus grande taille de nom d'utilisateur est accepte dans les future version des protocols.
 
 - Operators(Modo) :

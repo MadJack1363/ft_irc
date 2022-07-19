@@ -1,58 +1,81 @@
-# tester avec g++ +  -Weffc++ -pedantic
-# tester avec scan-build-12 make
 ######################################
 #              COMMANDS              #
 ######################################
-# CXX					= g++
-CXX					= c++
-MKDIR				= mkdir -p
-RM					= rm -rf
+CXX			= c++
+MKDIR		= mkdir -p
+RM			= rm -rf
 
 ######################################
 #             EXECUTABLE             #
 ######################################
-NAME				= ircserv
+NAME		= ircserv
 
 #######################################
 #             DIRECTORIES             #
 #######################################
-OBJ_DIR				= objs/
-INC_DIR				= includes/
-SRC_DIR				= $(shell find srcs -type d)
-
-vpath %.cpp $(foreach dir, $(SRC_DIR), $(dir):)
+SRC_DIR		= srcs/
+OBJ_DIR		= objs/
+INC_DIR		= includes/
 
 ######################################
 #            SOURCE FILES            #
 ######################################
 SRC				=	\
-					main.cpp	\
-					getPort.cpp	\
+					${addprefix class/, 	\
+						${addprefix cmd/,	\
+							DIE.cpp			\
+							JOIN.cpp		\
+							KICK.cpp		\
+							KILL.cpp		\
+							MODE.cpp		\
+							NICK.cpp		\
+							OPER.cpp		\
+							PART.cpp		\
+							PASS.cpp		\
+							PING.cpp		\
+							PRIVMSG.cpp		\
+							QUIT.cpp		\
+							SET.cpp			\
+							USER.cpp		\
+						}					\
+						Channel.cpp			\
+						Config.cpp			\
+						Server.cpp			\
+						User.cpp			\
+					}						\
+					main.cpp
 
 ######################################
 #            OBJECT FILES            #
 ######################################
-OBJ					= ${SRC:.cpp=.o}
-OBJ					:= ${addprefix ${OBJ_DIR}, ${OBJ}}
+OBJ			= ${SRC:.cpp=.o}
+OBJ			:= ${addprefix ${OBJ_DIR}, ${OBJ}}
 
-DEP					= ${OBJ:.o=.d}
+DEP			= ${OBJ:.o=.d}
 
 #######################################
 #                FLAGS                #
 #######################################
-CXXFLAGS			=	-c
-CXXFLAGS			+=	-Wall -Wextra -Werror
-CXXFLAGS			+=	-Wshadow
-CXXFLAGS			+=	-std=c++98
-CXXFLAGS			+=	-MMD -MP
-CXXFLAGS			+=	-I${INC_DIR}
-# CXXFLAGS			+= -Weffc++ -pedantic
+CXXFLAGS	=	-c
+CXXFLAGS	+=	-Wall -Wextra# -Werror
+CXXFLAGS	+=	-Wshadow
+CXXFLAGS	+=	-std=c++98
+CXXFLAGS	+=	-MMD -MP
+CXXFLAGS	+=	-I${INC_DIR}
+# CXXFLAGS	+=	-Weffc++ -pedantic
 
-LDFLAGS			=
+LDFLAGS		=
 
-ifeq (${LEAK}, 1)
-	CXXFLAGS	+= -fsanitize=address -g3
-	LDFLAGS		+= -fsanitize=address
+ifeq (${DEBUG}, 1)
+	CXXFLAGS	+=	-g
+	# CXXFLAGS	+=	-fstandalone-debug
+	CXXFLAGS	+=	-DDEBUG
+else \
+ifeq (${DEBUG}, 2)
+	CXXFLAGS	+=	-g
+	CXXFLAGS	+=	-DDBG
+	CXXFLAGS	+=	-fsanitize=address
+	LDFLAGS		+=	-fsanitize=address
 endif
 
 #######################################
@@ -67,11 +90,9 @@ all: ${NAME}
 
 -include ${DEP}
 
-${OBJ_DIR}%.o: %.cpp | ${OBJ_DIR}
+${OBJ_DIR}%.o: ${SRC_DIR}%.cpp
+	@${MKDIR} ${@D}
 	${CXX} -c ${OUTPUT_OPTION} ${CXXFLAGS} $<
-
-${OBJ_DIR}:
-	${MKDIR} ${@D}
 
 clean:
 	${RM} ${OBJ_DIR} ${NAME}
@@ -82,3 +103,5 @@ fclean:
 re: clean all
 
 fre: fclean all
+
+-include valgrind.mk
