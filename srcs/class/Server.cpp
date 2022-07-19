@@ -148,21 +148,20 @@ bool	Server::recvAll(void)
 		if (!retRecv || time_tmp - it->getLastActivity() >= 30)//TODO Modif the value with the config
 		{
 			std::string	tmp;
-			Server::logMsg(INTERNAL,"Check the ping");
 			if (this->PING(*it, tmp))// TODO Check if the ping work of not work
 				it->updateLastActivity();
 			else
 			{
 				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
 				close(it->getSocket());
-				// TODO Modif finder
-				this->_finder.erase(it->getNickname());
+				// FIX Modif finder
+				this->_lookupUsers.erase(it->getNickname());
 				this->_users.erase(it);
 			}
 		}
 		else {
-			//TODO Modif this->_msg and change it for the user
-			if (!this->judge(*it, msg) || (!this->_msg.empty() && !this->replySend(*it)))
+			//FIX Modif this->_msg and change it for the user
+			if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
 				return false;
 			if (retRecv > 0)
 			{

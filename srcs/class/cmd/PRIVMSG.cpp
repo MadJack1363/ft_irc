@@ -12,24 +12,36 @@ bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 {
 	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
 
-	std::string	target_name = params.substr(0, params.find(':') - 1);
-	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());
+	std::string	target_name = params.substr(0, params.find(' '));
+	std::string	msg_send =  params.substr(params.find(' ') + 1, params.length());
 
-	Server::replyPush(user, "PRIVMSG :" + msg_send);
-	//TODO : check with a if for # for chan or user
-	for (std::list<User>::iterator ite = this->_users.begin() ; ite != this->_users.end() ; ite++)
+	
+	//FIX : check with a if for # for chan or user
+	if (*target_name.begin() == '#')
 	{
-		if (ite->getNickname().compare(target_name) == 0){
-			Server::replySend(*ite);
-			return true;
+		target_name = target_name.substr(1, target_name.length());
+		for (std::map<std::string, Channel>::iterator ite = this->_lookupChannels.begin() ; ite != this->_lookupChannels.end() ; ite++)
+		{
+			if (ite->second.getName().compare(target_name) == 0){
+				for (std::vector<User *>::iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
+				{
+					Server::replyPush(*(*itv), "PRIVMSG :" + msg_send);
+					Server::replySend(*(*itv));
+				}
+				return true;
+			}
 		}
 	}
-	for (std::map<std::string, Channel>::iterator ite = this->_lookupChannels.begin() ; ite != this->_lookupChannels.end() ; ite++)
+	else
 	{
-		if (ite->second.getName().compare(target_name)){
-			for (std::vector<User *>::iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
-				Server::replySend(*(*itv));
-			return true;
+		for (std::list<User>::iterator ite = this->_users.begin() ; ite != this->_users.end() ; ite++)
+		{
+			if (ite->getNickname().compare(target_name) == 0)
+			{
+				Server::replyPush(*ite, "PRIVMSG :" + msg_send);
+				Server::replySend(*ite);
+				return true;
+			}
 		}
 	}
 	return true;

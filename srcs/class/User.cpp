@@ -31,8 +31,8 @@ User::User(User const &src) :
 	_password(src._password),
 	_isRegistered(src._isRegistered),
 	_modes(src._modes),
-	_channels(src._channels),
-	_lastActivity(src._lastActivity) {}
+	_lastActivity(src._lastActivity),
+	_channels(src._channels) {}
 
 // ************************************************************************* //
 //                                Destructors                                //

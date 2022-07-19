@@ -22,8 +22,15 @@ bool	Server::JOIN(User &user, std::string &params)
 	channel_join.push_back(params.substr(0, params.length()));
 	for (std::vector<std::string>::iterator ite = channel_join.begin(); ite != channel_join.end(); ite++)
 	{
-		if (this->_lookupChannels[*ite].getName().compare("Empty") == 0)
+		// FIXME Send a message of all user in the channel with PRIVMSG
+		// FIX probably need to modif my join
+		if (this->_lookupChannels[*ite].getName().compare("Empty") == 0){
 			this->_lookupChannels[*ite].setName(*ite);
+		}
+		// MEMO Probably need to add the name of the user inside the message
+		// std::string	tmp = "#" + *ite + " " + user.getNickname() + " :has joined #" + *ite;
+		std::string	tmp = "#" + *ite + " :has joined #" + *ite;
+		this->PRIVMSG(user, tmp);
 		this->_lookupChannels[*ite].addUser(user);
 	}
 	return true;
