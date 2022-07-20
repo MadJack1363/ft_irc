@@ -10,13 +10,11 @@
  */
 bool	Server::PART(User &user, std::string &params)
 {
-	// TODO chech the replies in PART
 	std::vector<std::string>	channel_left;
 	std::string					left_message = " has left the channel";
 
-	// REMIND: Temporary to silent unused parameter warning
-	(void)user;
-
+	if(params.empty())
+		return this->replyPush(user, "461 PART :Not enough parameters");
 	params = params.c_str() + params.find(':') + 1;
 	while (params.find(',') != std::string::npos)
 	{
@@ -30,16 +28,24 @@ bool	Server::PART(User &user, std::string &params)
 	try {
 		for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 		{
-			Channel	&myChan = this->_lookupChannels[*ite];
-			if (myChan.getUsers().size() == 1)
-			{
-				this->_lookupChannels.erase(*ite);
-			}
+			if (this->_lookupChannels.find(*ite) == this->_lookupChannels.end())
+				return this->replyPush(user, "403 " + *ite + " :No such channel");
 			else
 			{
-				myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
-				std::string	cpy = *ite + left_message;
-				PRIVMSG(user, cpy);
+				Channel	&myChan = this->_lookupChannels[*ite];
+				if (std::find(myChan.getUsers().begin(), myChan.getUsers().end(), &user) == myChan.getUsers().end())
+					return this->replyPush(user, "442 " + *ite + " :You're not on that channel");
+				if (myChan.getUsers().size() == 1)
+				{
+					this->_lookupChannels.erase(*ite);
+				}
+				else
+				{
+					myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
+					std::string	cpy = *ite + left_message;
+					// FIXME PUTAIN DE PRIVMSG QUI MARCHE PAS
+					PRIVMSG(user, cpy);
+				}
 			}
 		}
 	}
