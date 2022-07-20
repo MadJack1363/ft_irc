@@ -22,7 +22,18 @@ Channel::~Channel(void)
 //                                 Accessors                                 //
 // ************************************************************************* //
 
-std::vector<User *> const	&Channel::getUsers(void) const
+void	Channel::delUser(User &user)
+{
+	this->_users.erase(std::find(this->_users.begin(), this->_users.end(), &user));
+	return ;
+}
+
+void	Channel::setName(std::string name)
+{
+	this->_name = name;
+}
+
+std::vector<User *>		&Channel::getUsers(void)
 {
 	return this->_users;
 }
@@ -30,6 +41,11 @@ std::vector<User *> const	&Channel::getUsers(void) const
 std::string const			&Channel::getName(void) const
 {
 	return this->_name;
+}
+
+time_t const				&Channel::getLastActivity(void) const
+{
+	return this->_lastActivity;
 }
 
 // ************************************************************************* //

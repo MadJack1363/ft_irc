@@ -5,6 +5,9 @@
 #include <sstream>
 #include <string>
 #include "class/Server.hpp"
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #define TIMEOUT 10
 
@@ -122,21 +125,20 @@ bool	Server::recvAll(void)
 	}
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
-		retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, 0);
-		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
+		retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		while (retRecv > 0)
 		{
 			buff[retRecv] = 0;
 			msg.append(buff);
 			if (msg.find("\r\n") != std::string::npos)
 				break ;
-			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, 0);
+			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		}
-		if (retRecv == -1)
-		{
-			Server::logMsg(ERROR, "(" + Server::toString(it->getSocket()) + ") recv: " + std::string(strerror(errno)));
-			return false;
-		}
+		// if (retRecv == -1)
+		// {
+		// 	perror("recv");
+		// 	return false;
+		// }
 		if (!retRecv) // Check whith the PING
 		{
 			Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
@@ -144,9 +146,11 @@ bool	Server::recvAll(void)
 			this->_lookupUsers.erase(it->getNickname());
 			this->_users.erase(it);
 		}
-		else if (!this->judge(*it, msg)
-			|| (!it->getMsg().empty() && !this->replySend(*it)))
-			return false;
+		else
+		{
+			if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
+				return false;
+		}
 		if (it->getSocket() == -1)
 			it = this->_users.erase(it);
 		msg.clear();
@@ -241,6 +245,9 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.push_back(pollfd());
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
+		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
+		// hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
+		// this->_users[newUser].setHostname(host->h_name);
 		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
 	return true;
@@ -346,7 +353,7 @@ bool	Server::start(uint16_t const port)
 	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket listening");
 	_pollfds.push_back(pollfd());
 	_pollfds.back().fd = this->_socket;
-	_pollfds.back().events = POLLIN;
+	_pollfds.back().events = POLLIN | POLLOUT;
 	this->_state = RUNNING;
 	return true;
 }

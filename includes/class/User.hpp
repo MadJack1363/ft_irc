@@ -30,6 +30,8 @@ private:
 
 	uint8_t								_modes;
 
+	time_t								_lastActivity;
+
 	std::map<std::string, Channel *>	_channels;
 
 	static std::pair<char const, uint const>	_lookupModes[];
@@ -64,6 +66,8 @@ public:
 	bool const								&getIsRegistered(void) const;
 
 	uint8_t const							&getModes(void) const;
+
+	time_t const							&getLastActivity(void) const;
 
 	std::map<std::string, Channel *> const	&getChannels(void) const;
 

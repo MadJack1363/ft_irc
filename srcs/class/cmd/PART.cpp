@@ -11,10 +11,7 @@
 bool	Server::PART(User &user, std::string &params)
 {
 	std::vector<std::string>	channel_left;
-	Channel						tmp;
-
-	// REMIND: Temporary to silent unused parameter warning
-	(void)user;
+	std::string					left_message = " has left the channel";
 
 	params = params.c_str() + params.find(':') + 1;
 	while (params.find(',') != std::string::npos)
@@ -22,16 +19,29 @@ bool	Server::PART(User &user, std::string &params)
 		channel_left.push_back(params.substr(0, params.find(',')));
 		params = params.c_str() + params.find(',') + 1;
 	}
-	channel_left.push_back(params.substr(0, params.find(',')));
-	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
-	{
-		// config for send a custom message or no of all user of any channel
-		tmp = this->_lookupChannels[*ite];
-		// if (tmp.getUsers().size() == 1)
-		// 	// need to delete the channel
-		// else{
-		// 	// send value to all User inside the channel
-		// }
+	channel_left.push_back(params.substr(0, params.find(' ')));
+	params = params.c_str() + params.find(' ');
+	if (params.length() > 1)
+		left_message = params;
+	try {
+		for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
+		{
+			Channel	&myChan = this->_lookupChannels[*ite];
+			if (myChan.getUsers().size() == 1)
+			{
+				this->_lookupChannels.erase(*ite);
+			}
+			else
+			{
+				myChan;
+				myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
+				std::string	cpy = *ite + left_message;
+				PRIVMSG(user, cpy);
+			}
+		}
+	}
+	catch( const std::exception & e ) {
+		Server::logMsg(ERROR, e.what());
 	}
 	return true;
 }

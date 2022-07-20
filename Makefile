@@ -72,7 +72,7 @@ ifeq (${DEBUG}, 1)
 else \
 ifeq (${DEBUG}, 2)
 	CXXFLAGS	+=	-g
-	CXXFLAGS	+=	-DDBG
+	CXXFLAGS	+=	-DDEBUG
 	CXXFLAGS	+=	-fsanitize=address
 	LDFLAGS		+=	-fsanitize=address
 endif

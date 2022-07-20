@@ -2,6 +2,7 @@
 # define CHANNEL_CLASS_HPP
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include "class/User.hpp"
 
@@ -32,17 +33,18 @@ public:
 	// Constructors
 	Channel(std::string name = "Empty");
 
+	void	addUser(User &user);
+	void	delUser(User &user);
+	void	setName(std::string name);
+
 	// Destructors
 	virtual ~Channel(void);
 
 	// Accessors
-	std::vector<User *> const	&getUsers(void) const;
+	std::vector<User *>			&getUsers(void);
 	std::string	const			&getName(void) const;
-
 	// Member functions
 	static std::string	availableModes(void);
-
-	void addUser(User &user);
 };
 
 #endif
