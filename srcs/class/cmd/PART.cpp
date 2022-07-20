@@ -10,6 +10,7 @@
  */
 bool	Server::PART(User &user, std::string &params)
 {
+	// TODO chech the replies in PART
 	std::vector<std::string>	channel_left;
 	std::string					left_message = " has left the channel";
 

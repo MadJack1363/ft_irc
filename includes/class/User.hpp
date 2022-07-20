@@ -91,9 +91,7 @@ public:
 
 	void		updateLastActivity(void);
 
-	bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
-	bool		sendTo(User const & user); // send private message
-	bool		sendToAll(Channel const & chan); // send message to every user in the channel (except myself)
+	bool		init(int const &socket, sockaddr_in const &addr);
 
 	std::string	activeModes(void) const;
 };

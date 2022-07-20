@@ -10,8 +10,6 @@
  */
 bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
-
 	std::string	target_name = params.substr(0, params.find(' '));
 	std::string	msg_send =  params.substr(params.find(' ') + 1, params.length());
 
@@ -25,7 +23,8 @@ bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 			if (ite->second.getName().compare(target_name) == 0){
 				for (std::vector<User *>::iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
 				{
-					Server::replyPush(*(*itv), "PRIVMSG :" + msg_send);
+					// Server::replyPush(*(*itv), "PRIVMSG " + msg_send);
+					Server::replyPush(*(*itv), "PRIVMSG " + (*itv)->getNickname() + " :"+ user.getNickname() + " " + msg_send);
 					Server::replySend(*(*itv));
 				}
 				return true;
@@ -38,7 +37,7 @@ bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 		{
 			if (ite->getNickname().compare(target_name) == 0)
 			{
-				Server::replyPush(*ite, "PRIVMSG :" + msg_send);
+				Server::replyPush(*ite, "PRIVMSG "+ user.getNickname() + " " + msg_send);
 				Server::replySend(*ite);
 				return true;
 			}

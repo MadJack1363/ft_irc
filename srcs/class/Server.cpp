@@ -154,15 +154,14 @@ bool	Server::recvAll(void)
 			{
 				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
 				close(it->getSocket());
-				// FIX Modif finder
 				this->_lookupUsers.erase(it->getNickname());
 				this->_users.erase(it);
 			}
 		}
-		else {
-			//FIX Modif this->_msg and change it for the user
+		// else {
 			if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
 				return false;
+			std::string coucou = it->getNickname();
 			if (retRecv > 0)
 			{
 				it->updateLastActivity();
@@ -171,7 +170,7 @@ bool	Server::recvAll(void)
 		if (it->getSocket() == -1)
 			it = this->_users.erase(it);
 		msg.clear();
-	}
+	// }
 	return true;
 }
 
