@@ -92,6 +92,17 @@ void	Server::logMsg(uint const type, std::string const &msg)
 }
 
 /**
+ * @brief	Add a user in the banlist.
+ * 
+ * @param	user The user to ban.
+ */
+void	Server::addToBanList(User const &user)
+{
+	if (find(this->_banList.begin(), this->_banList.end(), user.getNickname()) == this->_banList.end())
+		this->_banList.push_back(user.getNickname());
+}
+
+/**
  * @brief	Check every user socket connection, receive messages from
  * 			each of them, and process the received messages.
  * 
@@ -375,7 +386,6 @@ std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
 	std::pair<std::string const, Server::t_fct const>(std::string("PING"), &Server::PING),
 	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
 	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
-	std::pair<std::string const, Server::t_fct const>(std::string("SET"), &Server::SET),
 	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
 	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
 };

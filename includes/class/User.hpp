@@ -30,7 +30,7 @@ private:
 
 	uint8_t								_modes;
 
-	std::map<std::string, Channel *>	_channels; // ??
+	std::map<std::string, Channel *>	_channels;
 
 	static std::pair<char const, uint const>	_lookupModes[];
 
@@ -86,8 +86,7 @@ public:
 	void		delMode(char const c);
 
 	bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
-	bool		sendTo(User const & user); // send private message
-	bool		sendToAll(Channel const & chan); // send message to every user in the channel (except myself)
+	void		disconnect(void); // disconnect user
 
 	std::string	activeModes(void) const;
 };

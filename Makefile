@@ -35,7 +35,6 @@ SRC				=	\
 							PING.cpp		\
 							PRIVMSG.cpp		\
 							QUIT.cpp		\
-							SET.cpp			\
 							USER.cpp		\
 						}					\
 						Channel.cpp			\

@@ -10,8 +10,30 @@
  */
 bool	Server::KILL(User &user, std::string &params)
 {
-	// REMIND: Temporary to silent unused parameter warning
-	(void)user;
-	(void)params;
+	std::string	nickname;
+	std::string	comment;
+
+	if (!this->replyPush(user, "KILL " + params))
+		return false;
+	if (params.empty())
+		return this->replyPush(user, "461 KILL :Not enough parameters");
+	nickname = params.substr(0, params.find(' '));
+	params.erase(0, params.find(':') + 1);
+	if (params.empty())
+		return this->replyPush(user, "461 KILL :Not enough parameters");
+	comment = params;
+	if (!(user.getModes() & (1 << User::OPERATOR)))
+		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");
+	if (this->_lookupUsers.find(nickname) == this->_lookupUsers.end())
+	{
+		if (nickname == this->_config["server_name"])
+			return this->replyPush(user, "483 " + user.getNickname() + " :You can't kill a server!");
+		return this->replyPush(user, "401 KILL " + nickname + " :No such nick/channel");
+	}
+	Server::addToBanList(user);
+
+	// TODO message au user
+
+	// Server::QUIT(this->_lookupUsers.find(nickname)->second, params);
 	return true;
 }
