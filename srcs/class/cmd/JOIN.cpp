@@ -28,9 +28,6 @@ bool	Server::JOIN(User &user, std::string &params)
 	{
 		// TODO Banned from channel
 		// return this->replyPush(user, "474 " + "*ite" + ":Cannot join channel (+b)");
-
-		// FIX Send a message of all user in the channel with PRIVMSG
-		// FIX probably need to modif my join
 		if (this->_lookupChannels[*ite].getName().compare("Empty") == 0){
 			this->_lookupChannels[*ite].setName(*ite);
 		}

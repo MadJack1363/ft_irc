@@ -13,8 +13,6 @@ bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 	std::string	target_name = params.substr(0, params.find(' '));
 	std::string	msg_send =  params.substr(params.find(' ') + 1, params.length());
 
-	
-	//FIX : check with a if for # for chan or user
 	if (*target_name.begin() == '#')
 	{
 		target_name = target_name.substr(1, target_name.length());
