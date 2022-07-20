@@ -23,7 +23,8 @@ Server::Server(void) :
 	_pollfds(),
 	_users(),
 	_lookupUsers(),
-	_lookupChannels() {}
+	_lookupChannels(),
+	_banList() {}
 
 // ************************************************************************* //
 //                                Destructors                                //

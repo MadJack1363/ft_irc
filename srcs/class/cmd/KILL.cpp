@@ -30,10 +30,16 @@ bool	Server::KILL(User &user, std::string &params)
 			return this->replyPush(user, "483 " + user.getNickname() + " :You can't kill a server!");
 		return this->replyPush(user, "401 KILL " + nickname + " :No such nick/channel");
 	}
-	Server::addToBanList(user);
+
+	User	*userToKill = this->_lookupUsers.find(nickname)->second;
+	Server::addToBanList(*userToKill);
 
 	// TODO message au user
 
-	// Server::QUIT(this->_lookupUsers.find(nickname)->second, params);
+	if (userToKill == &user)
+		user.setMsg("");
+	close(userToKill->getSocket());
+	userToKill->setSocket(-1);
+	this->_lookupUsers.erase(userToKill->getNickname());
 	return true;
 }

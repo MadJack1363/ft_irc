@@ -43,10 +43,10 @@ std::string const			&Channel::getName(void) const
 	return this->_name;
 }
 
-time_t const				&Channel::getLastActivity(void) const
+/* time_t const				&Channel::getLastActivity(void) const
 {
 	return this->_lastActivity;
-}
+} */
 
 // ************************************************************************* //
 //                          Public Member Functions                          //
