@@ -34,10 +34,11 @@ bool	Server::KILL(User &user, std::string &params)
 	User	*userToKill = this->_lookupUsers.find(nickname)->second;
 	Server::addToBanList(*userToKill);
 
-	// TODO message au user
-
 	if (userToKill == &user)
 		user.setMsg("");
+
+	// TODO message au user
+
 	close(userToKill->getSocket());
 	userToKill->setSocket(-1);
 	this->_lookupUsers.erase(userToKill->getNickname());
