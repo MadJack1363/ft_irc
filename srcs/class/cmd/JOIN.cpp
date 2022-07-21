@@ -1,6 +1,17 @@
 #include "class/Server.hpp"
 
+// TODO Create the function for send the value 
+// bool	Server::configMsgToSend(User &user, std::string &msg_send)
+// {
+// 	// REMIND :florian!florian@AB969147.54975EF1.B6CE2A61.IP JOIN :#TesT
+// 	// user.setMsg();
+// 	std::string tmp = ":" + user.getNickname() + "!" + user.getNickname() + "@" + user.getHostname() + " IP JOIN :" +msg_send;
+// 	user.setMsg(tmp);
+// 	return replySend(user);
+// }
+
 /**
+ * 
  * @brief	Make an user joining a channel.
  * 
  * @param	user The user that ran the command.
@@ -32,10 +43,9 @@ bool	Server::JOIN(User &user, std::string &params)
 			this->_lookupChannels[*ite].setName(*ite);
 		}
 		// MEMO Probably need to add the name of the user inside the message
-		std::string	tmp = "JOIN :" + user.getNickname() + " : #" + *ite;
-		Server::replyPush(user, tmp);
-		Server::replySend(user);
 		this->_lookupChannels[*ite].addUser(user);
+		std::string tmp = "#" + *ite + " has joined the channel";
+		// PRIVMSG(user, tmp);
 	}
 	return true;
 }
