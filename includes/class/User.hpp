@@ -90,7 +90,6 @@ public:
 	void		delMode(char const c);
 
 	bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
-	void		disconnect(void); // disconnect user
 
 	std::string	activeModes(void) const;
 };

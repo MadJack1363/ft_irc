@@ -269,7 +269,7 @@ bool	Server::init(std::string const password)
 	time_t	rawtime;
 	uint	idx;
 
-
+	this->_config.init("config/default.conf"); // XXX add config.init()
 	this->_config["server_password"] = password;
 	time(&rawtime);
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));

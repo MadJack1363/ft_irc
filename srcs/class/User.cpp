@@ -220,14 +220,6 @@ void	User::delMode(char const c)
 		this->_modes &= ~(1 << User::_lookupModes[idx].second);
 }
 
-/**
- * @brief	Disconnect the user from the server.
- */
-void	User::disconnect(void) // TODO User::disconnect()
-{
-
-}
-
 // ************************************************************************** //
 //                             Private Attributes                             //
 // ************************************************************************** //
