@@ -39,7 +39,7 @@ bool	Server::MODE(User &user, std::string &params)
 				for (++it ; it != params.end() && *it != ' ' && *it != '-' ; ++it)
 				{
 					if (user.availableModes().find(*it) == std::string::npos)
-						return this->replyPush(user, std::string("472 ") + *it + " :is unknown mode char to me");
+						return this->replyPush(user, std::string("472 ") + user.getNickname() + ' ' + *it + " :is unknown mode char to me");
 					if (*it != 'o')
 						user.addMode(*it);
 				}
@@ -49,7 +49,7 @@ bool	Server::MODE(User &user, std::string &params)
 				for (++it ; it != params.end() && *it != ' ' && *it != '+' ; ++it)
 				{
 					if (user.availableModes().find(*it) == std::string::npos)
-						return this->replyPush(user, std::string("472 ") + *it + " :is unknown mode char to me");
+						return this->replyPush(user, std::string("472 ") + user.getNickname() + ' ' + *it + " :is unknown mode char to me");
 					user.delMode(*it);
 				}
 			}

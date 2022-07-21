@@ -11,7 +11,7 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_socket(sockfd),
 	_nickname("*"),
 	_username(),
-	_hostname(),
+	_servname(),
 	_realname(),
 	_password(),
 	_isRegistered(),
@@ -24,7 +24,7 @@ User::User(User const &src) :
 	_socket(src._socket),
 	_nickname(src._nickname),
 	_username(src._username),
-	_hostname(src._hostname),
+	_servname(src._servname),
 	_realname(src._realname),
 	_password(src._password),
 	_isRegistered(src._isRegistered),
@@ -67,9 +67,9 @@ std::string const	&User::getUsername(void) const
 	return this->_username;
 }
 
-std::string const	&User::getHostname(void) const
+std::string const	&User::getServname(void) const
 {
-	return this->_hostname;
+	return this->_servname;
 }
 
 std::string const	&User::getRealname(void) const
@@ -122,9 +122,9 @@ void	User::setUsername(std::string const &username)
 	this->_username = username;
 }
 
-void	User::setHostname(std::string const &hostname)
+void	User::setServname(std::string const &servname)
 {
-	this->_hostname = hostname;
+	this->_servname = servname;
 }
 
 void	User::setRealname(std::string const &realname)

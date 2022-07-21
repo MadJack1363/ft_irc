@@ -149,7 +149,8 @@ bool	Server::recvAll(void)
 		}
 		else
 		{
-			if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
+			if (!this->judge(*it, msg)
+			|| (!it->getMsg().empty() && it->getSocket() != -1 && !this->replySend(*it)))
 				return false;
 		}
 		if (it->getSocket() == -1)
@@ -269,7 +270,7 @@ bool	Server::init(std::string const password)
 	time_t	rawtime;
 	uint	idx;
 
-	this->_config.init("config/default.conf"); // XXX add config.init()
+	this->_config.init("config/default.conf");
 	this->_config["server_password"] = password;
 	time(&rawtime);
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));

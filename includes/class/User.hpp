@@ -21,7 +21,7 @@ private:
 
 	std::string							_nickname; // Max length is 9 chars
 	std::string							_username;
-	std::string							_hostname;
+	std::string							_servname;
 	std::string							_realname;
 	std::string							_password;
 	std::string							_msg;
@@ -58,7 +58,7 @@ public:
 
 	std::string const						&getNickname(void) const;
 	std::string const						&getUsername(void) const;
-	std::string const						&getHostname(void) const;
+	std::string const						&getServname(void) const;
 	std::string const						&getRealname(void) const;
 	std::string const						&getPassword(void) const;
 	std::string const						&getMsg(void) const;
@@ -75,7 +75,7 @@ public:
 	void									setAddr(sockaddr_in const &addr);
 	void									setNickname(std::string const &nickname);
 	void									setUsername(std::string const &username);
-	void									setHostname(std::string const &hostname);
+	void									setServname(std::string const &servname);
 	void									setRealname(std::string const &realname);
 	void									setPassword(std::string const &password);
 	void									setMsg(std::string const &msg);
