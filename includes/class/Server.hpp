@@ -89,6 +89,8 @@ private:
 	void	logMsg(uint const type, std::string const &msg);
 	void	printUser(User const &user);
 
+	bool	joinSend(User &user, std::string &msg_send);
+
 	bool	DIE(User &user, std::string &params);
 	bool	JOIN(User &user, std::string &params);
 	bool	KICK(User &user, std::string &params);

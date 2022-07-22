@@ -1,14 +1,17 @@
 #include "class/Server.hpp"
 
-// TODO Create the function for send the value 
-// bool	Server::configMsgToSend(User &user, std::string &msg_send)
-// {
-// 	// REMIND :florian!florian@AB969147.54975EF1.B6CE2A61.IP JOIN :#TesT
-// 	// user.setMsg();
-// 	std::string tmp = ":" + user.getNickname() + "!" + user.getNickname() + "@" + user.getHostname() + " IP JOIN :" +msg_send;
-// 	user.setMsg(tmp);
-// 	return replySend(user);
-// }
+bool	Server::joinSend(User &user, std::string &channel_name)
+{
+	//FIXME In hostname is not localhost
+	std::string tmp = ":" + user.getNickname() + "!" + user.getNickname() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
+	user.setMsg(tmp);
+	// if (!replySend(user))
+	// 	return false;
+	// FIXME Check for NO TOPIC if its the first user
+	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + user.getNickname() + " has joinned the channel");
+	this->replyPush(user, "353 " + channel_name);
+	return true;
+}
 
 /**
  * 
@@ -37,15 +40,17 @@ bool	Server::JOIN(User &user, std::string &params)
 	}
 	for (std::vector<std::string>::iterator ite = channel_join.begin(); ite != channel_join.end(); ite++)
 	{
+		if (!user.getMsg().empty())
+			if (!this->replySend(user))
+				return false;
 		// TODO Banned from channel
 		// return this->replyPush(user, "474 " + "*ite" + ":Cannot join channel (+b)");
 		if (this->_lookupChannels[*ite].getName().compare("Empty") == 0){
 			this->_lookupChannels[*ite].setName(*ite);
 		}
-		// MEMO Probably need to add the name of the user inside the message
 		this->_lookupChannels[*ite].addUser(user);
-		std::string tmp = "#" + *ite + " has joined the channel";
-		// PRIVMSG(user, tmp);
+		std::string tmp = "#" + *ite;
+		joinSend(user, tmp);
 	}
 	return true;
 }
