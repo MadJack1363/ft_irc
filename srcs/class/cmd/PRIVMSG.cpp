@@ -1,5 +1,18 @@
 #include "class/Server.hpp"
 
+// /**
+//  * @brief Config the message to send form CMD Privmsg
+//  * 
+//  * @param user the people to send the reply
+//  * @param channel_name the name of the channel he join
+//  * @return void
+//  */
+// void	Server::privmsgSend(User &user, std::string &target)
+// {
+
+// 	return true;
+// }
+
 /**
  * @brief	Send a message either to a channel or to an user.
  * 
@@ -11,6 +24,7 @@
 bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 {
 	// FIXME Have to recode this function
+	std::string tmp;
 	std::string	target_name = params.substr(0, params.find(' '));
 	std::string	msg_send =  params.substr(params.find(' ') + 1, params.length());
 
@@ -22,11 +36,9 @@ bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 			if (ite->second.getName().compare(target_name) == 0){
 				for (std::vector<User *>::iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
 				{
-					std::string tmp = "#" + target_name;
-					// configMsgToSend(user, tmp);
-					// Server::replyPush(*(*itv), "PRIVMSG " + msg_send);
-					// Server::replyPush(*(*itv), "PRIVMSG " + (*itv)->getNickname() + " :"+ user.getNickname() + " " + msg_send);
-					// Server::replySend(*(*itv));
+					tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG " + (*itv)->getNickname() + " :" + msg_send;
+					(*itv)->setMsg(tmp);
+					Server::replySend(*(*itv));
 				}
 				return true;
 			}
@@ -38,8 +50,11 @@ bool	Server::PRIVMSG(User &user, std::string &params)//!!!
 		{
 			if (ite->getNickname().compare(target_name) == 0)
 			{
-				Server::replyPush(*ite, "PRIVMSG "+ user.getNickname() + " " + msg_send);
+				tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG " + target_name + " :" + msg_send;
+				ite->setMsg(tmp);
 				Server::replySend(*ite);
+				// Server::replyPush(*ite, "PRIVMSG "+ user.getNickname() + " " + msg_send);
+				// Server::replySend(*ite);
 				return true;
 			}
 		}

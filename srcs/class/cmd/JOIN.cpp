@@ -1,16 +1,19 @@
 #include "class/Server.hpp"
 
-bool	Server::joinSend(User &user, std::string &channel_name)
+/**
+ * @brief Config the message to send form CMD Join
+ * 
+ * @param user the people to send the reply
+ * @param channel_name the name of the channel he join
+ * @return void
+ */
+void	Server::joinSend(User &user, std::string &channel_name)
 {
-	//FIXME In hostname is not localhost
-	std::string tmp = ":" + user.getNickname() + "!" + user.getNickname() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
+	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
 	user.setMsg(tmp);
-	// if (!replySend(user))
-	// 	return false;
-	// FIXME Check for NO TOPIC if its the first user
 	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + user.getNickname() + " has joinned the channel");
 	this->replyPush(user, "353 " + channel_name);
-	return true;
+	return ;
 }
 
 /**
@@ -43,8 +46,6 @@ bool	Server::JOIN(User &user, std::string &params)
 		if (!user.getMsg().empty())
 			if (!this->replySend(user))
 				return false;
-		// TODO Banned from channel
-		// return this->replyPush(user, "474 " + "*ite" + ":Cannot join channel (+b)");
 		if (this->_lookupChannels[*ite].getName().compare("Empty") == 0){
 			this->_lookupChannels[*ite].setName(*ite);
 		}

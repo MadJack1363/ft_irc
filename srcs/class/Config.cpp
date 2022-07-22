@@ -99,7 +99,7 @@ std::pair<std::string const, std::string const>	Config::_arrayValues[] = {
 	std::pair<std::string const, std::string const>("server_port", "6667"),
 	std::pair<std::string const, std::string const>("server_password", ""),
 	std::pair<std::string const, std::string const>("motd", "config/motd.txt"),
-	std::pair<std::string const, std::string const>("host", "127.0.0.1"),
+	std::pair<std::string const, std::string const>("host", "93.90.207.37"),
 	std::pair<std::string const, std::string const>("max_user", "1024"),
 	std::pair<std::string const, std::string const>("ping", "10"),
 	std::pair<std::string const, std::string const>("timeout", "30"),
