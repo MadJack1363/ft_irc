@@ -11,7 +11,7 @@
 bool	Server::KICK(User &user, std::string &params)
 {
 	std::string	channelName;
-	std::string	userToKick;
+	std::string	userNameToKick;
 	std::string	reason;
 
 	if (!this->replyPush(user, "KICK " + params))
@@ -22,14 +22,21 @@ bool	Server::KICK(User &user, std::string &params)
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
 		return this->replyPush(user, "461 KICK :Not enough parameters");
-	userToKick = params.substr(0, params.find(' '));
+	userNameToKick = params.substr(0, params.find(' '));
 	params.erase(0, params.find(':') + 1);
 	reason = params;
 
 	if(this->_lookupChannels.find(channelName) == this->_lookupChannels.end())
 		return this->replyPush(user, "403 KICK " + channelName + " :No such channel");
 
+	Channel	&chan = this->_lookupChannels.find(channelName)->second;
+		
+	if (this->_lookupUsers.find(userNameToKick) == this->_lookupUsers.end())
+		return this->replyPush(user, "441 KICK " + userNameToKick + " " + channelName + " :They aren't on that channel");
+
 	// TODO message from user to userToKick
-	// TODO kick userToKick from the channel
+
+	User	*userToKick = this->_lookupUsers.find(userNameToKick)->second;
+	chan.delUser(*userToKick);
 	return true;
 }
