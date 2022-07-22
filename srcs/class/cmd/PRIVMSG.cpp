@@ -39,7 +39,8 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 				{
 					if (user.getNickname() != (*itv)->getNickname())
 					{
-						tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " " + (*itv)->getNickname() +" " + msg_send;
+						// :flo!florian@AB969147.54975EF1.B6CE2A61.IP PRIVMSG #TesT :Salut
+						tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " " + msg_send;
 						(*itv)->setMsg(tmp);
 						Server::replySend(*(*itv));
 					}

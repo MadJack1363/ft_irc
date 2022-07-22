@@ -12,7 +12,8 @@ void	Server::joinSend(User &user, std::string &channel_name, std::string const &
 	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
 	user.setMsg(tmp);
 	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + name_join + " has joined the channel");
-	this->replyPush(user, "353 " + channel_name);
+	this->replyPush(user, "353 " + user.getNickname() + "=" + channel_name + " :" + user.getNickname());// TODO add all user in this channel
+	this->replyPush(user, "366 " + user.getNickname() + " " + channel_name + " :End of /NAMES list");
 	return ;
 }
 
@@ -27,7 +28,7 @@ void	Server::joinSend(User &user, std::string &channel_name, std::string const &
  */
 bool	Server::JOIN(User &user, std::string &params)
 {
-	// FIXME Check the usser in IRSSI why is print
+	// FIX Check the usser in IRSSI why is print
 	// MEMO check for 0 https://datatracker.ietf.org/doc/html/rfc2812#section-3.2.1
 	std::vector<std::string>	channel_join;
 
