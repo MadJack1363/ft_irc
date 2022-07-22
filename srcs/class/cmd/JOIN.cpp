@@ -7,11 +7,11 @@
  * @param channel_name the name of the channel he join
  * @return void
  */
-void	Server::joinSend(User &user, std::string &channel_name)
+void	Server::joinSend(User &user, std::string &channel_name, std::string const &name_join)
 {
 	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
 	user.setMsg(tmp);
-	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + user.getNickname() + " has joinned the channel");
+	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + name_join + " has joined the channel");
 	this->replyPush(user, "353 " + channel_name);
 	return ;
 }
@@ -27,6 +27,7 @@ void	Server::joinSend(User &user, std::string &channel_name)
  */
 bool	Server::JOIN(User &user, std::string &params)
 {
+	// FIXME Check the usser in IRSSI why is print
 	// MEMO check for 0 https://datatracker.ietf.org/doc/html/rfc2812#section-3.2.1
 	std::vector<std::string>	channel_join;
 
@@ -51,7 +52,11 @@ bool	Server::JOIN(User &user, std::string &params)
 		}
 		this->_lookupChannels[*ite].addUser(user);
 		std::string tmp = "#" + *ite;
-		joinSend(user, tmp);
+		for (std::vector<User *>::iterator itv = this->_lookupChannels[*ite].getUsers().begin(); itv != this->_lookupChannels[*ite].getUsers().end(); itv++)
+		{
+			joinSend(*(*itv), tmp, user.getNickname());
+			Server::replySend(*(*itv));
+		}
 	}
 	return true;
 }

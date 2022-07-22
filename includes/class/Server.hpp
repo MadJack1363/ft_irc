@@ -89,7 +89,8 @@ private:
 	static std::string	toString(int const nb);
 
 	void	logMsg(uint const type, std::string const &msg);
-	void	joinSend(User &user, std::string &msg_send);
+	void	joinSend(User &user, std::string &channel_name, std::string const &name_join);
+	void	partSend(User &user, std::string &channel_name, std::string &message_left);
 	void	addToBanList(User const &user);
 
 	bool	DIE(User &user, std::string &params);

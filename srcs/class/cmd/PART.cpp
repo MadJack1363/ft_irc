@@ -1,6 +1,20 @@
 #include "class/Server.hpp"
 
 /**
+ * @brief Config the message to send form CMD part
+ * 
+ * @param user the people to send the reply
+ * @param channel_name the name of the channel he part
+ * @return void
+ */
+void	Server::partSend(User &user, std::string &channel_name, std::string &message_left)
+{
+	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PART #" + channel_name + " :" + message_left;
+	user.setMsg(tmp);
+	return ;
+}
+
+/**
  * @brief	Make an user leaving a channel.
  * 
  * @param	user The user that ran the command.
@@ -46,6 +60,7 @@ bool	Server::PART(User &user, std::string &params)
 					// FIXME PUTAIN DE PRIVMSG QUI MARCHE PAS
 					PRIVMSG(user, cpy);
 				}
+				partSend(user, *ite, left_message);
 			}
 		}
 	}
