@@ -35,7 +35,6 @@ SRC				=	\
 							PING.cpp		\
 							PRIVMSG.cpp		\
 							QUIT.cpp		\
-							SET.cpp			\
 							USER.cpp		\
 						}					\
 						Channel.cpp			\
@@ -68,7 +67,7 @@ LDFLAGS		=
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
-	# CXXFLAGS	+=	-fstandalone-debug
+#	CXXFLAGS	+=	-fstandalone-debug
 	CXXFLAGS	+=	-DDEBUG
 else \
 ifeq (${DEBUG}, 2)

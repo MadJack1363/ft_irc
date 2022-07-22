@@ -23,7 +23,8 @@ Server::Server(void) :
 	_pollfds(),
 	_users(),
 	_lookupUsers(),
-	_lookupChannels() {}
+	_lookupChannels(),
+	_banList() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -95,19 +96,16 @@ void	Server::logMsg(uint const type, std::string const &msg)
 }
 
 /**
- * @brief	Write all information of the user in the log.
+ * @brief	Add a user in the banlist.
  * 
- * @param	user The user to write.
+ * @param	user The user to ban.
  */
-void	Server::printUser(User const &user)
+void	Server::addToBanList(User const &user)
 {
-	Server::logMsg(INTERNAL, "User : ");
-	Server::logMsg(INTERNAL, "\tSocket : " + Server::toString(user.getSocket()));
-	Server::logMsg(INTERNAL, "\tNickname : " + user.getNickname());
-	Server::logMsg(INTERNAL, "\tHostname : " + user.getHostname());
-	Server::logMsg(INTERNAL, "\tRealname : " + user.getRealname());
-	Server::logMsg(INTERNAL, "\tPassword : " + user.getPassword());
+	if (find(this->_banList.begin(), this->_banList.end(), user.getNickname()) == this->_banList.end())
+		this->_banList.push_back(user.getNickname());
 }
+
 /**
  * @brief	Check every user socket connection, receive messages from
  * 			each of them, and process the received messages.
@@ -282,7 +280,7 @@ bool	Server::init(std::string const password)
 	time_t	rawtime;
 	uint	idx;
 
-
+	this->_config.init("config/default.conf");
 	this->_config["server_password"] = password;
 	time(&rawtime);
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
@@ -407,7 +405,6 @@ std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
 	std::pair<std::string const, Server::t_fct const>(std::string("PING"), &Server::PING),
 	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
 	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
-	std::pair<std::string const, Server::t_fct const>(std::string("SET"), &Server::SET),
 	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
 	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
 };

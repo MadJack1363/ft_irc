@@ -79,6 +79,8 @@ private:
 	std::map<std::string, User *const>			_lookupUsers;
 	std::map<std::string, Channel>				_lookupChannels;
 	std::map<uint const, std::string const>		_lookupLogMsgTypes;
+	
+	std::list<std::string>						_banList;
 
 	static std::pair<std::string const, t_fct const> const	_arrayCmds[];
 	static std::pair<uint const, char const *const> const	_arrayLogMsgTypes[];
@@ -87,9 +89,8 @@ private:
 	static std::string	toString(int const nb);
 
 	void	logMsg(uint const type, std::string const &msg);
-	void	printUser(User const &user);
-
 	void	joinSend(User &user, std::string &msg_send);
+	void	addToBanList(User const &user);
 
 	bool	DIE(User &user, std::string &params);
 	bool	JOIN(User &user, std::string &params);
@@ -103,7 +104,6 @@ private:
 	bool	PING(User &user, std::string &params);
 	bool	PRIVMSG(User &user, std::string &params);
 	bool	QUIT(User &user, std::string &params);
-	bool	SET(User &user, std::string &params);
 	bool	USER(User &user, std::string &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);

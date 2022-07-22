@@ -18,10 +18,10 @@ bool	Server::USER(User &user, std::string &params)
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
 		return this->replyPush(user, "461 USER :Not enough parameters");
-	user.setHostname(params.substr(0, params.find(' ')));
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
 		return this->replyPush(user, "461 USER :Not enough parameters");
+	user.setServname(params.substr(0, params.find(' ')));
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
 		return this->replyPush(user, "461 USER :Not enough parameters");

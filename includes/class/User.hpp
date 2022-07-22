@@ -15,24 +15,24 @@ class User
 {
 private:
 	// Attributes
-	sockaddr_in									_addr;
+	sockaddr_in							_addr;
 
-	int											_socket;
+	int									_socket;
 
-	std::string									_nickname; // Max length is 9 chars
-	std::string									_username;
-	std::string									_hostname;
-	std::string									_realname;
-	std::string									_password;
-	std::string									_msg;
+	std::string							_nickname; // Max length is 9 chars
+	std::string							_username;
+	std::string							_servname;
+	std::string							_realname;
+	std::string							_password;
+	std::string							_msg;
 
-	bool										_isRegistered;
+	bool								_isRegistered;
 
-	uint8_t										_modes;
+	uint8_t								_modes;
 
-	time_t										_lastActivity;
+	time_t								_lastActivity;
 
-	std::map<std::string, Channel *>			_channels; // ??
+	std::map<std::string, Channel *>	_channels;
 
 	static std::pair<char const, uint const>	_lookupModes[];
 
@@ -58,7 +58,7 @@ public:
 
 	std::string const						&getNickname(void) const;
 	std::string const						&getUsername(void) const;
-	std::string const						&getHostname(void) const;
+	std::string const						&getServname(void) const;
 	std::string const						&getRealname(void) const;
 	std::string const						&getPassword(void) const;
 	std::string const						&getMsg(void) const;
@@ -75,7 +75,7 @@ public:
 	void									setAddr(sockaddr_in const &addr);
 	void									setNickname(std::string const &nickname);
 	void									setUsername(std::string const &username);
-	void									setHostname(std::string const &hostname);
+	void									setServname(std::string const &servname);
 	void									setRealname(std::string const &realname);
 	void									setPassword(std::string const &password);
 	void									setMsg(std::string const &msg);
@@ -90,8 +90,7 @@ public:
 	void		delMode(char const c);
 
 	void		updateLastActivity(void);
-
-	bool		init(int const &socket, sockaddr_in const &addr);
+	bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 
 	std::string	activeModes(void) const;
 };
