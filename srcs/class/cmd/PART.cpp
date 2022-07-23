@@ -48,19 +48,22 @@ bool	Server::PART(User &user, std::string &params)
 			{
 				Channel	&myChan = this->_lookupChannels[*ite];
 				if (std::find(myChan.getUsers().begin(), myChan.getUsers().end(), &user) == myChan.getUsers().end())
-					return this->replyPush(user, "442 " + *ite + " :You're not on that channel");
-				if (myChan.getUsers().size() == 1)
-				{
-					this->_lookupChannels.erase(*ite);
-				}
+					this->replyPush(user, "442 " + *ite + " :You're not on that channel");
 				else
 				{
-					myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
-					std::string	cpy = *ite + left_message;
-					// FIXME PUTAIN DE PRIVMSG QUI MARCHE PAS
-					PRIVMSG(user, cpy);
+					if (myChan.getUsers().size() == 1)
+					{
+						this->_lookupChannels.erase(*ite);
+					}
+					else
+					{
+						myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
+						std::string	cpy = *ite + left_message;
+						// FIXME PUTAIN DE PRIVMSG QUI MARCHE PAS
+						PRIVMSG(user, cpy);
+					}
+					partSend(user, *ite, left_message);
 				}
-				partSend(user, *ite, left_message);
 			}
 		}
 	}

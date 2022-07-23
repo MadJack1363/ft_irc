@@ -9,10 +9,12 @@
  */
 void	Server::joinSend(User &user, std::string &channel_name, std::string const &name_join)
 {
+	// FIXME with the list of user inside
+	// FIXME with the main channel of irssi message appear
 	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
 	user.setMsg(tmp);
 	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + name_join + " has joined the channel");
-	this->replyPush(user, "353 " + user.getNickname() + "=" + channel_name + " :" + user.getNickname());// TODO add all user in this channel
+	this->replyPush(user, "353 " + user.getNickname() + " = " + channel_name + " :" + user.getNickname());// TODO add all user in this channel
 	this->replyPush(user, "366 " + user.getNickname() + " " + channel_name + " :End of /NAMES list");
 	return ;
 }
@@ -28,7 +30,6 @@ void	Server::joinSend(User &user, std::string &channel_name, std::string const &
  */
 bool	Server::JOIN(User &user, std::string &params)
 {
-	// FIX Check the usser in IRSSI why is print
 	// MEMO check for 0 https://datatracker.ietf.org/doc/html/rfc2812#section-3.2.1
 	std::vector<std::string>	channel_join;
 
@@ -45,17 +46,25 @@ bool	Server::JOIN(User &user, std::string &params)
 	}
 	for (std::vector<std::string>::iterator ite = channel_join.begin(); ite != channel_join.end(); ite++)
 	{
+		Channel &chan = this->_lookupChannels[*ite];
 		if (!user.getMsg().empty())
 			if (!this->replySend(user))
 				return false;
-		if (this->_lookupChannels[*ite].getName().compare("Empty") == 0){
-			this->_lookupChannels[*ite].setName(*ite);
+		if (chan.getName().compare("Empty") == 0){
+			chan.setName(*ite);
 		}
-		this->_lookupChannels[*ite].addUser(user);
+		chan.addUser(user);
 		std::string tmp = "#" + *ite;
-		for (std::vector<User *>::iterator itv = this->_lookupChannels[*ite].getUsers().begin(); itv != this->_lookupChannels[*ite].getUsers().end(); itv++)
+		for (std::vector<User *>::iterator itv = chan.getUsers().begin(); itv != chan.getUsers().end(); itv++)
 		{
-			joinSend(*(*itv), tmp, user.getNickname());
+			if ((*itv)->getNickname().compare(user.getNickname()) == 0)
+				joinSend(*(*itv), tmp, user.getNickname());
+			else
+			{
+				std::string tmp2 = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" + tmp;
+				(*itv)->setMsg(tmp);
+				this->replyPush(*(*itv), "332 " + (*itv)->getNickname() + " " + tmp + " :" + user.getNickname() + " has joined the channel");
+			}
 			Server::replySend(*(*itv));
 		}
 	}
