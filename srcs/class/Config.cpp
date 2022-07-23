@@ -94,7 +94,7 @@ std::string	&Config::operator[](std::string const &key)
 // ************************************************************************** //
 
 std::pair<std::string const, std::string const>	Config::_arrayValues[] = {
-	std::pair<std::string const, std::string const>("server_name", "Khazad-Dum"),
+	std::pair<std::string const, std::string const>("server_name", "ircserv"),
 	std::pair<std::string const, std::string const>("server_version", "1.0"),
 	std::pair<std::string const, std::string const>("motd", "config/motd.txt"),
 	std::pair<std::string const, std::string const>("host", "127.0.0.1"),
