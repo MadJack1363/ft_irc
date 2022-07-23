@@ -10,8 +10,6 @@
  */
 bool	Server::PRIVMSG(User &user, std::string &params)
 {
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") PRIVMSG " + params);
-
 	std::string	recipient = params.substr(0, params.find(':') - 1);
 	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());
 

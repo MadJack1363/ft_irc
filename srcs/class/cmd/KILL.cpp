@@ -22,7 +22,7 @@ bool	Server::KILL(User &user, std::string &params)
 	if (params.empty())
 		return this->replyPush(user, "461 KILL :Not enough parameters");
 	comment = params;
-	if (!(user.getModes() & (1 << User::OPERATOR)))
+	if (user.getModes().find('o') == std::string::npos)
 		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");
 	if (this->_lookupUsers.find(nickname) == this->_lookupUsers.end())
 	{
@@ -34,7 +34,7 @@ bool	Server::KILL(User &user, std::string &params)
 	User	*userToKill = this->_lookupUsers.find(nickname)->second;
 	Server::addToBanList(*userToKill);
 
-	// TODO message au user
+	// TODO: message to the user
 
 	if (userToKill == &user)
 		user.setMsg("");

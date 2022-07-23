@@ -33,7 +33,6 @@ bool	Server::PART(User &user, std::string &params)
 			}
 			else
 			{
-				myChan;
 				myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
 				std::string	cpy = *ite + left_message;
 				PRIVMSG(user, cpy);

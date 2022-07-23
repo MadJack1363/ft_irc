@@ -10,8 +10,6 @@
  */
 bool	Server::PING(User &user, std::string &params)
 {
-	// Temporary to silent unused parameter warning
-	(void)user;
-	(void)params;
-	return this->replyPush(user, "PONG :" + this->_config["server_name"]);
+	return this->replyPush(user, "PING " + params)
+		&& this->replyPush(user, "PONG " + params);
 }
