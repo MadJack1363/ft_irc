@@ -185,7 +185,7 @@ bool	Server::replyPush(User &user, std::string const &line)
 	{
 		if (!user.getMsg().empty())
 			user.setMsg(std::string(user.getMsg()).append("\n"));
-		user.setMsg(std::string(user.getMsg()).append(":" + this->_config["server_name"] + " " + line));
+		user.setMsg(std::string(user.getMsg()).append(":" + user.getNickname() + '!' + user.getUsername() + '@' + user.getServname() + ' ' + line));
 	}
 	catch (std::exception const &e)
 	{
@@ -406,6 +406,7 @@ std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
 	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
 	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
 	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
+	std::pair<std::string const, Server::t_fct const>(std::string("WHOIS"), &Server::WHOIS),
 	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
 };
 

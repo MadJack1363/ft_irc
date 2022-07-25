@@ -36,6 +36,7 @@ SRC				=	\
 							PRIVMSG.cpp		\
 							QUIT.cpp		\
 							USER.cpp		\
+							WHOIS.cpp		\
 						}					\
 						Channel.cpp			\
 						Config.cpp			\

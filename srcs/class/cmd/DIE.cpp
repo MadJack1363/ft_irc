@@ -13,7 +13,7 @@ bool	Server::DIE(User &user, std::string &params __attribute__((unused)))
 {
 	if (!this->replyPush(user, "DIE " + params))
 		return false;
-	if (!(user.getModes() & (1 << User::OPERATOR)))
+	if (user.getModes().find('o') == std::string::npos)
 		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");
 	this->_state = STOPPED;
 	return true;

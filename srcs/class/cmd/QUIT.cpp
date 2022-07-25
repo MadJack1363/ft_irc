@@ -12,6 +12,5 @@ bool	Server::QUIT(User &user, std::string &params __attribute__((unused)))
 {
 	close(user.getSocket());
 	user.setSocket(-1);
-	this->_lookupUsers.erase(user.getNickname());
 	return true;
 }
