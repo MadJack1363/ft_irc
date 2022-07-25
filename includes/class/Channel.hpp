@@ -22,20 +22,15 @@ private:
 
 	// Attributes
 	std::string			_name;
+	std::string			_modes;
 
 	std::vector<User *>	_users;
 
-	uint8_t				_modes;
-
-	static std::pair<char const, uint const>	_lookupModes[];
+	static std::string const	_availableModes;
 
 public:
 	// Constructors
-	Channel(std::string name = "Empty");
-
-	void	addUser(User &user);
-	void	delUser(User &user);
-	void	setName(std::string name);
+	Channel(std::string const &name = "Empty");
 
 	// Destructors
 	virtual ~Channel(void);
@@ -43,8 +38,16 @@ public:
 	// Accessors
 	std::vector<User *>			&getUsers(void);
 	std::string	const			&getName(void) const;
+
+	static std::string const	&getAvailableModes(void);
+
+	// Mutators
+	void	setName(std::string const &name);
+	void	setUsers(std::vector<User *> const &users);
+
 	// Member functions
-	static std::string	availableModes(void);
+	void	addUser(User &user);
+	void	delUser(User &user);
 };
 
 #endif

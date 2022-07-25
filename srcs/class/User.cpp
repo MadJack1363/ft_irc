@@ -59,7 +59,7 @@ std::string const	&User::getAvailableModes(void)
 	return User::_availableModes;
 }
 
-std::map<std::string, Channel *> const	&User::getChannels(void) const
+std::map<std::string const, Channel *> const	&User::getChannels(void) const
 {
 	return this->_channels;
 }
@@ -119,12 +119,16 @@ std::string const	&User::getUsername(void) const
 	return this->_username;
 }
 
+// ************************************************************************** //
+//                                  Mutators                                  //
+// ************************************************************************** //
+
 void	User::setAddr(sockaddr_in const &addr)
 {
 	this->_addr = addr;
 }
 
-void	User::setChannels(std::map<std::string, Channel *> const &channels)
+void	User::setChannels(std::map<std::string const, Channel *> const &channels)
 {
 	this->_channels = channels;
 }

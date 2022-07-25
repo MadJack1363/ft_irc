@@ -39,8 +39,8 @@ bool	Server::USER(User &user, std::string &params)
 	user.setIsRegistered(true);
 	user.setMask();
 
-	return this->replyPush(user, ':' + user.getMask() + " 001 " + user.getNickname() + " :Welcome to the Mine, " + user.getMask() + '.')
-		&& this->replyPush(user, ':' + user.getMask() + " 002 " + user.getNickname() + " :Your host is " + this->_config["server_name"] + ", running version " + this->_config["server_version"] + '.')
-		&& this->replyPush(user, ':' + user.getMask() + " 003 " + user.getNickname() + " :This server was created " + this->_creationTime + '.')
-		&& this->replyPush(user, ':' + user.getMask() + " 004 " + user.getNickname() + " :" + this->_config["server_name"] + " " + this->_config["server_version"] + ' ' + User::getAvailableModes() + ' ' + Channel::availableModes() + '.');
+	return this->replyPush(user, "001 " + user.getNickname() + " :Welcome to the Mine, " + user.getMask() + '.')
+		&& this->replyPush(user, "002 " + user.getNickname() + " :Your host is " + this->_config["server_name"] + ", running version " + this->_config["server_version"] + '.')
+		&& this->replyPush(user, "003 " + user.getNickname() + " :This server was created " + this->_creationTime + '.')
+		&& this->replyPush(user, "004 " + user.getNickname() + " :" + this->_config["server_name"] + " " + this->_config["server_version"] + ' ' + User::getAvailableModes() + ' ' + Channel::getAvailableModes() + '.');
 }

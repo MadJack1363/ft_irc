@@ -23,8 +23,9 @@ bool	Server::PART(User &user, std::string &params)
 	params = params.c_str() + params.find(' ');
 	if (params.length() > 1)
 		left_message = params;
-	try {
-		for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
+	try
+	{
+		for (std::vector<std::string>::iterator ite = channel_left.begin() ; ite != channel_left.end() ; ite++)
 		{
 			Channel	&myChan = this->_lookupChannels[*ite];
 			if (myChan.getUsers().size() == 1)
