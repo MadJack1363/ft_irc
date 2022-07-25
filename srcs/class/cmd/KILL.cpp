@@ -16,11 +16,11 @@ bool	Server::KILL(User &user, std::string &params)
 	if (!this->replyPush(user, "KILL " + params))
 		return false;
 	if (params.empty())
-		return this->replyPush(user, "461 KILL :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
 	nickname = params.substr(0, params.find(' '));
 	params.erase(0, params.find(':') + 1);
 	if (params.empty())
-		return this->replyPush(user, "461 KILL :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
 	comment = params;
 	if (user.getModes().find('o') == std::string::npos)
 		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");
@@ -28,7 +28,7 @@ bool	Server::KILL(User &user, std::string &params)
 	{
 		if (nickname == this->_config["server_name"])
 			return this->replyPush(user, "483 " + user.getNickname() + " :You can't kill a server!");
-		return this->replyPush(user, "401 KILL " + nickname + " :No such nick/channel");
+		return this->replyPush(user, "401 " + user.getNickname() + ' ' + nickname + " :No such nick/channel");
 	}
 
 	User	*userToKill = this->_lookupUsers.find(nickname)->second;

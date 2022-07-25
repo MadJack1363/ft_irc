@@ -16,7 +16,7 @@ bool	Server::WHOIS(User &user, std::string &params)
 	if (!this->replyPush(user, "WHOIS " + params))
 		return false;
 	if (params.empty())
-		return this->replyPush(user, "431 " + user.getNickname() + " :Not enough parameters");
+		return this->replyPush(user, "431 " + user.getNickname() + " :No nickname given");
 	nickname = params.substr(0, params.find(' '));
 	cit = this->_lookupUsers.find(nickname);
 	if (cit == this->_lookupUsers.end())

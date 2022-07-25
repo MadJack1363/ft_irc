@@ -17,11 +17,11 @@ bool	Server::MODE(User &user, std::string &params)
 	if (!this->replyPush(user, "MODE " + params))
 		return false;
 	if (params.empty())
-		return this->replyPush(user, "461 MODE :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " MODE :Not enough parameters");
 	targetName = params.substr(0, params.find(' '));
 	params.erase(0, targetName.length()).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
-		return this->replyPush(user, "461 MODE :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " MODE :Not enough parameters");
 	if (*targetName.begin() == '#') // channel mode
 	{
 		return true;
@@ -29,9 +29,9 @@ bool	Server::MODE(User &user, std::string &params)
 	else // user mode
 	{
 		if (this->_lookupUsers.find(targetName) == this->_lookupUsers.end())
-			return this->replyPush(user, "401 " + targetName + " :No such nick/channel");
+			return this->replyPush(user, "401 " + user.getNickname() + ' ' + targetName + " :No such nick/channel");
 		if (targetName != user.getNickname())
-			return this->replyPush(user, "502 :Cant change mode for other users");
+			return this->replyPush(user, "502 " + user.getNickname() + " :Cant change mode for other users");
 		for (cit = params.begin() ; cit != params.end() ; )
 		{
 			if (*cit == '+')

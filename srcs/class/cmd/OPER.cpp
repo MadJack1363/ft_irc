@@ -16,7 +16,7 @@ bool	Server::OPER(User &user, std::string &params)
 	if (!this->replyPush(user, "OPER " + params))
 		return false;
 	if (params.empty())
-		return this->replyPush(user, "461 OPER :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " OPER :Not enough parameters");
 	name = params.substr(0, params.find(' '));
 	params.erase(0, name.length()).erase(0, params.find_first_not_of(' '));
 	if (params.empty())

@@ -154,7 +154,10 @@ bool	Server::recvAll(void)
 				return false;
 		}
 		if (it->getSocket() == -1)
+		{
+			this->_lookupUsers.erase(it->getNickname());
 			it = this->_users.erase(it);
+		}
 		msg.clear();
 	}
 	return true;
@@ -172,8 +175,8 @@ bool	Server::replyPush(User &user, std::string const &line)
 	try
 	{
 		if (!user.getMsg().empty())
-			user.setMsg(std::string(user.getMsg()).append("\n"));
-		user.setMsg(std::string(user.getMsg()).append(":" + user.getNickname() + '!' + user.getUsername() + '@' + user.getServname() + ' ' + line));
+			user.setMsg(user.getMsg() + '\n');
+		user.setMsg(user.getMsg() + line);
 	}
 	catch (std::exception const &e)
 	{

@@ -17,11 +17,11 @@ bool	Server::KICK(User &user, std::string &params)
 	if (!this->replyPush(user, "KICK " + params))
 		return false;
 	if (params.empty())
-		return this->replyPush(user, "461 KICK :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " KICK :Not enough parameters");
 	channelName = params.substr(0, params.find(' ')).erase(0, 1);
 	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
 	if (params.empty())
-		return this->replyPush(user, "461 KICK :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " KICK :Not enough parameters");
 	userNameToKick = params.substr(0, params.find(' '));
 	params.erase(0, params.find(':') + 1);
 	reason = params;

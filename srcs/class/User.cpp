@@ -74,6 +74,11 @@ bool const	&User::getIsRegistered(void) const
 	return this->_isRegistered;
 }
 
+std::string const	&User::getMask(void) const
+{
+	return this->_mask;
+}
+
 std::string const	&User::getModes(void) const
 {
 	return this->_modes;
@@ -132,6 +137,16 @@ void	User::setHostname(std::string const &hostname)
 void	User::setIsRegistered(bool const isRegistered)
 {
 	this->_isRegistered = isRegistered;
+}
+
+void	User::setMask(std::string const &mask)
+{
+	this->_mask = mask;
+}
+
+void	User::setMask(void)
+{
+	this->_mask = this->_nickname + '!' + this->_username + '@' + this->_servname;
 }
 
 void	User::setMsg(std::string const &msg)
