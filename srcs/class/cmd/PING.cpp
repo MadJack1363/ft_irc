@@ -13,8 +13,8 @@
  */
 bool	Server::PING(User &user, std::string &params)
 {
-	return this->replyPush(user, "PING " + params)
-		&& this->replyPush(user, "PONG " + params);
+	return this->replyPush(user, ':' + user.getMask() + " PING " + params)
+		&& this->replyPush(user, ':' + user.getMask() + " PONG " + params);
 }
 
 bool Server::IDK(User &user)

@@ -26,6 +26,7 @@ private:
 	std::string							_realname;
 	std::string							_password;
 	std::string							_modes;
+	std::string							_mask;
 	std::string							_msg;
 
 	bool								_isRegistered;
@@ -56,6 +57,7 @@ public:
 	std::string const						&getRealname(void) const;
 	std::string const						&getPassword(void) const;
 	std::string const						&getModes(void) const;
+	std::string const						&getMask(void) const;
 	std::string const						&getMsg(void) const;
 
 	bool const								&getIsRegistered(void) const;
@@ -66,6 +68,7 @@ public:
 
 	static std::string const				&getAvailableModes(void);
 
+	// Mutators
 	void									setSocket(int const sockfd);
 	void									setAddr(sockaddr_in const &addr);
 	void									setNickname(std::string const &nickname);
@@ -75,6 +78,8 @@ public:
 	void									setRealname(std::string const &realname);
 	void									setPassword(std::string const &password);
 	void									setModes(std::string const &modes);
+	void									setMask(std::string const &mask);
+	void									setMask(void);
 	void									setMsg(std::string const &msg);
 	void									setIsRegistered(bool const isRegistered);
 	void									setChannels(std::map<std::string, Channel *> const &channels);
