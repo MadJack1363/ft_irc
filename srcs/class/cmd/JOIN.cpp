@@ -4,18 +4,20 @@
  * @brief Config the message to send form CMD Join
  * 
  * @param user the people to send the reply
- * @param channel_name the name of the channel he join
+ * @param channel the channel of the user join
+ * @param name_join the name of the people join the channels
  * @return void
  */
-void	Server::joinSend(User &user, std::string &channel_name, std::string const &name_join)
+void	Server::joinSend(User &user, Channel &channel, std::string const &name_join)
 {
-	// FIXME with the list of user inside
-	// FIXME with the main channel of irssi message appear
-	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" +channel_name;
+	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :#" +channel.getName();
 	user.setMsg(tmp);
-	this->replyPush(user, "332 " + user.getNickname() + " " + channel_name + " :" + name_join + " has joined the channel");
-	this->replyPush(user, "353 " + user.getNickname() + " = " + channel_name + " :" + user.getNickname());// TODO add all user in this channel
-	this->replyPush(user, "366 " + user.getNickname() + " " + channel_name + " :End of /NAMES list");
+	tmp.clear();
+	this->replyPush(user, "332 " + user.getNickname() + " #" + channel.getName() + " :" + name_join + " has joined the channel");
+	for (std::vector<User *>::iterator itv = channel.getUsers().begin(); itv != channel.getUsers().end();itv++)
+		tmp += " " + (*itv)->getNickname();
+	this->replyPush(user, "353 " + user.getNickname() + " = #" + channel.getName() + " :" + tmp);
+	this->replyPush(user, "366 " + user.getNickname() + " #" + channel.getName() + " :End of /NAMES list");
 	return ;
 }
 
@@ -58,7 +60,7 @@ bool	Server::JOIN(User &user, std::string &params)
 		for (std::vector<User *>::iterator itv = chan.getUsers().begin(); itv != chan.getUsers().end(); itv++)
 		{
 			if ((*itv)->getNickname().compare(user.getNickname()) == 0)
-				joinSend(*(*itv), tmp, user.getNickname());
+				joinSend(*(*itv), chan, user.getNickname());
 			else
 			{
 				std::string tmp2 = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" + tmp;

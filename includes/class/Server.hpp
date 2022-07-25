@@ -94,8 +94,7 @@ private:
 	static std::string	toString(int const nb);
 
 	void	logMsg(uint const type, std::string const &msg);
-	void	joinSend(User &user, std::string &channel_name, std::string const &name_join);
-	// void	joinSend(User &user, Channel &channel, std::string const &name_join);
+	void	joinSend(User &user, Channel &channel, std::string const &name_join);
 	void	partSend(User &user, std::string &channel_name, std::string &message_left);
 	void	addToBanList(User const &user);
 
@@ -119,6 +118,7 @@ private:
 	bool	replySend(User &user);
 	bool	welcomeDwarves(void);
 
+	bool	IDK(User &user);
 public:
 	// Constructors
 	Server(void);

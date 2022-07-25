@@ -32,7 +32,7 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 	// TODO ERR_TOOMANYTARGETS (407) | Check but no max persmissions
 	std::string tmp;
 	std::string	target_name = params.substr(0, params.find(' '));
-	std::string	msg_send =  params.substr(params.find(' ') + 1, params.length());
+	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());
 
 	if (*target_name.begin() == '#')
 	{
@@ -49,7 +49,7 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 						//   :dan!~h@localhost PRIVMSG #coolpeople :Hi everyone!
 						// ; Message from dan to the channel #coolpeople
 						// :flo!florian@AB969147.54975EF1.B6CE2A61.IP PRIVMSG #TesT :Salut
-						tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " " + msg_send;
+						tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " :" + msg_send;
 						(*itv)->setMsg(tmp);
 						Server::replySend(*(*itv));
 					}
@@ -71,8 +71,11 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 				// :Angel PRIVMSG Wiz :Hello are you receiving this message ?
 				// ; Message from Angel to Wiz.
 
-				tmp = ":" + user.getNickname() + " PRIVMSG " + target_name + " " + msg_send;
+				tmp = ":" + user.getNickname() + " PRIVMSG " + target_name + " :" + msg_send;
 				ite->setMsg(tmp);
+				// tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " " + msg_send;
+				tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG " + target_name + " " + msg_send;
+				user.setMsg(tmp);
 				Server::replySend(*ite);
 
 				return true;

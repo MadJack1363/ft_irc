@@ -143,10 +143,10 @@ bool	Server::recvAll(void)
 
 		time_t	time_tmp;
 		time(&time_tmp);
-		if (!retRecv || time_tmp - it->getLastActivity() >= 30)//TODO Modif the value with the config
+		if (!retRecv || time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
 		{
-			std::string	tmp;
-			if (this->PING(*it, tmp))// TODO Check if the ping work of not work
+			Server::logMsg(INTERNAL, "Je depasse les "+ Server::toString(std::strtol(this->_config["ping"].c_str(), NULL, 10)));
+			if (this->IDK(*it))// TODO Check if the ping work of not work
 				it->updateLastActivity();
 			else
 			{
