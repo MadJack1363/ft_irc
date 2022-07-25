@@ -145,7 +145,6 @@ bool	Server::recvAll(void)
 		time(&time_tmp);
 		if (!retRecv || time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
 		{
-			Server::logMsg(INTERNAL, "Je depasse les "+ Server::toString(std::strtol(this->_config["ping"].c_str(), NULL, 10)));
 			if (this->IDK(*it))// TODO Check if the ping work of not work
 				it->updateLastActivity();
 			else

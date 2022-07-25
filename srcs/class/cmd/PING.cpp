@@ -29,6 +29,7 @@ bool Server::IDK(User &user)
 	this->replySend(user);
 	while (1)
 	{
+		// MEMO a 2 doight de me demander si le mieux nest pas de le mettre en 0 pour les flag de recv
 		retRecv = recv(user.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		while (retRecv > 0)
 		{
@@ -49,6 +50,8 @@ bool Server::IDK(User &user)
 			return false ;
 		}
 	}
+	if (msg.compare(user.getNickname()) != 0)
+	return false;
 	Server::logMsg(INTERNAL, "PING RECOIS " + msg);
 	return true;
 	// return this->replyPush(user, "PONG " + params);

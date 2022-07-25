@@ -28,27 +28,41 @@ bool	Server::PART(User &user, std::string &params)
 	std::string					left_message = " has left the channel";
 
 	if(params.empty())
-		return this->replyPush(user, "461 PART :Not enough parameters");
+		return this->replyPush(user, ':' + user.getMask() + " 461 PART :Not enough parameters");
 	params = params.c_str() + params.find(':') + 1;
-	while (params.find(',') != std::string::npos)
+	if (params.compare("0") == 0)
 	{
-		channel_left.push_back(params.substr(0, params.find(',')));
-		params = params.c_str() + params.find(',') + 1;
+		// TODO find all the channel of the user is
+		for (std::map<std::string, Channel>::iterator itm = this->_lookupChannels.begin(); itm != this->_lookupChannels.end(); itm++)
+		{
+			if (std::find(itm->second.getUsers().begin(), itm->second.getUsers().end(), &user) != itm->second.getUsers().end())
+				channel_left.push_back(itm->second.getName());
+		}
 	}
-	channel_left.push_back(params.substr(0, params.find(' ')));
-	params = params.c_str() + params.find(' ');
-	if (params.length() > 1)
-		left_message = params;
+	else
+	{
+		while (params.find(',') != std::string::npos)
+		{
+			channel_left.push_back(params.substr(0, params.find(',')));
+			params = params.c_str() + params.find(',') + 1;
+		}
+		channel_left.push_back(params.substr(0, params.find(' ')));
+		params = params.c_str() + params.find(' ');
+		if (params.length() > 1)
+			left_message = params;
+	}
 	try {
 		for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
 		{
 			if (this->_lookupChannels.find(*ite) == this->_lookupChannels.end())
-				return this->replyPush(user, "403 " + *ite + " :No such channel");
+				return this->replyPush(user, ':' + user.getMask() + " 403 " + *ite + " :No such channel");
 			else
 			{
 				Channel	&myChan = this->_lookupChannels[*ite];
 				if (std::find(myChan.getUsers().begin(), myChan.getUsers().end(), &user) == myChan.getUsers().end())
-					this->replyPush(user, "442 " + *ite + " :You're not on that channel");
+				{
+					this->replyPush(user, ':' + user.getMask() + " 442 " + *ite + " :You're not on that channel");
+				}
 				else
 				{
 					if (myChan.getUsers().size() == 1)
@@ -63,6 +77,8 @@ bool	Server::PART(User &user, std::string &params)
 						PRIVMSG(user, cpy);
 					}
 					partSend(user, *ite, left_message);
+					if (ite != channel_left.end())
+						this->replySend(user);
 				}
 			}
 		}

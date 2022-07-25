@@ -10,14 +10,14 @@
  */
 void	Server::joinSend(User &user, Channel &channel, std::string const &name_join)
 {
-	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :#" +channel.getName();
+	std::string tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " JOIN :#" +channel.getName();
 	user.setMsg(tmp);
 	tmp.clear();
-	this->replyPush(user, "332 " + user.getNickname() + " #" + channel.getName() + " :" + name_join + " has joined the channel");
+	this->replyPush(user, ':' + user.getMask() + " 332 " + user.getNickname() + " #" + channel.getName() + " :" + name_join + " has joined the channel");
 	for (std::vector<User *>::iterator itv = channel.getUsers().begin(); itv != channel.getUsers().end();itv++)
 		tmp += " " + (*itv)->getNickname();
-	this->replyPush(user, "353 " + user.getNickname() + " = #" + channel.getName() + " :" + tmp);
-	this->replyPush(user, "366 " + user.getNickname() + " #" + channel.getName() + " :End of /NAMES list");
+	this->replyPush(user, ':' + user.getMask() + " 353 " + user.getNickname() + " = #" + channel.getName() + " :" + tmp);
+	this->replyPush(user, ':' + user.getMask() + " 366 " + user.getNickname() + " #" + channel.getName() + " :End of /NAMES list");
 	return ;
 }
 
@@ -32,10 +32,11 @@ void	Server::joinSend(User &user, Channel &channel, std::string const &name_join
  */
 bool	Server::JOIN(User &user, std::string &params)
 {
-	// MEMO check for 0 https://datatracker.ietf.org/doc/html/rfc2812#section-3.2.1
 	std::vector<std::string>	channel_join;
 
 	params = params.c_str() + params.find('#') + 1;
+	if (params.compare("0") == 0)
+		return this->PART(user, params);
 	while (params.find('#') != std::string::npos)
 	{
 		channel_join.push_back(params.substr(0, params.find(',')));
@@ -44,7 +45,7 @@ bool	Server::JOIN(User &user, std::string &params)
 	channel_join.push_back(params.substr(0, params.length()));
 	if (channel_join.empty())
 	{
-		return this->replyPush(user, "461 JOIN :Not enough parameters");
+		return this->replyPush(user, ':' + user.getMask() + "461 JOIN :Not enough parameters");
 	}
 	for (std::vector<std::string>::iterator ite = channel_join.begin(); ite != channel_join.end(); ite++)
 	{
@@ -65,7 +66,7 @@ bool	Server::JOIN(User &user, std::string &params)
 			{
 				std::string tmp2 = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " IP JOIN :" + tmp;
 				(*itv)->setMsg(tmp);
-				this->replyPush(*(*itv), "332 " + (*itv)->getNickname() + " " + tmp + " :" + user.getNickname() + " has joined the channel");
+				this->replyPush(*(*itv), ':' + user.getMask() + "332 " + (*itv)->getNickname() + " " + tmp + " :" + user.getNickname() + " has joined the channel");
 			}
 			Server::replySend(*(*itv));
 		}
