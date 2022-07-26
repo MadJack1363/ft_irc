@@ -14,7 +14,7 @@ bool	Server::MODE(User &user, std::string &params)
 	std::string::const_iterator	cit;
 	std::string::size_type		pos;
 
-	if (!this->replyPush(user, ':' + user.getMask() + " MODE " + params))
+	if (!this->replyPush(user, /* ':' +  *//* user.getMask() */ /* this->_config["host"] + "  */"MODE " + params))
 		return false;
 	if (params.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " MODE :Not enough parameters");
@@ -60,6 +60,6 @@ bool	Server::MODE(User &user, std::string &params)
 			else
 				++cit;
 		}
-		return this->replyPush(user, ':' + user.getMask() + " 221 " + user.getNickname() + " :" + user.getModes());
+		return this->replyPush(user, /* ':' +  *//* user.getMask() */ /* this->_config["host"] + "  */"221 " + user.getNickname() + " :" + user.getModes());
 	}
 }

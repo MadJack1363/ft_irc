@@ -13,8 +13,8 @@ bool	Server::OPER(User &user, std::string &params)
 	std::string	name;
 	std::string	password;
 
-	if (!this->replyPush(user, ':' + user.getMask() + " OPER " + params))
-		return false;
+	// if (!this->replyPush(user, ':' + /* user.getMask() */ this->_config["host"] + " OPER " + params))
+	// 	return false;
 	if (params.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " OPER :Not enough parameters");
 	name = params.substr(0, params.find(' '));
@@ -26,6 +26,9 @@ bool	Server::OPER(User &user, std::string &params)
 		return this->replyPush(user, ':' + user.getMask() + " 464 " + user.getNickname() + " :Password incorrect");
 	if (user.getModes().find('o') == std::string::npos)
 		user.setModes(user.getModes() + 'o');
-	return replyPush(user, ':' + user.getMask() + " 221 " + user.getNickname() + " :" + user.getModes())
-		&& replyPush(user, ':' + user.getMask() + " 381 " + user.getNickname() + " :You are now an IRC operator.");
+	// return replyPush(user, ':' + /* user.getMask() */ this->_config["host"] + " 221 " + user.getNickname() + " :" + user.getModes())
+	std::string	modeParams(user.getNickname() + " +o");
+
+	return replyPush(user, ':' + user.getNickname() /* this->_config["host"] */ + " 381 " + user.getNickname() + " :You are now an IRC operator.")
+			&& MODE(user, modeParams);
 }

@@ -28,6 +28,7 @@ SRC				=	\
 							KICK.cpp		\
 							KILL.cpp		\
 							MODE.cpp		\
+							MOTD.cpp		\
 							NICK.cpp		\
 							OPER.cpp		\
 							PART.cpp		\

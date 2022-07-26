@@ -196,21 +196,32 @@ bool	Server::replyPush(User &user, std::string const &line)
 bool	Server::replySend(User &user)
 {
 	std::string	line;
+	std::string	msgToSend = user.getMsg() + "\r\n";
+	char const	*c_msgToSend = msgToSend.c_str();
+	size_t		size = msgToSend.length();
+	ssize_t		retSend;
 
-	user.setMsg(std::string(user.getMsg()).append("\r\n"));
-	if (send(user.getSocket(), user.getMsg().c_str(), user.getMsg().size() + 1, 0) == -1)
+	while (size > 0)
 	{
-		Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
-		return false;
+		retSend = send(user.getSocket(), c_msgToSend, size, 0);
+		if (retSend < 0)
+		{
+			Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
+			return false;
+		}
+		c_msgToSend += retSend;
+		size -= retSend;
 	}
-	while (!user.getMsg().empty())
+
+	while (!msgToSend.empty())
 	{
-		line = user.getMsg().substr(0, user.getMsg().find('\n'));
-		user.setMsg(std::string(user.getMsg()).erase(0, user.getMsg().find('\n') + 1));
-		if (user.getMsg().empty())
+		line = msgToSend.substr(0, msgToSend.find('\n'));
+		msgToSend = std::string(msgToSend).erase(0, msgToSend.find('\n') + 1);
+		if (msgToSend.empty())
 			line.erase(line.end() - 1);
 		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
 	}
+	user.setMsg("");
 	return true;
 }
 
@@ -391,6 +402,7 @@ std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
 	std::pair<std::string const, Server::t_fct const>(std::string("KICK"), &Server::KICK),
 	std::pair<std::string const, Server::t_fct const>(std::string("KILL"), &Server::KILL),
 	std::pair<std::string const, Server::t_fct const>(std::string("MODE"), &Server::MODE),
+	std::pair<std::string const, Server::t_fct const>(std::string("MOTD"), &Server::MOTD),
 	std::pair<std::string const, Server::t_fct const>(std::string("NICK"), &Server::NICK),
 	std::pair<std::string const, Server::t_fct const>(std::string("OPER"), &Server::OPER),
 	std::pair<std::string const, Server::t_fct const>(std::string("PART"), &Server::PART),

@@ -10,6 +10,7 @@
  */
 bool	Server::PING(User &user, std::string &params)
 {
-	return this->replyPush(user, ':' + user.getMask() + " PING " + params)
-		&& this->replyPush(user, ':' + user.getMask() + " PONG " + params);
+	// return this->replyPush(user, ':' + /* user.getMask() */ this->_config["host"] + " PING " + params)
+	// 	&& this->replyPush(user, ':' + /* user.getMask() */ this->_config["host"] + " PONG " + params);
+	return this->replyPush(user, ':' + /* user.getMask() */ this->_config["host"] + " PONG " + params);
 }

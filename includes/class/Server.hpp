@@ -102,6 +102,7 @@ private:
 	bool	KICK(User &user, std::string &params);
 	bool	KILL(User &user, std::string &params);
 	bool	MODE(User &user, std::string &params);
+	bool	MOTD(User &user, std::string &params);
 	bool	NICK(User &user, std::string &params);
 	bool	OPER(User &user, std::string &params);
 	bool	PART(User &user, std::string &params);
