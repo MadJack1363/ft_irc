@@ -10,18 +10,25 @@
  */
 bool	Server::KILL(User &user, std::string &params)
 {
-	std::string	nickname;
-	std::string	comment;
+	std::string					nickname;
+	std::string					reason;
+	std::string					subParams;
+	std::string::const_iterator	cit0;
+	std::string::const_iterator	cit1;
 
 	if (!this->replyPush(user, "KILL " + params))
 		return false;
-	if (params.empty())
+
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	nickname = std::string(cit0, cit1);
+	if (nickname.empty())
 		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
-	nickname = params.substr(0, params.find(' '));
-	params.erase(0, params.find(':') + 1);
-	if (params.empty())
+
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	if (cit1 == params.end() || *cit1 != ':')
 		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
-	comment = params;
+	reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
+
 	if (user.getModes().find('o') == std::string::npos)
 		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");
 	if (this->_lookupUsers.find(nickname) == this->_lookupUsers.end())
@@ -31,16 +38,14 @@ bool	Server::KILL(User &user, std::string &params)
 		return this->replyPush(user, "401 " + user.getNickname() + ' ' + nickname + " :No such nick/channel");
 	}
 
-	User	*userToKill = this->_lookupUsers.find(nickname)->second;
-	Server::addToBanList(*userToKill);
+	User	&userToKill = *this->_lookupUsers.find(nickname)->second;
+	Server::addToBanList(userToKill);
 
-	if (userToKill == &user)
+	if (&userToKill == &user)
 		user.setMsg("");
 
-	// TODO: message to the user
+	// TODO: message to the user before calling this->QUIT()
 
-	close(userToKill->getSocket());
-	userToKill->setSocket(-1);
-	this->_lookupUsers.erase(userToKill->getNickname());
-	return true;
+	subParams = ':' + "Killed (" + user.getNickname() + " (" + reason + "))";
+	return this->QUIT(userToKill, subParams);
 }

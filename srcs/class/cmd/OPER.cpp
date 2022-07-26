@@ -10,18 +10,24 @@
  */
 bool	Server::OPER(User &user, std::string &params)
 {
-	std::string	name;
-	std::string	password;
+	std::string					name;
+	std::string					password;
+	std::string::const_iterator	cit0;
+	std::string::const_iterator	cit1;
 
 	if (!this->replyPush(user, ':' + user.getMask() + " OPER " + params))
 		return false;
-	if (params.empty())
+
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	name = std::string(cit0, cit1);
+	if (name.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " OPER :Not enough parameters");
-	name = params.substr(0, params.find(' '));
-	params.erase(0, name.length()).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
-		return this->replyPush(user, ':' + user.getMask() + " 461 OPER :Not enough parameters");
-	password = params.substr(0, params.find(' '));
+
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	password = std::string(cit1, static_cast<std::string::const_iterator>(params.end()));
+	if (password.empty())
+		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " OPER :Not enough parameters");
+
 	if (this->_config["oper_name"] != name || this->_config["oper_password"] != password)
 		return this->replyPush(user, ':' + user.getMask() + " 464 " + user.getNickname() + " :Password incorrect");
 	if (user.getModes().find('o') == std::string::npos)

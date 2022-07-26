@@ -9,7 +9,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::DIE(User &user, std::string &params __attribute__((unused)))
+bool	Server::DIE(User &user, std::string &params)
 {
 	if (!this->replyPush(user, "DIE " + params))
 		return false;

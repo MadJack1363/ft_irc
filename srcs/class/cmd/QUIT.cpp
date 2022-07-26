@@ -11,7 +11,7 @@
 bool	Server::QUIT(User &user, std::string &params)
 {
 	std::string												channels;
-	std::string												reason(params);
+	std::string												reason;
 	std::string												subParams;
 	std::map<std::string const, Channel *>::const_iterator	cit;
 
@@ -21,6 +21,7 @@ bool	Server::QUIT(User &user, std::string &params)
 			channels += cit->first + ',';
 		channels.erase(channels.end() - 1);
 
+		reason = params;
 		if (*reason.begin() == ':')
 			reason.erase(reason.begin());
 		reason = "Quit: " + reason;

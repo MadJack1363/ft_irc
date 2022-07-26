@@ -36,6 +36,7 @@ private:
 	std::map<std::string const, Channel *>	_channels;
 
 	static std::string const	_availableModes;
+	static std::string const	_availableNicknameChars;
 
 public:
 	// Constructors
@@ -44,6 +45,9 @@ public:
 
 	// Destructors
 	virtual ~User(void);
+
+	// Member functions
+	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 
 	// Accessors
 	sockaddr_in const								&getAddr(void) const;
@@ -67,6 +71,7 @@ public:
 	std::map<std::string const, Channel *> const	&getChannels(void) const;
 
 	static std::string const						&getAvailableModes(void);
+	static std::string const						&getAvailableNicknameChars(void);
 
 	// Mutators
 	void	setSocket(int const sockfd);
@@ -83,9 +88,6 @@ public:
 	void	setMsg(std::string const &msg);
 	void	setIsRegistered(bool const isRegistered);
 	void	setChannels(std::map<std::string const, Channel *> const &channels);
-
-	// Member functions
-	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 };
 
 #endif

@@ -1,13 +1,24 @@
 #include "class/Channel.hpp"
 
 // ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+/**
+ * The available modes are:
+ * 	- i: invite-only
+ * 	- n: no outside messages
+ */
+std::string const	Channel::_availableModes("in");
+
+// ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
 Channel::Channel(std::string const &name) :
 	_name(name),
-	_modes(0U),
-	_users() {}
+	_modes(),
+	_lookupUsers() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -15,7 +26,21 @@ Channel::Channel(std::string const &name) :
 
 Channel::~Channel(void)
 {
-	this->_users.clear();
+	this->_lookupUsers.clear();
+}
+
+// ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+void	Channel::addUser(User &user)
+{
+	this->_lookupUsers.insert(std::pair<std::string const, User *const>(user.getNickname(), &user));
+}
+
+void	Channel::delUser(std::string const &nickname)
+{
+	this->_lookupUsers.erase(nickname);
 }
 
 // ************************************************************************* //
@@ -32,9 +57,14 @@ std::string const	&Channel::getName(void) const
 	return this->_name;
 }
 
-std::vector<User *>	&Channel::getUsers(void)
+std::string const	&Channel::getTopic(void) const
 {
-	return this->_users;
+	return this->_topic;
+}
+
+std::map<std::string const, User *const> const	&Channel::getLookupUsers(void) const
+{
+	return this->_lookupUsers;
 }
 
 /* time_t const				&Channel::getLastActivity(void) const
@@ -51,28 +81,17 @@ void	Channel::setName(std::string const &name)
 	this->_name = name;
 }
 
-// ************************************************************************* //
-//                          Public Member Functions                          //
-// ************************************************************************* //
-
-
-void	Channel::delUser(User &user)
+void	Channel::setTopic(std::string const &topic)
 {
-	this->_users.erase(std::find(this->_users.begin(), this->_users.end(), &user));
-	return ;
+	this->_topic = topic;
 }
 
-// TODO Write the function comment
-void	Channel::addUser(User &user)
+void	Channel::setModes(std::string const &modes)
 {
-	this->_users.push_back(&user);
+	this->_modes = modes;
 }
 
-// ************************************************************************** //
-//                             Private Attributes                             //
-// ************************************************************************** //
-
-/**
- * The available modes are:
- */
-std::string const	Channel::_availableModes("");
+void	Channel::setLookupUsers(std::map<std::string const, User *const> const &lookupUsers)
+{
+	this->_lookupUsers = lookupUsers;
+}

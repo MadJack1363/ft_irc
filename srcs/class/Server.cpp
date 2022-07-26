@@ -9,7 +9,35 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#define TIMEOUT 10
+// ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
+	std::pair<std::string const, Server::t_fct const>(std::string("DIE"), &Server::DIE),
+	std::pair<std::string const, Server::t_fct const>(std::string("JOIN"), &Server::JOIN),
+	std::pair<std::string const, Server::t_fct const>(std::string("KICK"), &Server::KICK),
+	std::pair<std::string const, Server::t_fct const>(std::string("KILL"), &Server::KILL),
+	std::pair<std::string const, Server::t_fct const>(std::string("MODE"), &Server::MODE),
+	std::pair<std::string const, Server::t_fct const>(std::string("NICK"), &Server::NICK),
+	std::pair<std::string const, Server::t_fct const>(std::string("OPER"), &Server::OPER),
+	std::pair<std::string const, Server::t_fct const>(std::string("PART"), &Server::PART),
+	std::pair<std::string const, Server::t_fct const>(std::string("PASS"), &Server::PASS),
+	std::pair<std::string const, Server::t_fct const>(std::string("PING"), &Server::PING),
+	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
+	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
+	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
+	std::pair<std::string const, Server::t_fct const>(std::string("WHOIS"), &Server::WHOIS),
+	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
+};
+
+std::pair<uint const, char const *const> const	Server::_arrayLogMsgTypes[] = {
+	std::pair<uint const, char const *const>(ERROR, RED " Errors " RESET),
+	std::pair<uint const, char const *const>(INTERNAL, WHITE "Internal" RESET),
+	std::pair<uint const, char const *const>(RECEIVED, GREEN "Received" RESET),
+	std::pair<uint const, char const *const>(SENT, MAGENTA "  Sent  " RESET),
+	std::pair<uint const, char const *const>(0, NULL),
+};
 
 // ************************************************************************** //
 //                                Constructors                                //
@@ -251,8 +279,11 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
+
+		// REMIND: Do we need to keep those lines?
 		// hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
 		// this->_users[newUser].setHostname(host->h_name);
+
 		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
 	return true;
@@ -267,7 +298,7 @@ bool	Server::welcomeDwarves(void)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::init(std::string const password)
+bool	Server::init(std::string const &password)
 {
 	char	nowtime[64];
 	time_t	rawtime;
@@ -279,9 +310,25 @@ bool	Server::init(std::string const password)
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
 	this->_creationTime = nowtime;
 	for (idx = 0U ; Server::_arrayCmds[idx].second ; ++idx)
-		this->_lookupCmds.insert(Server::_arrayCmds[idx]);
+		try
+		{
+			this->_lookupCmds.insert(Server::_arrayCmds[idx]);
+		}
+		catch (std::exception const &e)
+		{
+			Server::logMsg(ERROR, std::string("    Exception: ") + e.what());
+			return false;
+		}
 	for (idx = 0U ; Server::_arrayLogMsgTypes[idx].second ; ++idx)
-		this->_lookupLogMsgTypes.insert(Server::_arrayLogMsgTypes[idx]);
+		try
+		{
+			this->_lookupLogMsgTypes.insert(Server::_arrayLogMsgTypes[idx]);
+		}
+		catch (std::exception const &e)
+		{
+			Server::logMsg(ERROR, std::string("    Exception: ") + e.what());
+			return false;
+		}
 	return true;
 }
 
@@ -375,38 +422,8 @@ void	Server::stop(void)
 	this->_lookupUsers.clear();
 	this->_lookupCmds.clear();
 	this->_users.clear();
-	if (this->_socket >= 0)
+	if (this->_socket != -1)
 		close(this->_socket);
 	this->_socket = -1;
 	this->_state = STOPPED;
 }
-
-// ************************************************************************** //
-//                             Private Attributes                             //
-// ************************************************************************** //
-
-std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
-	std::pair<std::string const, Server::t_fct const>(std::string("DIE"), &Server::DIE),
-	std::pair<std::string const, Server::t_fct const>(std::string("JOIN"), &Server::JOIN),
-	std::pair<std::string const, Server::t_fct const>(std::string("KICK"), &Server::KICK),
-	std::pair<std::string const, Server::t_fct const>(std::string("KILL"), &Server::KILL),
-	std::pair<std::string const, Server::t_fct const>(std::string("MODE"), &Server::MODE),
-	std::pair<std::string const, Server::t_fct const>(std::string("NICK"), &Server::NICK),
-	std::pair<std::string const, Server::t_fct const>(std::string("OPER"), &Server::OPER),
-	std::pair<std::string const, Server::t_fct const>(std::string("PART"), &Server::PART),
-	std::pair<std::string const, Server::t_fct const>(std::string("PASS"), &Server::PASS),
-	std::pair<std::string const, Server::t_fct const>(std::string("PING"), &Server::PING),
-	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
-	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
-	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
-	std::pair<std::string const, Server::t_fct const>(std::string("WHOIS"), &Server::WHOIS),
-	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
-};
-
-std::pair<uint const, char const *const> const	Server::_arrayLogMsgTypes[] = {
-	std::pair<uint const, char const *const>(ERROR, RED " Errors " RESET),
-	std::pair<uint const, char const *const>(INTERNAL, WHITE "Internal" RESET),
-	std::pair<uint const, char const *const>(RECEIVED, GREEN "Received" RESET),
-	std::pair<uint const, char const *const>(SENT, MAGENTA "  Sent  " RESET),
-	std::pair<uint const, char const *const>(0, NULL),
-};

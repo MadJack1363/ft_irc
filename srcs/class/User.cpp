@@ -3,6 +3,20 @@
 #include "class/Server.hpp"
 
 // ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+/**
+ * The available modes are:
+ * 	- a: away
+ * 	- i: invisible
+ * 	- o: operator
+ */
+std::string const	User::_availableModes("aio");
+
+std::string const	User::_availableNicknameChars("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+
+// ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
@@ -46,6 +60,17 @@ User::~User(void)
 }
 
 // ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+bool	User::init(int const &socket, sockaddr_in const &addr)
+{
+	this->_socket = socket;
+	this->_addr = addr;
+	return true;
+}
+
+// ************************************************************************* //
 //                                 Accessors                                 //
 // ************************************************************************* //
 
@@ -57,6 +82,11 @@ sockaddr_in const	&User::getAddr(void) const
 std::string const	&User::getAvailableModes(void)
 {
 	return User::_availableModes;
+}
+
+std::string const	&User::getAvailableNicknameChars(void)
+{
+	return User::_availableNicknameChars;
 }
 
 std::map<std::string const, Channel *> const	&User::getChannels(void) const
@@ -192,26 +222,3 @@ void	User::setUsername(std::string const &username)
 {
 	this->_username = username;
 }
-
-// ************************************************************************* //
-//                          Public Member Functions                          //
-// ************************************************************************* //
-
-bool	User::init(int const &socket, sockaddr_in const &addr)
-{
-	this->_socket = socket;
-	this->_addr = addr;
-	return true;
-}
-
-// ************************************************************************** //
-//                             Private Attributes                             //
-// ************************************************************************** //
-
-/**
- * The available modes are:
- * 	- a: away
- * 	- i: invisible
- * 	- o: operator
- */
-std::string const	User::_availableModes("aio");
