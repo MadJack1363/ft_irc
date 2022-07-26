@@ -14,8 +14,8 @@ void	Server::joinSend(User &user, Channel &channel, std::string const &name_join
 	user.setMsg(tmp);
 	tmp.clear();
 	this->replyPush(user, ':' + user.getMask() + " 332 " + user.getNickname() + " #" + channel.getName() + " :" + name_join + " has joined the channel");
-	for (std::vector<User *>::iterator itv = channel.getUsers().begin(); itv != channel.getUsers().end();itv++)
-		tmp += " " + (*itv)->getNickname();
+	// for (std::vector<User *>::iterator itv = channel.getUsers().begin(); itv != channel.getUsers().end();itv++)
+	// 	tmp += " " + (*itv)->getNickname();
 	this->replyPush(user, ':' + user.getMask() + " 353 " + user.getNickname() + " = #" + channel.getName() + " :" + tmp);
 	this->replyPush(user, ':' + user.getMask() + " 366 " + user.getNickname() + " #" + channel.getName() + " :End of /NAMES list");
 	return ;
@@ -58,7 +58,7 @@ bool	Server::JOIN(User &user, std::string &params)
 		}
 		chan.addUser(user);
 		std::string tmp = "#" + *ite;
-		for (std::vector<User *>::iterator itv = chan.getUsers().begin(); itv != chan.getUsers().end(); itv++)
+		for (std::vector<User *>::const_iterator itv = chan.getUsers().begin(); itv != chan.getUsers().end(); itv++)
 		{
 			if ((*itv)->getNickname().compare(user.getNickname()) == 0)
 				joinSend(*(*itv), chan, user.getNickname());

@@ -33,7 +33,7 @@ void	Channel::setName(std::string name)
 	this->_name = name;
 }
 
-std::vector<User *>		&Channel::getUsers(void)
+std::vector<User *>	const	&Channel::getUsers(void) const
 {
 	return this->_users;
 }

@@ -32,7 +32,6 @@ bool	Server::PART(User &user, std::string &params)
 	params = params.c_str() + params.find(':') + 1;
 	if (params.compare("0") == 0)
 	{
-		// TODO find all the channel of the user is
 		for (std::map<std::string, Channel>::iterator itm = this->_lookupChannels.begin(); itm != this->_lookupChannels.end(); itm++)
 		{
 			if (std::find(itm->second.getUsers().begin(), itm->second.getUsers().end(), &user) != itm->second.getUsers().end())
@@ -71,7 +70,7 @@ bool	Server::PART(User &user, std::string &params)
 					}
 					else
 					{
-						myChan.getUsers().erase(std::find(myChan.getUsers().begin(), myChan.getUsers().end(), const_cast<User *>(&user)));
+						myChan.delUser(user);
 						std::string	cpy = *ite + left_message;
 						// FIXME PUTAIN DE PRIVMSG QUI MARCHE PAS
 						PRIVMSG(user, cpy);

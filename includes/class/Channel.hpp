@@ -41,7 +41,7 @@ public:
 	virtual ~Channel(void);
 
 	// Accessors
-	std::vector<User *>			&getUsers(void);
+	std::vector<User *>	const		&getUsers(void) const;
 	std::string	const			&getName(void) const;
 	// Member functions
 	static std::string	availableModes(void);
