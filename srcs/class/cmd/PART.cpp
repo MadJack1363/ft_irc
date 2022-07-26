@@ -27,6 +27,7 @@ bool	Server::PART(User &user, std::string &params)
 	std::vector<std::string>	channel_left;
 	std::string					left_message = " has left the channel";
 
+	// TODO Check if with params const check if compile
 	if(params.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 PART :Not enough parameters");
 	params = params.c_str() + params.find(':') + 1;

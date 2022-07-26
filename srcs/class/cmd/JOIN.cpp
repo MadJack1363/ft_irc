@@ -14,8 +14,8 @@ void	Server::joinSend(User &user, Channel &channel, std::string const &name_join
 	user.setMsg(tmp);
 	tmp.clear();
 	this->replyPush(user, ':' + user.getMask() + " 332 " + user.getNickname() + " #" + channel.getName() + " :" + name_join + " has joined the channel");
-	// for (std::vector<User *>::iterator itv = channel.getUsers().begin(); itv != channel.getUsers().end();itv++)
-	// 	tmp += " " + (*itv)->getNickname();
+	for (std::vector<User *>::const_iterator itv = channel.getUsers().begin(); itv != channel.getUsers().end();itv++)
+		tmp += " " + (*itv)->getNickname();
 	this->replyPush(user, ':' + user.getMask() + " 353 " + user.getNickname() + " = #" + channel.getName() + " :" + tmp);
 	this->replyPush(user, ':' + user.getMask() + " 366 " + user.getNickname() + " #" + channel.getName() + " :End of /NAMES list");
 	return ;
@@ -34,15 +34,32 @@ bool	Server::JOIN(User &user, std::string &params)
 {
 	std::vector<std::string>	channel_join;
 
-	params = params.c_str() + params.find('#') + 1;
-	if (params.compare("0") == 0)
-		return this->PART(user, params);
-	while (params.find('#') != std::string::npos)
+
+	// params = params.c_str() + params.find('#') + 1;
+	// if (params.compare("0") == 0)
+	// 	return this->PART(user, params);
+	// while (params.find('#') != std::string::npos)
+	// {
+	// 	channel_join.push_back(params.substr(0, params.find(',')));
+	// 	params = params.c_str() + params.find('#') + 1;
+	// }
+	// channel_join.push_back(params.substr(0, params.length()));
+
+	// TODO Check if with params const check if compile
+	std::string const &params2 = params;
+	// std::string	&cpy = params2.c_str() + params2.find('#');
+
+	// std::string	&cpy = params2.find('#');
+	cpy = cpy.c_str() + cpy.find('#') + 1;
+	if (cpy.compare("0") == 0)
+		return this->PART(user, cpy);
+	while (cpy.find('#') != std::string::npos)
 	{
-		channel_join.push_back(params.substr(0, params.find(',')));
-		params = params.c_str() + params.find('#') + 1;
+		channel_join.push_back(cpy.substr(0, cpy.find(',')));
+		cpy = cpy.c_str() + cpy.find('#') + 1;
 	}
-	channel_join.push_back(params.substr(0, params.length()));
+	channel_join.push_back(cpy.substr(0, cpy.length()));
+
 	if (channel_join.empty())
 	{
 		return this->replyPush(user, ':' + user.getMask() + "461 JOIN :Not enough parameters");

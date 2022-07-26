@@ -23,13 +23,10 @@
  */
 bool	Server::PRIVMSG(User &user, std::string &params)
 {
-	// FIXME Have to recode this function
-	// FIXME CHECK THE VALUE THE SERVER SEND BACK
-
-	// TODO Check the replies
+	// DO Check the replies
 	// FIX ERR_NOSUCHNICK (401)
 	// FIX ERR_CANNOTSENDTOCHAN (404)
-	// TODO ERR_TOOMANYTARGETS (407) | Check but no max persmissions
+	// DO ERR_TOOMANYTARGETS (407) | Check but no max persmissions
 	std::string tmp;
 	std::string	target_name = params.substr(0, params.find(' '));
 	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());
@@ -41,7 +38,7 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 		for (ite = this->_lookupChannels.begin() ; ite != this->_lookupChannels.end() ; ite++)
 		{
 			if (ite->second.getName().compare(target_name) == 0){
-				for (std::vector<User *>::iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
+				for (std::vector<User *>::const_iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
 				{
 					if (user.getNickname() != (*itv)->getNickname())
 					{
@@ -74,8 +71,8 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 				tmp = ":" + user.getNickname() + " PRIVMSG " + target_name + " :" + msg_send;
 				ite->setMsg(tmp);
 				// tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " " + msg_send;
-				tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG " + target_name + " " + msg_send;
-				user.setMsg(tmp);
+				// tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG " + target_name + " " + msg_send;
+				// user.setMsg(tmp);
 				Server::replySend(*ite);
 
 				return true;

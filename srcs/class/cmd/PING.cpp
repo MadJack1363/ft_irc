@@ -29,7 +29,6 @@ bool Server::IDK(User &user)
 	this->replySend(user);
 	while (1)
 	{
-		// MEMO a 2 doight de me demander si le mieux nest pas de le mettre en 0 pour les flag de recv
 		retRecv = recv(user.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		while (retRecv > 0)
 		{
