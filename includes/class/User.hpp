@@ -49,6 +49,7 @@ public:
 	// Member functions
 	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 
+	void		updateLastActivity(void);
 	// Accessors
 	sockaddr_in const								&getAddr(void) const;
 
@@ -75,12 +76,6 @@ public:
 
 	// Mutators
 
-	// Member functions
-	// static std::string	availableModes(void);
-
-	void		updateLastActivity(void);// MEMO Check with the memo in User.cpp
-
-	// bool		init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 	void	setSocket(int const sockfd);
 	void	setAddr(sockaddr_in const &addr);
 	void	setNickname(std::string const &nickname);

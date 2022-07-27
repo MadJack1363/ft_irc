@@ -21,10 +21,6 @@
 #  define BUFFER_SIZE 4096
 # endif
 
-# ifndef TIMEOUT
-#  define TIMEOUT 10
-# endif
-
 class Server
 {
 private:

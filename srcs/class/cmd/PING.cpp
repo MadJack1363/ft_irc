@@ -13,8 +13,7 @@
  */
 bool	Server::PING(User &user, std::string &params)
 {
-	return this->replyPush(user, ':' + user.getMask() + " PING " + params)
-		&& this->replyPush(user, ':' + user.getMask() + " PONG " + params);
+	return this->replyPush(user, ':' + user.getMask() + " PONG " + params);
 }
 
 bool Server::IDK(User &user)
@@ -25,7 +24,7 @@ bool Server::IDK(User &user)
 	std::string	msg;
 
 	time(&clock[START]);
-	this->replyPush(user, "PING " + user.getNickname());
+	this->replyPush(user, ":" + user.getMask() + " PING " + user.getNickname());
 	this->replySend(user);
 	while (1)
 	{
@@ -45,13 +44,15 @@ bool Server::IDK(User &user)
 		{
 			Server::logMsg(ERROR, "Error time " + Server::toString(clock[LIMIT] - clock[START]));
 			msg.clear();
-			// Server::QUIT(user, msg);
 			return false ;
 		}
 	}
-	if (msg.compare(user.getNickname()) != 0)
-	return false;
-	Server::logMsg(INTERNAL, "PING RECOIS " + msg);
+	std::string line = msg.substr(0, msg.find('\n'));
+	if (*(line.end() - 1) == '\r')
+		line.erase(line.end() - 1);
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") " + line);
+	line.erase(0, line.find_first_of(':') + 1);
+	if (line.compare(user.getNickname()) != 0)
+		return false;
 	return true;
-	// return this->replyPush(user, "PONG " + params);
 }

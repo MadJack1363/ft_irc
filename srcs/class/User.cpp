@@ -74,6 +74,10 @@ bool	User::init(int const &socket, sockaddr_in const &addr)
 	return true;
 }
 
+void	User::updateLastActivity(void)
+{
+	time(&this->_lastActivity);
+}
 // ************************************************************************* //
 //                                 Accessors                                 //
 // ************************************************************************* //
@@ -230,10 +234,4 @@ void	User::setSocket(int const sockfd)
 void	User::setUsername(std::string const &username)
 {
 	this->_username = username;
-}
-
-// MEMO Check if needed
-void	User::updateLastActivity(void)
-{
-	time(&this->_lastActivity);
 }
