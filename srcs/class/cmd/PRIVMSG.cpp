@@ -38,19 +38,20 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 		for (ite = this->_lookupChannels.begin() ; ite != this->_lookupChannels.end() ; ite++)
 		{
 			if (ite->second.getName().compare(target_name) == 0){
-				for (std::vector<User *>::const_iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
-				{
-					if (user.getNickname() != (*itv)->getNickname())
-					{
-						// From Documentation
-						//   :dan!~h@localhost PRIVMSG #coolpeople :Hi everyone!
-						// ; Message from dan to the channel #coolpeople
-						// :flo!florian@AB969147.54975EF1.B6CE2A61.IP PRIVMSG #TesT :Salut
-						tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " :" + msg_send;
-						(*itv)->setMsg(tmp);
-						Server::replySend(*(*itv));
-					}
-				}
+				// TODO Check why no more GetUser
+				// for (std::vector<User *>::const_iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
+				// {
+				// 	if (user.getNickname() != (*itv)->getNickname())
+				// 	{
+				// 		// From Documentation
+				// 		//   :dan!~h@localhost PRIVMSG #coolpeople :Hi everyone!
+				// 		// ; Message from dan to the channel #coolpeople
+				// 		// :flo!florian@AB969147.54975EF1.B6CE2A61.IP PRIVMSG #TesT :Salut
+				// 		tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " :" + msg_send;
+				// 		(*itv)->setMsg(tmp);
+				// 		Server::replySend(*(*itv));
+				// 	}
+				// }
 				return true;
 			}
 		}

@@ -21,6 +21,10 @@
 #  define BUFFER_SIZE 4096
 # endif
 
+# ifndef TIMEOUT
+#  define TIMEOUT 10
+# endif
+
 class Server
 {
 private:
@@ -52,12 +56,14 @@ private:
 		RPL_WHOSIUSER = 311,
 		RPL_WHOISOPERATOR = 313,
 		RPL_ENDOFWHOIS = 318,
+		RPL_TOPIC = 332,
 		RPL_WHOISMODES = 379,
 		RPL_YOUREOPER = 381,
 
 		ERR_NOSUCHNICK = 401,
 		ERR_NOSUCHCHANNEL = 403,
 		ERR_NONICKNAMEGIVEN = 431,
+		ERR_ERRONEUSNICKNAME = 432,
 		ERR_NICKNAMEINUSE = 433,
 		ERR_NEEDMOREPARAMS = 461,
 		ERR_ALREADYREGISTRED = 462,
@@ -91,8 +97,6 @@ private:
 	static std::pair<uint const, char const *const> const	_arrayLogMsgTypes[];
 
 	// Member functions
-	static std::string	toString(int const nb);
-
 	void	logMsg(uint const type, std::string const &msg);
 	void	joinSend(User &user, Channel &channel, std::string const &name_join);
 	void	partSend(User &user, std::string &channel_name, std::string &message_left);
@@ -119,6 +123,8 @@ private:
 	bool	welcomeDwarves(void);
 
 	bool	IDK(User &user);
+	static std::string	toString(int const nb);
+
 public:
 	// Constructors
 	Server(void);
@@ -129,7 +135,7 @@ public:
 	// Member functions
 	void	stop(void);
 
-	bool	init(std::string const password);
+	bool	init(std::string const &password);
 	bool	run(void);
 	bool	start(uint16_t const port);
 

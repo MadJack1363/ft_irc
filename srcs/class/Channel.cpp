@@ -1,13 +1,24 @@
 #include "class/Channel.hpp"
 
 // ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+/**
+ * The available modes are:
+ * 	- i: invite-only
+ * 	- n: no outside messages
+ */
+std::string const	Channel::_availableModes("in");
+
+// ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
-Channel::Channel(std::string name) :
+Channel::Channel(std::string const &name) :
 	_name(name),
-	_users(),
-	_modes(0U) {}
+	_modes(),
+	_lookupUsers() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -15,71 +26,73 @@ Channel::Channel(std::string name) :
 
 Channel::~Channel(void)
 {
-	this->_users.clear();
-}
-
-// ************************************************************************* //
-//                                 Accessors                                 //
-// ************************************************************************* //
-
-void	Channel::delUser(User &user)
-{
-	this->_users.erase(std::find(this->_users.begin(), this->_users.end(), &user));
-	return ;
-}
-
-void	Channel::setName(std::string name)
-{
-	this->_name = name;
-}
-
-std::vector<User *>	const	&Channel::getUsers(void) const
-{
-	return this->_users;
-}
-
-std::string const			&Channel::getName(void) const
-{
-	return this->_name;
+	this->_lookupUsers.clear();
 }
 
 // ************************************************************************* //
 //                          Public Member Functions                          //
 // ************************************************************************* //
 
-/**
- * @brief	Get the different available modes for a channel.
- * 
- * @return	The available channel mode identifiers as a string.
- */
-std::string	Channel::availableModes(void)
-{
-	std::string	output;
-	uint		idx;
-
-	for (idx = 0U ; Channel::_lookupModes[idx].first ; ++idx)
-		output.push_back(Channel::_lookupModes[idx].first);
-	return output;
-}
-
-/**
- * @brief	Use for add user to the channel
- * 
- * @param user The user add inside the channel
- */
 void	Channel::addUser(User &user)
 {
-	this->_users.push_back(&user);
+	this->_lookupUsers.insert(std::pair<std::string const, User *const>(user.getNickname(), &user));
 }
 
+void	Channel::delUser(std::string const &nickname)
+{
+	this->_lookupUsers.erase(nickname);
+}
+
+// std::vector<User *>	const	&Channel::getUsers(void) const
+// ************************************************************************* //
+//                                 Accessors                                 //
+// ************************************************************************* //
+
+std::string const	&Channel::getAvailableModes(void)
+{
+	return Channel::_availableModes;
+}
+
+std::string const	&Channel::getName(void) const
+{
+	return this->_name;
+}
+
+std::string const	&Channel::getTopic(void) const
+{
+	return this->_topic;
+}
+
+std::map<std::string const, User *const> const	&Channel::getLookupUsers(void) const
+{
+	return this->_lookupUsers;
+}
+
+/* time_t const				&Channel::getLastActivity(void) const
+{
+	return this->_lastActivity;
+} */
+
 // ************************************************************************** //
-//                             Private Attributes                             //
+//                                  Mutators                                  //
 // ************************************************************************** //
 
-std::pair<char const, uint const>	Channel::_lookupModes[] = {
-	std::pair<char const, uint const>('s', Channel::SECRET),
-	std::pair<char const, uint const>('p', Channel::PRIVATE),
-	std::pair<char const, uint const>('i', Channel::INVITE_ONLY),
-	std::pair<char const, uint const>('n', Channel::INSIDE_ONLY),
-	std::pair<char const, uint const>(0, 0U)
-};
+void	Channel::setName(std::string const &name)
+{
+	this->_name = name;
+}
+
+void	Channel::setTopic(std::string const &topic)
+{
+	this->_topic = topic;
+}
+
+void	Channel::setModes(std::string const &modes)
+{
+	this->_modes = modes;
+}
+
+void	Channel::setLookupUsers(std::map<std::string const, User *const> const &lookupUsers)
+{
+	this->_lookupUsers = lookupUsers;
+}

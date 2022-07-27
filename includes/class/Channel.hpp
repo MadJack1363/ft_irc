@@ -21,30 +21,39 @@ private:
 	};
 
 	// Attributes
-	std::string			_name;
+	std::string									_name;
+	std::string									_topic;
+	std::string									_modes;
 
-	std::vector<User *>	_users;
+	std::map<std::string const, User *const>	_lookupUsers;
 
-	uint8_t				_modes;
-
-	static std::pair<char const, uint const>	_lookupModes[];
+	static std::string const					_availableModes;
 
 public:
 	// Constructors
-	Channel(std::string name = "Empty");
-
-	void	addUser(User &user);
-	void	delUser(User &user);
-	void	setName(std::string name);
+	Channel(std::string const &name = "defaultChannelName");
 
 	// Destructors
 	virtual ~Channel(void);
 
-	// Accessors
-	std::vector<User *>	const		&getUsers(void) const;
-	std::string	const			&getName(void) const;
 	// Member functions
-	static std::string	availableModes(void);
+	void	addUser(User &user);
+	void	delUser(std::string const &nickname);
+
+	// Accessors
+	std::string const								&getName(void) const;
+	std::string const								&getTopic(void) const;
+	std::string const								&getModes(void) const;
+
+	std::map<std::string const, User *const> const	&getLookupUsers(void) const;
+
+	static std::string const	&getAvailableModes(void);
+
+	// Mutators
+	void	setName(std::string const &name);
+	void	setTopic(std::string const &topic);
+	void	setModes(std::string const &modes);
+	void	setLookupUsers(std::map<std::string const, User *const> const &lookupUsers);
 };
 
 #endif

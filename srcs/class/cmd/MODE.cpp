@@ -10,18 +10,26 @@
  */
 bool	Server::MODE(User &user, std::string &params)
 {
+	static std::string const	delimiter("+- ");
 	std::string					targetName;
-	std::string::const_iterator	cit;
+	std::string					modeChanges;
 	std::string::size_type		pos;
+	std::string::const_iterator	cit0;
+	std::string::const_iterator	cit1;
 
 	if (!this->replyPush(user, ':' + user.getMask() + " MODE " + params))
 		return false;
-	if (params.empty())
+
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	targetName = std::string(cit0, cit1);
+	if (targetName.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " MODE :Not enough parameters");
-	targetName = params.substr(0, params.find(' '));
-	params.erase(0, targetName.length()).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
+
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	modeChanges = std::string(cit1, static_cast<std::string::const_iterator>(params.end()));
+	if (modeChanges.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " MODE :Not enough parameters");
+
 	if (*targetName.begin() == '#') // channel mode
 	{
 		return true;
@@ -32,33 +40,39 @@ bool	Server::MODE(User &user, std::string &params)
 			return this->replyPush(user, ':' + user.getMask() + " 401 " + user.getNickname() + ' ' + targetName + " :No such nick/channel");
 		if (targetName != user.getNickname())
 			return this->replyPush(user, ':' + user.getMask() + " 502 " + user.getNickname() + " :Cant change mode for other users");
-		for (cit = params.begin() ; cit != params.end() ; )
+		for (cit0 = modeChanges.begin() ; cit0 != modeChanges.end() ; )
 		{
-			if (*cit == '+')
+			if (*cit0 == '+')
 			{
-				for (++cit ; cit != params.end() && *cit != ' ' && *cit != '-' ; ++cit)
+				for (++cit0 ; cit0 != modeChanges.end() && delimiter.find(*cit0) == std::string::npos ; ++cit0)
 				{
-					if (User::getAvailableModes().find(*cit) == std::string::npos)
-						return this->replyPush(user, ':' + user.getMask() + " 472 " + user.getNickname() + ' ' + *cit + " :is unknown mode char to me");
-					if (*cit != 'o' && user.getModes().find(*cit) == std::string::npos)
-						user.setModes(user.getModes() + *cit);
+					if (User::getAvailableModes().find(*cit0) == std::string::npos)
+					{
+						if (!this->replyPush(user, ':' + user.getMask() + " 472 " + user.getNickname() + ' ' + *cit0 + " :is unknown mode char to me"))
+							return false;
+					}
+					else if (*cit0 != 'o' && user.getModes().find(*cit0) == std::string::npos)
+						user.setModes(user.getModes() + *cit0);
 				}
 			}
-			else if (*cit == '-')
+			else if (*cit0 == '-')
 			{
-				for (++cit ; cit != params.end() && *cit != ' ' && *cit != '+' ; ++cit)
+				for (++cit0 ; cit0 != modeChanges.end() && delimiter.find(*cit0) == std::string::npos ; ++cit0)
 				{
-					if (User::getAvailableModes().find(*cit) == std::string::npos)
-						return this->replyPush(user, ':' + user.getMask() + " 472 " + user.getNickname() + ' ' + *cit + " :is unknown mode char to me");
-					pos = user.getModes().find(*cit);
+					if (User::getAvailableModes().find(*cit0) == std::string::npos)
+					{
+						if (!this->replyPush(user, ':' + user.getMask() + " 472 " + user.getNickname() + ' ' + *cit0 + " :is unknown mode char to me"))
+							return false;
+					}
+					pos = user.getModes().find(*cit0);
 					if (pos != std::string::npos)
 						user.setModes(std::string(user.getModes()).erase(pos, 1));
 				}
 			}
-			else if (*cit != ' ')
+			else if (*cit0 != ' ')
 				return this->replyPush(user, ':' + user.getMask() + " 501 " + user.getNickname() + " :Unknown MODE flag");
 			else
-				++cit;
+				++cit0;
 		}
 		return this->replyPush(user, ':' + user.getMask() + " 221 " + user.getNickname() + " :" + user.getModes());
 	}

@@ -3,6 +3,20 @@
 #include "class/Server.hpp"
 
 // ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+/**
+ * The available modes are:
+ * 	- a: away
+ * 	- i: invisible
+ * 	- o: operator
+ */
+std::string const	User::_availableModes("aio");
+
+std::string const	User::_availableNicknameChars("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+
+// ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
@@ -41,11 +55,23 @@ User::User(User const &src) :
 //                                Destructors                                //
 // ************************************************************************* //
 
+
 User::~User(void)
 {
 	if (this->_socket != -1)
 		close(this->_socket);
 	this->_socket = -1;
+}
+
+// ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+bool	User::init(int const &socket, sockaddr_in const &addr)
+{
+	this->_socket = socket;
+	this->_addr = addr;
+	return true;
 }
 
 // ************************************************************************* //
@@ -62,7 +88,12 @@ std::string const	&User::getAvailableModes(void)
 	return User::_availableModes;
 }
 
-std::map<std::string, Channel *> const	&User::getChannels(void) const
+std::string const	&User::getAvailableNicknameChars(void)
+{
+	return User::_availableNicknameChars;
+}
+
+std::map<std::string const, Channel *> const	&User::getChannels(void) const
 {
 	return this->_channels;
 }
@@ -127,12 +158,16 @@ std::string const	&User::getUsername(void) const
 	return this->_username;
 }
 
+// ************************************************************************** //
+//                                  Mutators                                  //
+// ************************************************************************** //
+
 void	User::setAddr(sockaddr_in const &addr)
 {
 	this->_addr = addr;
 }
 
-void	User::setChannels(std::map<std::string, Channel *> const &channels)
+void	User::setChannels(std::map<std::string const, Channel *> const &channels)
 {
 	this->_channels = channels;
 }
@@ -197,34 +232,8 @@ void	User::setUsername(std::string const &username)
 	this->_username = username;
 }
 
-// ************************************************************************* //
-//                          Public Member Functions                          //
-// ************************************************************************* //
-
-bool	User::init(int const &socket, sockaddr_in const &addr)
-{
-	this->_socket = socket;
-	this->_addr = addr;
-	return true;
-}
-
-/**
- * @brief Update the value _lastActivity for the ping
- * 
- */
+// MEMO Check if needed
 void	User::updateLastActivity(void)
 {
 	time(&this->_lastActivity);
 }
-
-// ************************************************************************** //
-//                             Private Attributes                             //
-// ************************************************************************** //
-
-/**
- * The available modes are:
- * 	- a: away
- * 	- i: invisible
- * 	- o: operator
- */
-std::string const	User::_availableModes("aio");
