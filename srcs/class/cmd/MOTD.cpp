@@ -28,7 +28,7 @@ bool	Server::MOTD(User &user, std::string &params)
 	{
 		motd.append(line + "\n");
 	}
-	this->replyPush(user, /* ":" + this->_config["host"] + "  */"372 " + user.getNickname() + " :" + motd);
 	infile.close();
-	return true;
+	return this->replyPush(user, /* ":" + this->_config["host"] + "  */"372 " + user.getNickname() + " :" + motd)
+		&& this->replyPush(user, "376 " + user.getNickname() + " :End of /MOTD command");
 }
