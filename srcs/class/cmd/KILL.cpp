@@ -16,9 +16,6 @@ bool	Server::KILL(User &user, std::string &params)
 	std::string::const_iterator	cit0;
 	std::string::const_iterator	cit1;
 
-	if (!this->replyPush(user, "KILL " + params))
-		return false;
-
 	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
 	nickname = std::string(cit0, cit1);
 	if (nickname.empty())
@@ -41,11 +38,8 @@ bool	Server::KILL(User &user, std::string &params)
 	User	&userToKill = *this->_lookupUsers.find(nickname)->second;
 	Server::addToBanList(userToKill);
 
-	if (&userToKill == &user)
-		user.setMsg("");
+	this->replyPush(userToKill, ":" + user.getMask() + " KILL " + userToKill.getNickname() + " " + reason);
 
-	// TODO: message to the user before calling this->QUIT()
-
-	subParams = ':' + "Killed (" + user.getNickname() + " (" + reason + "))";
+	subParams = ":Killed (" + user.getNickname() + " (" + reason + "))";
 	return this->QUIT(userToKill, subParams);
 }
