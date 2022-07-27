@@ -236,21 +236,31 @@ bool	Server::replyPush(User &user, std::string const &line)
 bool	Server::replySend(User &user)
 {
 	std::string	line;
+	std::string	msgToSend = user.getMsg() + "\r\n";
+	char const	*c_msgToSend = msgToSend.c_str();
+	size_t		size = msgToSend.size();
+	ssize_t		retSend;
 
-	user.setMsg(std::string(user.getMsg()).append("\r\n"));
-	if (send(user.getSocket(), user.getMsg().c_str(), user.getMsg().size() + 1, 0) == -1)
+	while (size > 0)
 	{
-		Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
-		return false;
+		retSend = send(user.getSocket(), c_msgToSend, size, 0);
+		if (retSend < 0)
+		{
+			Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
+			return false;
+		}
+		c_msgToSend += retSend;
+		size -= retSend;
 	}
-	while (!user.getMsg().empty())
+	while (!msgToSend.empty())
 	{
-		line = user.getMsg().substr(0, user.getMsg().find('\n'));
-		user.setMsg(std::string(user.getMsg()).erase(0, user.getMsg().find('\n') + 1));
-		if (user.getMsg().empty())
+		line = msgToSend.substr(0, msgToSend.find('\n'));
+		msgToSend = std::string(msgToSend).erase(0, msgToSend.find('\n') + 1);
+		if (msgToSend.empty())
 			line.erase(line.end() - 1);
 		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
 	}
+	user.setMsg("");
 	return true;
 }
 
@@ -291,10 +301,6 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
-		// REMIND: Do we need to keep those lines?
-		// FIX Nop no more need
-		// hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
-		// this->_users[newUser].setHostname(host->h_name);
 
 		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
