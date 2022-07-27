@@ -163,34 +163,24 @@ bool	Server::recvAll(void)
 				break ;
 			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		}
-		// if (retRecv == -1)
-		// {
-		// 	perror("recv");
-		// 	return false;
-		// }
-
 		time_t	time_tmp;
 		time(&time_tmp);
-		if (!retRecv || time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
+		if (retRecv == -1 && time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
 		{
-			if (this->IDK(*it))// TODO Check if the ping work of not work
+			if (this->IDK(*it))// DO Check if the ping work of not work
 				it->updateLastActivity();
 			else
 			{
 				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
 				close(it->getSocket());
-				this->_lookupUsers.erase(it->getNickname());
-				this->_users.erase(it);
+				it->setSocket(-1);
 			}
 		}
-		// else {
-			if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
-				return false;
-			std::string coucou = it->getNickname();
-			if (retRecv > 0)
-			{
-				it->updateLastActivity();
-			}
+		if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
+			return false;
+		if (retRecv > 0)
+		{
+			it->updateLastActivity();
 		}
 		if (it->getSocket() == -1)
 		{
@@ -198,7 +188,7 @@ bool	Server::recvAll(void)
 			it = this->_users.erase(it);
 		}
 		msg.clear();
-	// }
+	}
 	return true;
 }
 
