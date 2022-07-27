@@ -38,20 +38,15 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 		for (ite = this->_lookupChannels.begin() ; ite != this->_lookupChannels.end() ; ite++)
 		{
 			if (ite->second.getName().compare(target_name) == 0){
-				// TODO Check why no more GetUser
-				// for (std::vector<User *>::const_iterator itv = ite->second.getUsers().begin(); itv != ite->second.getUsers().end(); itv++)
-				// {
-				// 	if (user.getNickname() != (*itv)->getNickname())
-				// 	{
-				// 		// From Documentation
-				// 		//   :dan!~h@localhost PRIVMSG #coolpeople :Hi everyone!
-				// 		// ; Message from dan to the channel #coolpeople
-				// 		// :flo!florian@AB969147.54975EF1.B6CE2A61.IP PRIVMSG #TesT :Salut
-				// 		tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " :" + msg_send;
-				// 		(*itv)->setMsg(tmp);
-				// 		Server::replySend(*(*itv));
-				// 	}
-				// }
+				for (std::map<std::string const, User *const>::const_iterator itv = ite->second.begin(); itv != ite->second.end(); itv++)
+				{
+					if (user.getNickname() != itv->second->getNickname())
+					{
+						tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " :" + msg_send;
+						itv->second->setMsg(tmp);
+						Server::replySend(*itv->second);
+					}
+				}
 				return true;
 			}
 		}
@@ -65,17 +60,9 @@ bool	Server::PRIVMSG(User &user, std::string &params)
 		{
 			if (ite->getNickname().compare(target_name) == 0)
 			{
-				// From Documentation
-				// :Angel PRIVMSG Wiz :Hello are you receiving this message ?
-				// ; Message from Angel to Wiz.
-
 				tmp = ":" + user.getNickname() + " PRIVMSG " + target_name + " :" + msg_send;
 				ite->setMsg(tmp);
-				// tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG #" + target_name + " " + msg_send;
-				// tmp = ":" + user.getNickname() + "!" + user.getUsername() + "@" + this->_config["host"] + " PRIVMSG " + target_name + " " + msg_send;
-				// user.setMsg(tmp);
 				Server::replySend(*ite);
-
 				return true;
 			}
 		}

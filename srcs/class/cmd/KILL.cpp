@@ -38,11 +38,8 @@ bool	Server::KILL(User &user, std::string &params)
 	User	&userToKill = *this->_lookupUsers.find(nickname)->second;
 	Server::addToBanList(userToKill);
 
-	if (&userToKill == &user)
-		user.setMsg("");
+	this->replyPush(userToKill, ":" + user.getMask() + " KILL " + userToKill.getNickname() + " " + reason);
 
-	// TODO: message to the user before calling this->QUIT()
-
-	subParams = ':' + "Killed (" + user.getNickname() + " (" + reason + "))";
+	subParams = ":Killed (" + user.getNickname() + " (" + reason + "))";
 	return this->QUIT(userToKill, subParams);
 }
