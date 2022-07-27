@@ -12,27 +12,50 @@
  */
 bool	Server::USER(User &user, std::string &params)
 {
+	std::string					username;
+	std::string					hostname;
+	std::string					servname;
+	std::string					realname;
+	std::string::const_iterator	cit0;
+	std::string::const_iterator	cit1;
+
 	if (user.getIsRegistered())
 		return this->replyPush(user, ':' + user.getMask() + " 462 :You may not reregister");
 
-	if (params.empty())
-		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " USER :Not enough parameters");
-	user.setUsername(params.substr(0, params.find(' ')));
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit0 != params.end() && *cit1 != ' ' ; ++cit1);
+	username = std::string(cit0, cit1);
 
-	params.erase(0, user.getUsername().length()).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
+	if (username.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " USER :Not enough parameters");
-	user.setHostname(params.substr(0, params.find(' ')));
+	user.setUsername(username);
 
-	params.erase(0, user.getHostname().length()).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	for (cit0 = cit1 ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	hostname = std::string(cit0, cit1);
+	if (hostname.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " USER :Not enough parameters");
-	user.setServname(params.substr(0, params.find(' ')));
+	user.setHostname(hostname);
 
-	params.erase(0, user.getServname().length()).erase(0, params.find_first_not_of(' '));
-	if (params.empty() || params.erase(params.begin()) == params.end())
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	for (cit0 = cit1 ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	servname = std::string(cit0, cit1);
+	if (servname.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " USER :Not enough parameters");
-	user.setRealname(params);
+	user.setServname(servname);
+
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	realname = std::string(cit0, static_cast<std::string::const_iterator>(params.end()));
+	if (realname.empty())
+		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " USER :Not enough parameters");
+	if (*realname.begin() == ':')
+	{
+		realname.erase(realname.begin());
+		if (realname.empty())
+			return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " USER :Not enough parameters");
+	}
+	else if (realname.find(' ') != std::string::npos)
+		realname.erase(realname.find(' '));
+	user.setRealname(realname);
 
 	if (!this->_config["server_password"].empty() && this->_config["server_password"] != user.getPassword())
 		return this->replyPush(user, ':' + user.getMask() + " 464 " + user.getNickname() + " :Password incorrect");
