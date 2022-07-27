@@ -10,21 +10,23 @@
  */
 bool	Server::WHOIS(User &user, std::string &params)
 {
-	std::map<std::string, User *const>::const_iterator	cit;
 	std::string											nickname;
+	std::string::const_iterator							cit0;
+	std::string::const_iterator							cit1;
+	std::map<std::string, User *const>::const_iterator	cit2;
 
-	if (!this->replyPush(user, ':' + user.getMask() + " WHOIS " + params))
-		return false;
-	if (params.empty())
-		return this->replyPush(user, ':' + user.getMask() + " 431 " + user.getNickname() + " :No nickname given");
-	nickname = params.substr(0, params.find(' '));
-	cit = this->_lookupUsers.find(nickname);
-	if (cit == this->_lookupUsers.end())
-		return this->replyPush(user, ':' + user.getMask() + " 401 " + user.getNickname() + ' ' + nickname + " :No such nick/channel");
-	return this->replyPush(user, ':' + user.getMask() + " 307 " + user.getNickname() + ' ' + cit->second->getNickname() + " :has identified for this nick")
-		&& this->replyPush(user, ':' + user.getMask() + " 311 " + user.getNickname() + ' ' + cit->second->getNickname() + ' ' + cit->second->getUsername() + ' ' + cit->second->getServname() + " * :" + cit->second->getRealname())
-		&& (cit->second->getModes().find('o') == std::string::npos
-			|| this->replyPush(user, ':' + user.getMask() + " 313 " + user.getNickname() + ' ' + cit->second->getNickname() + " :is an IRC operator"))
-		&& this->replyPush(user, ':' + user.getMask() + " 379 " + user. getNickname() + ' ' + cit->second->getNickname() + " :is using modes " + cit->second->getModes())
-		&& this->replyPush(user, ':' + user.getMask() + " 318 " + user. getNickname() + ' ' + cit->second->getNickname() + " :End of /WHOIS list.");
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	nickname = std::string(cit0, cit1);
+	if (nickname.empty())
+		return this->replyPush(user, "431 " + user.getNickname() + " :No nickname given");
+
+	cit2 = this->_lookupUsers.find(nickname);
+	if (cit2 == this->_lookupUsers.end())
+		return this->replyPush(user, "401 " + user.getNickname() + ' ' + nickname + " :No such nick/channel");
+	return this->replyPush(user, "307 " + user.getNickname() + ' ' + cit2->second->getNickname() + " :has identified for this nick")
+		&& this->replyPush(user, "311 " + user.getNickname() + ' ' + cit2->second->getNickname() + ' ' + cit2->second->getUsername() + ' ' + cit2->second->getServname() + " * :" + cit2->second->getRealname())
+		&& (cit2->second->getModes().find('o') == std::string::npos
+			|| this->replyPush(user, "313 " + user.getNickname() + ' ' + cit2->second->getNickname() + " :is an IRC operator"))
+		&& this->replyPush(user, "379 " + user. getNickname() + ' ' + cit2->second->getNickname() + " :is using modes " + cit2->second->getModes())
+		&& this->replyPush(user, "318 " + user. getNickname() + ' ' + cit2->second->getNickname() + " :End of /WHOIS list.");
 }

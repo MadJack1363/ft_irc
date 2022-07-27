@@ -16,9 +16,6 @@ bool	Server::KICK(User &user, std::string &params)
 	std::string::const_iterator	cit0;
 	std::string::const_iterator	cit1;
 
-	if (!this->replyPush(user, "KICK " + params))
-		return false;
-
 	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
 	channelName = std::string(cit0, cit1);
 	if (channelName.empty())

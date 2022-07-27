@@ -13,7 +13,9 @@
  */
 bool	Server::PING(User &user, std::string &params)
 {
-	return this->replyPush(user, ':' + user.getMask() + " PONG " + params);
+	if (params.empty())
+		return this->replyPush(user, "461 " + user.getNickname() + " PING :Not enough parameters");
+	return this->replyPush(user, "PONG " + params);
 }
 
 bool Server::IDK(User &user)
@@ -24,8 +26,9 @@ bool Server::IDK(User &user)
 	std::string	msg;
 
 	time(&clock[START]);
-	this->replyPush(user, ":" + user.getMask() + " PING " + user.getNickname());
-	this->replySend(user);
+	if (!this->replyPush(user, "PING " + user.getNickname()) ||
+		!this->replySend(user))
+		return false;
 	while (1)
 	{
 		retRecv = recv(user.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);

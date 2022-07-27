@@ -245,7 +245,7 @@ bool	Server::replySend(User &user)
 	while (!msgToSend.empty())
 	{
 		line = msgToSend.substr(0, msgToSend.find('\n'));
-		msgToSend = std::string(msgToSend).erase(0, msgToSend.find('\n') + 1);
+		msgToSend.erase(0, msgToSend.find('\n') + 1);
 		if (msgToSend.empty())
 			line.erase(line.end() - 1);
 		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);

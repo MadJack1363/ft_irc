@@ -15,23 +15,20 @@ bool	Server::OPER(User &user, std::string &params)
 	std::string::const_iterator	cit0;
 	std::string::const_iterator	cit1;
 
-	if (!this->replyPush(user, ':' + user.getMask() + " OPER " + params))
-		return false;
-
 	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
 	name = std::string(cit0, cit1);
 	if (name.empty())
-		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " OPER :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " OPER :Not enough parameters");
 
 	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
 	password = std::string(cit1, static_cast<std::string::const_iterator>(params.end()));
 	if (password.empty())
-		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " OPER :Not enough parameters");
+		return this->replyPush(user, "461 " + user.getNickname() + " OPER :Not enough parameters");
 
 	if (this->_config["oper_name"] != name || this->_config["oper_password"] != password)
-		return this->replyPush(user, ':' + user.getMask() + " 464 " + user.getNickname() + " :Password incorrect");
+		return this->replyPush(user, "464 " + user.getNickname() + " :Password incorrect");
 	if (user.getModes().find('o') == std::string::npos)
 		user.setModes(user.getModes() + 'o');
-	return replyPush(user, ':' + user.getMask() + " 221 " + user.getNickname() + " :" + user.getModes())
-		&& replyPush(user, ':' + user.getMask() + " 381 " + user.getNickname() + " :You are now an IRC operator.");
+	return replyPush(user, "221 " + user.getNickname() + " :" + user.getModes())
+		&& replyPush(user, "381 " + user.getNickname() + " :You are now an IRC operator.");
 }
