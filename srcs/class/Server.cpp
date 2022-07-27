@@ -19,6 +19,7 @@ std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
 	std::pair<std::string const, Server::t_fct const>(std::string("KICK"), &Server::KICK),
 	std::pair<std::string const, Server::t_fct const>(std::string("KILL"), &Server::KILL),
 	std::pair<std::string const, Server::t_fct const>(std::string("MODE"), &Server::MODE),
+	std::pair<std::string const, Server::t_fct const>(std::string("MOTD"), &Server::MOTD),
 	std::pair<std::string const, Server::t_fct const>(std::string("NICK"), &Server::NICK),
 	std::pair<std::string const, Server::t_fct const>(std::string("OPER"), &Server::OPER),
 	std::pair<std::string const, Server::t_fct const>(std::string("PART"), &Server::PART),
