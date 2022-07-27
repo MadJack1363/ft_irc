@@ -18,9 +18,6 @@ bool	Server::PART(User &user, std::string &params)
 	std::map<std::string const, User *const>::const_iterator	cit2;
 	std::map<std::string const, Channel>::iterator				it;
 
-	if (!this->replyPush(user, ':' + user.getMask() + " PART " + params))
-		return false;
-
 	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' && *cit1 != ':' ; ++cit1);
 	channelsToLeave = std::string(cit0, cit1);
 	if (channelsToLeave.empty())
