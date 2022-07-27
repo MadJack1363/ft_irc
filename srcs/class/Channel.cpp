@@ -33,17 +33,104 @@ Channel::~Channel(void)
 //                          Public Member Functions                          //
 // ************************************************************************* //
 
+/**
+ * @brief	Add a new user to the channel,
+ * 			or modify the user known as its nickname
+ * 			if such an user already exists in the channel.
+ * 
+ * @param	user The user to add.
+ */
 void	Channel::addUser(User &user)
 {
 	this->_lookupUsers.insert(std::pair<std::string const, User *const>(user.getNickname(), &user));
 }
 
+/**
+ * @brief	Get an iterator to the first user of the channel.
+ * 
+ * @return	An iterator to the first user of the channel.
+ */
+std::map<std::string const, User *const>::iterator	Channel::begin(void)
+{
+	return this->_lookupUsers.begin();
+}
+
+/**
+ * @brief	Get a const_iterator to the first user of the channel.
+ * 
+ * @return	A const_iterator to the first user of the channel.
+ */
+std::map<std::string const, User *const>::const_iterator	Channel::begin(void) const
+{
+	return this->_lookupUsers.begin();
+}
+
+/**
+ * @brief	Remove an user from the channel.
+ * 
+ * @param	nickname The nickname of the user to remove.
+ */
 void	Channel::delUser(std::string const &nickname)
 {
 	this->_lookupUsers.erase(nickname);
 }
 
-// std::vector<User *>	const	&Channel::getUsers(void) const
+/**
+ * @brief	Check if the channel is empty.
+ * 
+ * @return	Either true if the channel is empty, or false if not.
+ */
+bool	Channel::empty(void) const
+{
+	return this->_lookupUsers.empty();
+}
+
+/**
+ * @brief	Get an iterator to the post-last user of the channel.
+ * 
+ * @return	An iterator to the post-last user of the channel.
+ */
+std::map<std::string const, User *const>::iterator	Channel::end(void)
+{
+	return this->_lookupUsers.end();
+}
+
+/**
+ * @brief	Get a const_iterator to the post-last user of the channel.
+ * 
+ * @return	A const_iterator to the post-last user of the channel.
+ */
+std::map<std::string const, User *const>::const_iterator	Channel::end(void) const
+{
+	return this->_lookupUsers.end();
+}
+
+/**
+ * @brief	Get an iterator to an user with a given nickname.
+ * 
+ * @param	nickname The nickname of the user to find.
+ * 
+ * @return	Either an iterator to the user with the given nickname,
+ * 			or the end() iterator if no user with the given nickname is found.
+ */
+std::map<std::string const, User *const>::iterator	Channel::find(std::string const &nickname)
+{
+	return this->_lookupUsers.find(nickname);
+}
+
+/**
+ * @brief	Get a const_iterator to an user with a given nickname.
+ * 
+ * @param	nickname The nickname of the user to find.
+ * 
+ * @return	Either a const_iterator to the user with the given nickname,
+ * 			or the end() const_iterator if no user with the given nickname is found.
+ */
+std::map<std::string const, User *const>::const_iterator	Channel::find(std::string const &nickname) const
+{
+	return this->_lookupUsers.find(nickname);
+}
+
 // ************************************************************************* //
 //                                 Accessors                                 //
 // ************************************************************************* //
@@ -63,16 +150,6 @@ std::string const	&Channel::getTopic(void) const
 	return this->_topic;
 }
 
-std::map<std::string const, User *const> const	&Channel::getLookupUsers(void) const
-{
-	return this->_lookupUsers;
-}
-
-/* time_t const				&Channel::getLastActivity(void) const
-{
-	return this->_lastActivity;
-} */
-
 // ************************************************************************** //
 //                                  Mutators                                  //
 // ************************************************************************** //
@@ -90,9 +167,4 @@ void	Channel::setTopic(std::string const &topic)
 void	Channel::setModes(std::string const &modes)
 {
 	this->_modes = modes;
-}
-
-void	Channel::setLookupUsers(std::map<std::string const, User *const> const &lookupUsers)
-{
-	this->_lookupUsers = lookupUsers;
 }
