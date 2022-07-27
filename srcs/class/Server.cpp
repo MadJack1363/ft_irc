@@ -147,7 +147,7 @@ bool	Server::recvAll(void)
 	std::string					msg;
 	std::list<User>::iterator	it;
 
-	if (poll(&_pollfds[0], _pollfds.size(), (TIMEOUT * 1000) / 10) == -1)
+	if (poll(&_pollfds[0], _pollfds.size(), std::strtol(this->_config["timeout"].c_str(), NULL, 10)) == -1)
 	{
 		Server::logMsg(ERROR, "poll: " + std::string(strerror(errno)));
 		return false;
@@ -290,11 +290,6 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
-		// REMIND: Do we need to keep those lines?
-		// FIX Nop no more need
-		// hostent *host = gethostbyname(inet_ntoa(addr.sin_addr));
-		// this->_users[newUser].setHostname(host->h_name);
-
 		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
 	return true;
