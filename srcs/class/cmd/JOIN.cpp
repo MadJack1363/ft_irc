@@ -42,10 +42,13 @@ bool	Server::JOIN(User &user, std::string &params)
 		if (it->second.find(user.getNickname()) == it->second.end())
 		{
 			it->second.addUser(user);
+
+			// REMIND: remove this block when JOIN() is working
 			std::string	tmp;
 			for (cit2 = it->second.begin(); cit2 != it->second.end();cit2++)
 				tmp += " " + cit2->second->getNickname();
 			Server::logMsg(INTERNAL, tmp);
+
 			if (!this->replyPush(user, ':' + user.getMask() + " JOIN " + channelName) ||
 				!this->replyPush(user, ':' + user.getMask() + " 332 " + user.getNickname() + " #" + channelName + " :" + it->second.getTopic()) ||
 				!this->replyPush(user, ':' + user.getMask() + " 353 " + user.getNickname() + " = #" + channelName + " :" + tmp) ||
@@ -53,12 +56,10 @@ bool	Server::JOIN(User &user, std::string &params)
 				return false;
 			for (cit2 = it->second.begin() ; cit2 != it->second.end() ; cit2++)
 			{
-				if (!this->replyPush(*cit2->second, ':' + user.getMask() + " JOIN " + channelName + " :" + reason) ||
+				if (!this->replyPush(*cit2->second, ':' + user.getMask() + " JOIN " + channelName) ||
 					!this->replySend(*cit2->second))
 					return false;
 			}
-			if (it->second.empty())
-				this->_lookupChannels.erase(it);
 		}
 		if (cit1 != channelsToJoin.end() && *cit1 != ' ')
 			++cit1;

@@ -17,6 +17,7 @@ std::string const	Channel::_availableModes("in");
 
 Channel::Channel(std::string const &name) :
 	_name(name),
+	_topic(),
 	_modes(),
 	_lookupUsers() {}
 
