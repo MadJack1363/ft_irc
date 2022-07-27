@@ -38,7 +38,9 @@ bool	Server::JOIN(User &user, std::string &params)
 		it = this->_lookupChannels.find(channelName);
 		if (it == this->_lookupChannels.end())
 		{
-			// TODO: create the channel
+			// DO: create the channel
+			this->_lookupChannels.insert(std::pair<std::string const, Channel>(channelName, Channel(channelName)));
+			it = this->_lookupChannels.find(channelName);
 		}
 		if (it->second.getLookupUsers().find(user.getNickname()) == it->second.getLookupUsers().end())
 		{
