@@ -37,15 +37,23 @@ public:
 	virtual ~Channel(void);
 
 	// Member functions
-	void	addUser(User &user);
-	void	delUser(std::string const &nickname);
+	void														addUser(User &user);
+	void														delUser(std::string const &nickname);
+
+	bool														empty(void) const;
+
+	std::map<std::string const, User *const>::iterator			begin(void);
+	std::map<std::string const, User *const>::iterator			end(void);
+	std::map<std::string const, User *const>::iterator			find(std::string const &nickname);
+
+	std::map<std::string const, User *const>::const_iterator	begin(void) const;
+	std::map<std::string const, User *const>::const_iterator	end(void) const;
+	std::map<std::string const, User *const>::const_iterator	find(std::string const &nickname) const;
 
 	// Accessors
-	std::string const								&getName(void) const;
-	std::string const								&getTopic(void) const;
-	std::string const								&getModes(void) const;
-
-	std::map<std::string const, User *const> const	&getLookupUsers(void) const;
+	std::string const	&getName(void) const;
+	std::string const	&getTopic(void) const;
+	std::string const	&getModes(void) const;
 
 	static std::string const	&getAvailableModes(void);
 
@@ -53,7 +61,6 @@ public:
 	void	setName(std::string const &name);
 	void	setTopic(std::string const &topic);
 	void	setModes(std::string const &modes);
-	void	setLookupUsers(std::map<std::string const, User *const> const &lookupUsers);
 };
 
 #endif

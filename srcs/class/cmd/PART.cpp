@@ -2,7 +2,6 @@
 
 /**
  * @brief	Make an user leaving one or more channel(s).
->>>>>>> jo/commandsImplementation
  * 
  * @param	user The user that ran the command.
  * @param	params The parameters of the command.
@@ -44,21 +43,21 @@ bool	Server::PART(User &user, std::string &params)
 		}
 		else
 		{
-			if (it->second.getLookupUsers().find(user.getNickname()) == it->second.getLookupUsers().end())
+			if (it->second.find(user.getNickname()) == it->second.end())
 			{
 				if (!this->replyPush(user, ':' + user.getMask() + " 442 " + user.getNickname() + ' ' + channelName + " :You're not on that channel"))
 					return false;
 			}
 			else
 			{
-				for (cit2 = it->second.getLookupUsers().begin() ; cit2 != it->second.getLookupUsers().end() ; ++cit2)
+				for (cit2 = it->second.begin() ; cit2 != it->second.end() ; ++cit2)
 				{
 					if (!this->replyPush(*cit2->second, ':' + user.getMask() + " PART " + channelName + " :" + reason) ||
 						!this->replySend(*cit2->second))
 						return false;
 				}
 				it->second.delUser(user.getNickname());
-				if (it->second.getLookupUsers().empty())
+				if (it->second.empty())
 					this->_lookupChannels.erase(it);
 			}
 		}

@@ -40,19 +40,19 @@ bool	Server::JOIN(User &user, std::string &params)
 		{
 			// TODO: create the channel
 		}
-		if (it->second.getLookupUsers().find(user.getNickname()) == it->second.getLookupUsers().end())
+		if (it->second.find(user.getNickname()) == it->second.end())
 		{
 			if (!this->replyPush(user, ':' + user.getMask() + " JOIN " + channelName) ||
 				!this->replyPush(user, ':' + user.getMask() + " 332 " + user.getNickname() + ' ' + channelName + " :" + it->second.getTopic()))
 				return false;
-			for (cit2 = it->second.getLookupUsers().begin() ; cit2 != it->second.getLookupUsers().end() ; ++cit2)
+			for (cit2 = it->second.begin() ; cit2 != it->second.end() ; ++cit2)
 			{
 				if (!this->replyPush(*cit2->second, ':' + user.getMask() + " PART " + channelName + " :" + reason) ||
 					!this->replySend(*cit2->second))
 					return false;
 			}
 			it->second.delUser(user.getNickname());
-			if (it->second.getLookupUsers().empty())
+			if (it->second.empty())
 				this->_lookupChannels.erase(it);
 		}
 		if (cit1 != channelsToJoin.end() && *cit1 != ' ')
