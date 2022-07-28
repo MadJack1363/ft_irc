@@ -30,8 +30,8 @@ bool	Server::PART(User &user, std::string &params)
 	{
 		for (cit0 = cit1 ; cit1 != channelsToLeave.end() && *cit1 != ' ' && *cit1 != ',' ; ++cit1);
 		channelName = std::string(cit0, cit1);
-		if (*channelName.begin() == '#')
-			channelName.erase(channelName.begin());
+		if (*channelName.begin() != '#')
+			channelName.insert(channelName.begin(), '#');
 		it = this->_lookupChannels.find(channelName);
 		if (it == this->_lookupChannels.end())
 		{

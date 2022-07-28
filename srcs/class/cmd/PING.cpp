@@ -18,7 +18,8 @@ bool	Server::PING(User &user, std::string &params)
 	return this->replyPush(user, "PONG " + params);
 }
 
-bool Server::IDK(User &user)
+// TODO: Write the function comment.
+bool Server::checkStillAlive(User &user)
 {
 	time_t		clock[2];
 	ssize_t		retRecv;

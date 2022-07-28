@@ -168,7 +168,7 @@ bool	Server::recvAll(void)
 		time(&time_tmp);
 		if (retRecv == -1 && time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
 		{
-			if (this->IDK(*it))// DO Check if the ping work of not work
+			if (this->checkStillAlive(*it))// DO Check if the ping work of not work
 				it->updateLastActivity();
 			else
 			{

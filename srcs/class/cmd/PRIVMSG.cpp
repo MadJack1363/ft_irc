@@ -23,10 +23,6 @@
  */
 bool	Server::PRIVMSG(User &user, std::string &params)
 {
-	// DO Check the replies
-	// FIX ERR_NOSUCHNICK (401)
-	// FIX ERR_CANNOTSENDTOCHAN (404)
-	// DO ERR_TOOMANYTARGETS (407) | Check but no max persmissions
 	std::string tmp;
 	std::string	target_name = params.substr(0, params.find(' '));
 	std::string	msg_send =  params.substr(params.find(':') + 1, params.length());

@@ -113,13 +113,13 @@ private:
 	bool	QUIT(User &user, std::string &params);
 	bool	USER(User &user, std::string &params);
 	bool	WHOIS(User &user, std::string &params);
+	bool	checkStillAlive(User &user);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
 	bool	replyPush(User &user, std::string const &line);
 	bool	replySend(User &user);
 	bool	welcomeDwarves(void);
 
-	bool	IDK(User &user);
 	static std::string	toString(int const nb);
 
 public:
