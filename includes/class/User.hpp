@@ -25,6 +25,7 @@ private:
 	std::string									_servname;
 	std::string									_realname;
 	std::string									_password;
+	std::string									_awayMsg;
 	std::string									_modes;
 	std::string									_mask;
 	std::string									_msg;
@@ -64,6 +65,7 @@ public:
 	std::string const									&getServname(void) const;
 	std::string const									&getRealname(void) const;
 	std::string const									&getPassword(void) const;
+	std::string const									&getAwayMsg(void) const;
 	std::string const									&getModes(void) const;
 	std::string const									&getMask(void) const;
 	std::string const									&getMsg(void) const;
@@ -76,7 +78,6 @@ public:
 	static std::string const	&getAvailableNicknameChars(void);
 
 	// Mutators
-
 	void	setSocket(int const sockfd);
 	void	setAddr(sockaddr_in const &addr);
 	void	setNickname(std::string const &nickname);
@@ -85,6 +86,7 @@ public:
 	void	setServname(std::string const &servname);
 	void	setRealname(std::string const &realname);
 	void	setPassword(std::string const &password);
+	void	setAwayMsg(std::string const &awayMsg);
 	void	setModes(std::string const &modes);
 	void	setMask(std::string const &mask);
 	void	setMask(void);

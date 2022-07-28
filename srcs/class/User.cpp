@@ -28,6 +28,7 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_servname(),
 	_realname(),
 	_password(),
+	_awayMsg(),
 	_modes(),
 	_msg(),
 	_isRegistered(),
@@ -45,6 +46,7 @@ User::User(User const &src) :
 	_servname(src._servname),
 	_realname(src._realname),
 	_password(src._password),
+	_awayMsg(src._awayMsg),
 	_modes(src._modes),
 	_msg(src._msg),
 	_isRegistered(src._isRegistered),
@@ -112,6 +114,11 @@ sockaddr_in const	&User::getAddr(void) const
 std::string const	&User::getAvailableModes(void)
 {
 	return User::_availableModes;
+}
+
+std::string const	&User::getAwayMsg(void) const
+{
+	return this->_awayMsg;
 }
 
 std::string const	&User::getAvailableNicknameChars(void)
@@ -186,6 +193,11 @@ std::string const	&User::getUsername(void) const
 void	User::setAddr(sockaddr_in const &addr)
 {
 	this->_addr = addr;
+}
+
+void	User::setAwayMsg(std::string const &awayMsg)
+{
+	this->_awayMsg = awayMsg;
 }
 
 void	User::setHostname(std::string const &hostname)
