@@ -10,26 +10,30 @@
  */
 bool	Server::QUIT(User &user, std::string &params)
 {
-	std::string												channels;
-	std::string												reason;
-	std::string												subParams;
-	std::map<std::string const, Channel *>::const_iterator	cit;
+	std::string	reason;
 
-	if (!user.getChannels().empty())
+	if (!this->replyPush(user, "Error :Connection terminated by the user") ||
+		!this->replySend(user))
+		return false;
+
+	if (!user.getLookupChannels().empty())
 	{
-		for (cit = user.getChannels().begin() ; cit != user.getChannels().end() ; ++cit)
-			channels += cit->first + ',';
-		channels.erase(channels.end() - 1);
-
 		reason = params;
 		if (*reason.begin() == ':')
 			reason.erase(reason.begin());
 		reason = "Quit: " + reason;
 
-		subParams = channels + " :" + reason;
-		if (this->PART(user, subParams))
-			return false;
+		for (std::map<std::string const, Channel *const>::const_iterator itChan = user.getLookupChannels().begin(); itChan != user.getLookupChannels().end(); itChan++)
+		{
+			for (std::map<std::string const, User *const>::const_iterator itUser = itChan->second->begin(); itUser != itChan->second->end(); itUser++)
+			{
+				if (itUser->second != &user && (!this->replyPush(*itUser->second, ":" + user.getMask() + " QUIT :" + reason) ||
+					!this->replySend(*itUser->second)))
+					return false;
+			}
+		}
 	}
+
 	close(user.getSocket());
 	user.setSocket(-1);
 	return true;

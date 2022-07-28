@@ -74,6 +74,8 @@ public:
 
 	time_t const										&getLastActivity(void) const;
 
+	std::map<std::string const, Channel *const> const	&getLookupChannels(void) const;
+
 	static std::string const	&getAvailableModes(void);
 	static std::string const	&getAvailableNicknameChars(void);
 
