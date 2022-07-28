@@ -11,7 +11,7 @@
 bool	Server::KILL(User &user, std::string &params)
 {
 	std::string					nickname;
-	std::string					reason;
+	std::string					reason("Being an elf");
 	std::string					subParams;
 	std::string::const_iterator	cit0;
 	std::string::const_iterator	cit1;
@@ -24,7 +24,8 @@ bool	Server::KILL(User &user, std::string &params)
 	for ( ; cit1 != params.end() && *cit1 != ':' ; ++cit1);
 	if (cit1 == params.end())
 		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
-	reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
+	if (cit1 + 1 != params.end())
+		reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
 
 	if (user.getModes().find('o') == std::string::npos)
 		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");
@@ -38,8 +39,27 @@ bool	Server::KILL(User &user, std::string &params)
 	User	&userToKill = *this->_lookupUsers.find(nickname)->second;
 	Server::addToBanList(userToKill);
 
-	this->replyPush(userToKill, ":" + user.getMask() + " KILL " + userToKill.getNickname() + " " + reason);
+	if (!this->replyPush(userToKill, ":" + user.getMask() + " KILL " + userToKill.getNickname() + " :" + reason))
+		return false;
+	if (!userToKill.getLookupChannels().empty())
+	{
+		reason = "Killed (" + user.getNickname() + " (" + reason + "))";
 
-	subParams = ":Killed (" + user.getNickname() + " (" + reason + "))";
-	return this->QUIT(userToKill, subParams);
+		for (std::map<std::string const, Channel *const>::const_iterator itChan = userToKill.getLookupChannels().begin(); itChan != userToKill.getLookupChannels().end(); itChan++)
+		{
+			for (std::map<std::string const, User *const>::const_iterator itUser = itChan->second->begin(); itUser != itChan->second->end(); itUser++)
+			{
+				if (!this->replyPush(*itUser->second, ":" + userToKill.getMask() + " QUIT :" + reason) ||
+					!this->replySend(*itUser->second))
+					return false;
+			}
+		}
+	}
+	if (!this->replyPush(userToKill, "Error :Closing Link: " + this->_config["server_name"] + " (" + reason + ")") ||
+		!this->replySend(userToKill))
+		return false;
+
+	close(userToKill.getSocket());
+	userToKill.setSocket(-1);
+	return true;
 }

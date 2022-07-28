@@ -12,7 +12,7 @@ bool	Server::QUIT(User &user, std::string &params)
 {
 	std::string	reason;
 
-	if (!this->replyPush(user, "Error :Connection terminated by the user") ||
+	if (!this->replyPush(user, "Error :Connection terminated by dwarf") ||
 		!this->replySend(user))
 		return false;
 
