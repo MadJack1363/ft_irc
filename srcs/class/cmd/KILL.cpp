@@ -21,8 +21,8 @@ bool	Server::KILL(User &user, std::string &params)
 	if (nickname.empty())
 		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
 
-	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
-	if (cit1 == params.end() || *cit1 != ':')
+	for ( ; cit1 != params.end() && *cit1 != ':' ; ++cit1);
+	if (cit1 == params.end())
 		return this->replyPush(user, "461 " + user.getNickname() + " KILL :Not enough parameters");
 	reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
 

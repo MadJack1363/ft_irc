@@ -27,12 +27,13 @@ bool	Server::JOIN(User &user, std::string &params)
 	if (cit1 != params.end() && *cit1 == ':')
 		reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
 
-	for (cit1 = channelsToJoin.begin() ; cit1 != channelsToJoin.end() ; )
+	for (cit1 = channelsToJoin.begin() ; cit1 != channelsToJoin.end() ; ++cit1)
 	{
-		for (cit0 = cit1 ; cit1 != channelsToJoin.end() && *cit1 != ' ' && *cit1 != ',' ; ++cit1);
+		for (cit0 = cit1 ; cit1 != channelsToJoin.end() && *cit1 != ',' ; ++cit1);
 		channelName = std::string(cit0, cit1);
 		if (*channelName.begin() != '#')
 			channelName.insert(channelName.begin(), '#');
+
 		it = this->_lookupChannels.find(channelName);
 		if (it == this->_lookupChannels.end())
 		{
@@ -42,6 +43,7 @@ bool	Server::JOIN(User &user, std::string &params)
 		if (it->second.find(user.getNickname()) == it->second.end())
 		{
 			it->second.addUser(user);
+			user.addChannel(it->second);
 
 			for (cit2 = it->second.begin() ; cit2 != it->second.end() ; ++cit2)
 				userList += ' ' + cit2->second->getNickname();
@@ -58,8 +60,8 @@ bool	Server::JOIN(User &user, std::string &params)
 						!this->replySend(*cit2->second)))
 					return false;
 		}
-		if (cit1 != channelsToJoin.end() && *cit1 != ' ')
-			++cit1;
+		if (cit1 == channelsToJoin.end())
+			break ;
 	}
 	return true;
 }

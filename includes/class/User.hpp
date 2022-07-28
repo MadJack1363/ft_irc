@@ -15,25 +15,25 @@ class User
 {
 private:
 	// Attributes
-	sockaddr_in								_addr;
+	sockaddr_in									_addr;
 
-	int										_socket;
+	int											_socket;
 
-	std::string								_nickname; // Max length is 9 chars
-	std::string								_username;
-	std::string								_hostname;
-	std::string								_servname;
-	std::string								_realname;
-	std::string								_password;
-	std::string								_modes;
-	std::string								_mask;
-	std::string								_msg;
+	std::string									_nickname; // Max length is 9 chars
+	std::string									_username;
+	std::string									_hostname;
+	std::string									_servname;
+	std::string									_realname;
+	std::string									_password;
+	std::string									_modes;
+	std::string									_mask;
+	std::string									_msg;
 
-	bool									_isRegistered;
+	bool										_isRegistered;
 
-	time_t									_lastActivity;
+	time_t										_lastActivity;
 
-	std::map<std::string const, Channel *>	_channels;
+	std::map<std::string const, Channel *const>	_lookupChannels;
 
 	static std::string const	_availableModes;
 	static std::string const	_availableNicknameChars;
@@ -47,32 +47,33 @@ public:
 	virtual ~User(void);
 
 	// Member functions
+	void	addChannel(Channel &channel);
+	void	delChannel(std::string const &channelName);
+	void	updateLastActivity(void);
+
 	bool	init(int const &socket, sockaddr_in const &addr); // set _socket & _addr + fcntl() <-- setup non-blocking fd
 
-	void		updateLastActivity(void);
 	// Accessors
-	sockaddr_in const								&getAddr(void) const;
+	sockaddr_in const									&getAddr(void) const;
 
-	int const										&getSocket(void) const;
+	int const											&getSocket(void) const;
 
-	std::string const								&getNickname(void) const;
-	std::string const								&getUsername(void) const;
-	std::string const								&getHostname(void) const;
-	std::string const								&getServname(void) const;
-	std::string const								&getRealname(void) const;
-	std::string const								&getPassword(void) const;
-	std::string const								&getModes(void) const;
-	std::string const								&getMask(void) const;
-	std::string const								&getMsg(void) const;
+	std::string const									&getNickname(void) const;
+	std::string const									&getUsername(void) const;
+	std::string const									&getHostname(void) const;
+	std::string const									&getServname(void) const;
+	std::string const									&getRealname(void) const;
+	std::string const									&getPassword(void) const;
+	std::string const									&getModes(void) const;
+	std::string const									&getMask(void) const;
+	std::string const									&getMsg(void) const;
 
-	bool const										&getIsRegistered(void) const;
+	bool const											&getIsRegistered(void) const;
 
-	time_t const									&getLastActivity(void) const;
+	time_t const										&getLastActivity(void) const;
 
-	std::map<std::string const, Channel *> const	&getChannels(void) const;
-
-	static std::string const						&getAvailableModes(void);
-	static std::string const						&getAvailableNicknameChars(void);
+	static std::string const	&getAvailableModes(void);
+	static std::string const	&getAvailableNicknameChars(void);
 
 	// Mutators
 
@@ -89,7 +90,6 @@ public:
 	void	setMask(void);
 	void	setMsg(std::string const &msg);
 	void	setIsRegistered(bool const isRegistered);
-	void	setChannels(std::map<std::string const, Channel *> const &channels);
 };
 
 #endif

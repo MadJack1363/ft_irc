@@ -26,12 +26,13 @@ bool	Server::PART(User &user, std::string &params)
 	if (cit1 != params.end() && *cit1 == ':')
 		reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
 
-	for (cit1 = channelsToLeave.begin() ; cit1 != channelsToLeave.end() ; )
+	for (cit1 = channelsToLeave.begin() ; cit1 != channelsToLeave.end() ; ++cit1)
 	{
-		for (cit0 = cit1 ; cit1 != channelsToLeave.end() && *cit1 != ' ' && *cit1 != ',' ; ++cit1);
+		for (cit0 = cit1 ; cit1 != channelsToLeave.end() && *cit1 != ',' ; ++cit1);
 		channelName = std::string(cit0, cit1);
 		if (*channelName.begin() != '#')
 			channelName.insert(channelName.begin(), '#');
+
 		it = this->_lookupChannels.find(channelName);
 		if (it == this->_lookupChannels.end())
 		{
@@ -58,8 +59,8 @@ bool	Server::PART(User &user, std::string &params)
 					this->_lookupChannels.erase(it);
 			}
 		}
-		if (cit1 != channelsToLeave.end() && *cit1 != ' ')
-			++cit1;
+		if (cit1 == channelsToLeave.end())
+			break ;
 	}
 	return true;
 }

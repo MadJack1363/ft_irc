@@ -31,7 +31,7 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_modes(),
 	_msg(),
 	_isRegistered(),
-	_channels()
+	_lookupChannels()
 	{
 		time(&_lastActivity);
 	}
@@ -49,7 +49,7 @@ User::User(User const &src) :
 	_msg(src._msg),
 	_isRegistered(src._isRegistered),
 	_lastActivity(src._lastActivity),
-	_channels(src._channels) {}
+	_lookupChannels(src._lookupChannels) {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -67,6 +67,27 @@ User::~User(void)
 //                          Public Member Functions                          //
 // ************************************************************************* //
 
+/**
+ * @brief	Add a new channel in which the user is.
+ * 
+ * @param	channel The channel to add.
+ */
+void	User::addChannel(Channel &channel)
+{
+	this->_lookupChannels.insert(std::pair<std::string const, Channel *>(channel.getName(), &channel));
+}
+
+/**
+ * @brief	Remove a channel in which the user is.
+ * 
+ * @param	channelName The name of the channel to remove.
+ */
+void	User::delChannel(std::string const &channelName)
+{
+	this->_lookupChannels.erase(channelName);
+}
+
+// TODO: write the function comment
 bool	User::init(int const &socket, sockaddr_in const &addr)
 {
 	this->_socket = socket;
@@ -78,6 +99,7 @@ void	User::updateLastActivity(void)
 {
 	time(&this->_lastActivity);
 }
+
 // ************************************************************************* //
 //                                 Accessors                                 //
 // ************************************************************************* //
@@ -95,11 +117,6 @@ std::string const	&User::getAvailableModes(void)
 std::string const	&User::getAvailableNicknameChars(void)
 {
 	return User::_availableNicknameChars;
-}
-
-std::map<std::string const, Channel *> const	&User::getChannels(void) const
-{
-	return this->_channels;
 }
 
 std::string const	&User::getHostname(void) const
@@ -169,11 +186,6 @@ std::string const	&User::getUsername(void) const
 void	User::setAddr(sockaddr_in const &addr)
 {
 	this->_addr = addr;
-}
-
-void	User::setChannels(std::map<std::string const, Channel *> const &channels)
-{
-	this->_channels = channels;
 }
 
 void	User::setHostname(std::string const &hostname)

@@ -27,8 +27,8 @@ bool	Server::KICK(User &user, std::string &params)
 	if (usernameToKick.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " KICK :Not enough parameters");
 
-	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
-	if (cit1 != params.end() && *cit1 == ':')
+	for ( ; cit1 != params.end() && *cit1 != ':' ; ++cit1);
+	if (cit1 != params.end())
 		reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
 
 	if(this->_lookupChannels.find(channelName) == this->_lookupChannels.end())
