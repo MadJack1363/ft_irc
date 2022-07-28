@@ -11,6 +11,9 @@
 
 class Channel;
 
+# define ALIVETIME 0 
+# define TIMEOUT 1
+
 class User
 {
 private:
@@ -32,7 +35,7 @@ private:
 	bool									_isRegistered;
 
 	time_t									_lastActivity;
-
+	bool									_waitingForPong;
 	std::map<std::string const, Channel *>	_channels;
 
 	static std::string const	_availableModes;
@@ -66,6 +69,7 @@ public:
 	std::string const								&getMsg(void) const;
 
 	bool const										&getIsRegistered(void) const;
+	bool const										&getWaitingForPong(void) const;
 
 	time_t const									&getLastActivity(void) const;
 
@@ -89,6 +93,7 @@ public:
 	void	setMask(void);
 	void	setMsg(std::string const &msg);
 	void	setIsRegistered(bool const isRegistered);
+	void	setWaitingForPong(bool const waitingForPong);
 	void	setChannels(std::map<std::string const, Channel *> const &channels);
 };
 

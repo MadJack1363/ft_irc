@@ -136,6 +136,30 @@ void	Server::addToBanList(User const &user)
 }
 
 /**
+ * @brief Check the reponse of the client of the PING
+ * 
+ * @param user The user to check if the PING is correct
+ * @param params the value of the token send by ping
+ * 
+ * @return true if success, false otherwise.
+ */
+bool	Server::checkPONG(User &user, std::string const &params)
+{
+	std::string	line;
+
+	if (params.empty())
+		return false;
+	line = params.substr(0, params.find('\n'));
+		if (*(line.end() - 1) == '\r')
+			line.erase(line.end() - 1);
+	line.erase(0, line.find(":") + 1);
+	if (user.getNickname().compare(line) != 0)
+		return false;
+	user.setWaitingForPong(ALIVETIME);
+	return true;
+}
+
+/**
  * @brief	Check every user socket connection, receive messages from
  * 			each of them, and process the received messages.
  * 
@@ -166,18 +190,18 @@ bool	Server::recvAll(void)
 		}
 		time_t	time_tmp;
 		time(&time_tmp);
-		if (retRecv == -1 && time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
+		if (time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
 		{
-			if (this->checkStillAlive(*it))// DO Check if the ping work of not work
-				it->updateLastActivity();
-			else
+			if (!it->getWaitingForPong())
+				this->checkStillAlive(*it);
+			else if ((it->getWaitingForPong() && time_tmp - it->getLastActivity() >= std::strtol(this->_config["timeout"].c_str(), NULL, 10)) || (!msg.empty() && !this->checkPONG(*it, msg))) 
 			{
 				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
 				close(it->getSocket());
 				it->setSocket(-1);
 			}
 		}
-		if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
+		else if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
 			return false;
 		if (retRecv > 0)
 		{
