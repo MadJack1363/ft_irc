@@ -23,14 +23,15 @@ bool	Server::QUIT(User &user, std::string &params)
 			reason.erase(reason.begin());
 		reason = "Quit: " + reason;
 
-		for (std::map<std::string const, Channel *const>::const_iterator itChan = user.getLookupChannels().begin(); itChan != user.getLookupChannels().end(); itChan++)
+		for (std::map<std::string const, Channel *const>::const_iterator citChan = user.getLookupChannels().begin() ; citChan != user.getLookupChannels().end() ; citChan++)
 		{
-			for (std::map<std::string const, User *const>::const_iterator itUser = itChan->second->begin(); itUser != itChan->second->end(); itUser++)
+			for (std::map<std::string const, User *const>::const_iterator citUser = citChan->second->begin(); citUser != citChan->second->end(); citUser++)
 			{
-				if (itUser->second != &user && (!this->replyPush(*itUser->second, ":" + user.getMask() + " QUIT :" + reason) ||
-					!this->replySend(*itUser->second)))
+				if (citUser->second != &user && (!this->replyPush(*citUser->second, ":" + user.getMask() + " QUIT :" + reason) ||
+					!this->replySend(*citUser->second)))
 					return false;
 			}
+			citChan->second->delUser(user.getNickname());
 		}
 	}
 
