@@ -32,10 +32,11 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_modes(),
 	_msg(),
 	_isRegistered(),
+	_waitingForPong(ALIVETIME),
 	_lookupChannels()
-	{
-		time(&_lastActivity);
-	}
+{
+	time(&_lastActivity);
+}
 
 
 User::User(User const &src) :
@@ -50,6 +51,7 @@ User::User(User const &src) :
 	_modes(src._modes),
 	_msg(src._msg),
 	_isRegistered(src._isRegistered),
+	_waitingForPong(src._waitingForPong),
 	_lastActivity(src._lastActivity),
 	_lookupChannels(src._lookupChannels) {}
 
@@ -191,6 +193,10 @@ std::string const	&User::getUsername(void) const
 	return this->_username;
 }
 
+bool const	&User::getWaitingForPong(void) const
+{
+	return this->_waitingForPong;
+}
 // ************************************************************************** //
 //                                  Mutators                                  //
 // ************************************************************************** //
@@ -263,4 +269,9 @@ void	User::setSocket(int const sockfd)
 void	User::setUsername(std::string const &username)
 {
 	this->_username = username;
+}
+
+void	User::setWaitingForPong(bool const waitingForPong)
+{
+	this->_waitingForPong = waitingForPong;
 }

@@ -118,6 +118,7 @@ private:
 	bool	USER(User &user, std::string &params);
 	bool	WHOIS(User &user, std::string &params);
 	bool	checkStillAlive(User &user);
+	bool	checkPONG(User &user, std::string const &params);
 	bool	judge(User &user, std::string &msg);
 	bool	recvAll(void);
 	bool	replyPush(User &user, std::string const &line);
