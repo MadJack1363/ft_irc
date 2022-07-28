@@ -129,6 +129,11 @@ bool const	&User::getIsRegistered(void) const
 	return this->_isRegistered;
 }
 
+std::map<std::string const, Channel *const> const	&User::getLookupChannels(void) const
+{
+	return this->_lookupChannels;
+}
+
 std::string const	&User::getMask(void) const
 {
 	return this->_mask;
