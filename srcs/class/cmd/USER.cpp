@@ -56,8 +56,15 @@ bool	Server::USER(User &user, std::string &params)
 		realname.erase(realname.find(' '));
 	user.setRealname(realname);
 
-	if (!this->_config["server_password"].empty() && this->_config["server_password"] != user.getPassword())
-		return this->replyPush(user, "464 " + user.getNickname() + " :Password incorrect");
+	if (!this->_config["server_password"].empty() &&
+		user.getPassword() != this->_config["server_password"])
+	{
+		if (!this->replySend(user))
+			return false;
+		close(user.getSocket());
+		user.setSocket(-1);
+		return true;
+	}
 	user.setIsRegistered(true);
 	user.setMask();
 
