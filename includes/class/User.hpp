@@ -11,8 +11,13 @@
 
 class Channel;
 
-# define ALIVETIME 0 
-# define TIMEOUT 1
+# ifndef ALIVETIME
+#  define ALIVETIME 0
+# endif
+
+# ifndef TIMEOUT
+#  define TIMEOUT 1
+# endif
 
 class User
 {
