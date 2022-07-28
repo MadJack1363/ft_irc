@@ -150,6 +150,7 @@ bool	Server::checkPONG(User &user, std::string const &params)
 	if (params.empty())
 		return false;
 	line = params.substr(0, params.find('\n'));
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") " + line);
 		if (*(line.end() - 1) == '\r')
 			line.erase(line.end() - 1);
 	line.erase(0, line.find(":") + 1);

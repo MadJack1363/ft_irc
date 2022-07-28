@@ -1,5 +1,9 @@
+# Folder :
 objs/
-ircserv
-droge_irc
+config/
 
+# Binary
+ircserv
+
+# Log file
 *.log
