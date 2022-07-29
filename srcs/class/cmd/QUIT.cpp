@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::QUIT(User &user, std::string &params)
+bool	Server::QUIT(User &user, std::string const &params)
 {
 	std::string	reason;
 

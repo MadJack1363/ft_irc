@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::KICK(User &user, std::string &params)
+bool	Server::KICK(User &user, std::string const &params)
 {
 	std::string					channelName;
 	std::string					usernameToKick;

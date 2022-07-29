@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::JOIN(User &user, std::string &params)
+bool	Server::JOIN(User &user, std::string const &params)
 {
 	std::string													channelsToJoin;
 	std::string													reason("has joined the channel");

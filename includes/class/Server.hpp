@@ -24,7 +24,7 @@
 class Server
 {
 private:
-	typedef bool	(Server::*t_fct)(User &user, std::string &params);
+	typedef bool	(Server::*t_fct)(User &user, std::string const &params);
 
 	enum	e_state
 	{
@@ -103,21 +103,21 @@ private:
 	void	partSend(User &user, std::string &channel_name, std::string &message_left);
 	void	addToBanList(User const &user);
 
-	bool	DIE(User &user, std::string &params);
-	bool	JOIN(User &user, std::string &params);
-	bool	KICK(User &user, std::string &params);
-	bool	KILL(User &user, std::string &params);
-	bool	MODE(User &user, std::string &params);
-	bool	MOTD(User &user, std::string &params);
-	bool	NICK(User &user, std::string &params);
-	bool	OPER(User &user, std::string &params);
-	bool	PART(User &user, std::string &params);
-	bool	PASS(User &user, std::string &params);
-	bool	PING(User &user, std::string &params);
-	bool	PRIVMSG(User &user, std::string &params);
-	bool	QUIT(User &user, std::string &params);
-	bool	USER(User &user, std::string &params);
-	bool	WHOIS(User &user, std::string &params);
+	bool	DIE(User &user, std::string const &params);
+	bool	JOIN(User &user, std::string const &params);
+	bool	KICK(User &user, std::string const &params);
+	bool	KILL(User &user, std::string const &params);
+	bool	MODE(User &user, std::string const &params);
+	bool	MOTD(User &user, std::string const &params);
+	bool	NICK(User &user, std::string const &params);
+	bool	OPER(User &user, std::string const &params);
+	bool	PART(User &user, std::string const &params);
+	bool	PASS(User &user, std::string const &params);
+	bool	PING(User &user, std::string const &params);
+	bool	PRIVMSG(User &user, std::string const &params);
+	bool	QUIT(User &user, std::string const &params);
+	bool	USER(User &user, std::string const &params);
+	bool	WHOIS(User &user, std::string const &params);
 	bool	checkStillAlive(User &user);
 	bool	checkPONG(User &user, std::string const &params);
 	bool	judge(User &user, std::string &msg);

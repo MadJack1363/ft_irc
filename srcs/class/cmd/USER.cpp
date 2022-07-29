@@ -10,7 +10,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::USER(User &user, std::string &params)
+bool	Server::USER(User &user, std::string const &params)
 {
 	std::string					username;
 	std::string					hostname;

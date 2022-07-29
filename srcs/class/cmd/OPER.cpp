@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::OPER(User &user, std::string &params)
+bool	Server::OPER(User &user, std::string const &params)
 {
 	std::string					name;
 	std::string					password;

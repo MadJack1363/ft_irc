@@ -9,7 +9,7 @@
  * @return	true if success, false otherwise.
  */
 
-bool	Server::MOTD(User &user, std::string &params)
+bool	Server::MOTD(User &user, std::string const &params)
 {
 	std::ifstream	infile;
 	std::string		line;

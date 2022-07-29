@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::PART(User &user, std::string &params)
+bool	Server::PART(User &user, std::string const &params)
 {
 	std::string													channelsToLeave;
 	std::string													reason("has left the channel");

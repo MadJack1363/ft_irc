@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::PASS(User &user, std::string &params)
+bool	Server::PASS(User &user, std::string const &params)
 {
 	if (user.getIsRegistered())
 		return this->replyPush(user, "462 " + user.getNickname() + " :You may not reregister");

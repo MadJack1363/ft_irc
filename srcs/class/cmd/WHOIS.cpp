@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::WHOIS(User &user, std::string &params)
+bool	Server::WHOIS(User &user, std::string const &params)
 {
 	std::string											nickname;
 	std::string::const_iterator							cit0;

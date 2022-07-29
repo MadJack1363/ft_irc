@@ -9,7 +9,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::MODE(User &user, std::string &params)
+bool	Server::MODE(User &user, std::string const &params)
 {
 	static std::string const								delimiter("+- ");
 	std::string												targetName;

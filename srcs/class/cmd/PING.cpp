@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::PING(User &user, std::string &params)
+bool	Server::PING(User &user, std::string const &params)
 {
 	if (params.empty())
 		return this->replyPush(user, "461 " + user.getNickname() + " PING :Not enough parameters");

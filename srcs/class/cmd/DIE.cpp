@@ -9,7 +9,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::DIE(User &user, std::string &params __attribute__((unused)))
+bool	Server::DIE(User &user, std::string const &params __attribute__((unused)))
 {
 	if (user.getModes().find('o') == std::string::npos)
 		return this->replyPush(user, "481 " + user.getNickname() + " :Permission Denied - You're not an IRC operator");

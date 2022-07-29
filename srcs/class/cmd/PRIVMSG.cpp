@@ -8,7 +8,7 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::PRIVMSG(User &user, std::string &params)
+bool	Server::PRIVMSG(User &user, std::string const &params)
 {
 	std::string													targets;
 	std::string													text;
