@@ -59,7 +59,8 @@ bool	Server::USER(User &user, std::string const &params)
 	if (!this->_config["server_password"].empty() &&
 		user.getPassword() != this->_config["server_password"])
 	{
-		if (!this->replySend(user))
+		if (!this->replyPush(user, "464 " + user.getNickname() + " :Password incorrect") ||
+			!this->replySend(user))
 			return false;
 		close(user.getSocket());
 		user.setSocket(-1);
