@@ -9,7 +9,6 @@
 class Config
 {
 private:
-	std::map<std::string const, std::string>	_lookupValues;
 
 	static std::pair<std::string const, std::string const>	_arrayValues[];
 	/*
@@ -21,8 +20,7 @@ private:
 		ping,
 		timeout,
 		backlog,
-		oper_name,
-		oper_password
+		oper_ + name
 	 */
 
 public:
@@ -37,6 +35,7 @@ public:
 
 	// Operators
 	std::string	&operator[](std::string const &key);
+	std::map<std::string const, std::string>	_lookupValues; // DBG
 };
 
 #endif

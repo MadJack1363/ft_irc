@@ -53,13 +53,38 @@ bool	Config::init(char const *fileName)
 			continue ;
 		else if ((posEqual = line.find('=')) != std::string::npos)
 		{
+			// Get name & value
 			name = line.substr(0, posEqual);
 			value = line.substr(posEqual + 1, line.size());
+
+			// Trim name & value
 			name.erase(0, name.find_first_not_of(' '));
 			name.erase(name.find_last_not_of(' ') + 1);
 			value.erase(0, value.find_first_not_of(' '));
 			value.erase(value.find_last_not_of(' ') + 1);
-			if (this->_lookupValues.find(name) != this->_lookupValues.end())
+
+			if (!name.compare("oper") && value.empty() == false) // Set operators
+			{
+				std::string	operName;
+				std::string	operPass;
+				std::string::const_iterator	citBegin = value.begin();
+				std::string::const_iterator	citSep;
+
+				while (citBegin != value.end())
+				{
+					for (citSep = citBegin; citSep != value.end() && *citSep != ':'; citSep++);
+					if (citSep == value.end())
+						break;
+					operName = std::string(citBegin, citSep);
+					citSep++;
+					for (citBegin = citSep; citBegin != value.end() && *citBegin != ','; citBegin++);
+					operPass = std::string(citSep, citBegin);
+					if (citBegin != value.end())
+						citBegin++;
+					this->_lookupValues.insert(std::pair<std::string const, std::string const>("oper_" + operName, operPass));
+				}
+			}
+			else if (this->_lookupValues.find(name) != this->_lookupValues.end() && value.empty() == false) // Set the value if name exist
 				this->_lookupValues[name] = value;
 			name.clear();
 			value.clear();
@@ -102,7 +127,8 @@ std::pair<std::string const, std::string const>	Config::_arrayValues[] = {
 	std::pair<std::string const, std::string const>("ping", "10"),
 	std::pair<std::string const, std::string const>("timeout", "30"),
 	std::pair<std::string const, std::string const>("backlog", "1024"),
-	std::pair<std::string const, std::string const>("oper_name", "admin"),
-	std::pair<std::string const, std::string const>("oper_password", "admin"),
+	std::pair<std::string const, std::string const>("oper_admin", "admin"),
+	// std::pair<std::string const, std::string const>("oper_name", "admin"),
+	// std::pair<std::string const, std::string const>("oper_password", "admin"),
 	std::pair<std::string const, std::string const>("", "")
 };
