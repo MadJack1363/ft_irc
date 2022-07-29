@@ -23,6 +23,7 @@ bool	Server::PART(User &user, std::string &params)
 	if (channelsToLeave.empty())
 		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " PART :Not enough parameters");
 
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
 	if (cit1 != params.end() && *cit1 == ':')
 		reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
 
