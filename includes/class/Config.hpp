@@ -34,7 +34,10 @@ public:
 	// Member functions
 	bool	init(char const *fileName);
 
+	std::map<std::string const, std::string>::iterator			end(void);
 	std::map<std::string const, std::string>::iterator			find(std::string const &key);
+
+	std::map<std::string const, std::string>::const_iterator	end(void) const;
 	std::map<std::string const, std::string>::const_iterator	find(std::string const &key) const;
 
 	// Operators
