@@ -43,16 +43,25 @@ bool	Server::KILL(User &user, std::string &params)
 		return false;
 	if (!userToKill.getLookupChannels().empty())
 	{
+		std::list<User *>	usersToNotice;
+
 		reason = "Killed (" + user.getNickname() + " (" + reason + "))";
 
 		for (std::map<std::string const, Channel *const>::const_iterator itChan = userToKill.getLookupChannels().begin(); itChan != userToKill.getLookupChannels().end(); itChan++)
 		{
 			for (std::map<std::string const, User *const>::const_iterator itUser = itChan->second->begin(); itUser != itChan->second->end(); itUser++)
 			{
-				if (!this->replyPush(*itUser->second, ":" + userToKill.getMask() + " QUIT :" + reason) ||
-					!this->replySend(*itUser->second))
-					return false;
+				if (std::find(usersToNotice.begin(), usersToNotice.end(), itUser->second) == usersToNotice.end())
+					usersToNotice.push_back(itUser->second);
 			}
+			itChan->second->delUser(userToKill.getNickname());
+		}
+
+		for (std::list<User *>::const_iterator cit = usersToNotice.begin(); cit != usersToNotice.end(); cit++)
+		{
+			if (!this->replyPush(**cit, ":" + userToKill.getMask() + " QUIT :" + reason) ||
+				!this->replySend(**cit))
+				return false;
 		}
 	}
 	if (!this->replyPush(userToKill, "Error :Closing Link: " + this->_config["server_name"] + " (" + reason + ")") ||

@@ -23,15 +23,23 @@ bool	Server::QUIT(User &user, std::string &params)
 			reason.erase(reason.begin());
 		reason = "Quit: " + reason;
 
+		std::list<User *>	usersToNotice;
+
 		for (std::map<std::string const, Channel *const>::const_iterator citChan = user.getLookupChannels().begin() ; citChan != user.getLookupChannels().end() ; citChan++)
 		{
 			for (std::map<std::string const, User *const>::const_iterator citUser = citChan->second->begin(); citUser != citChan->second->end(); citUser++)
 			{
-				if (citUser->second != &user && (!this->replyPush(*citUser->second, ":" + user.getMask() + " QUIT :" + reason) ||
-					!this->replySend(*citUser->second)))
-					return false;
+				if (citUser->second != &user && std::find(usersToNotice.begin(), usersToNotice.end(), citUser->second) == usersToNotice.end())
+					usersToNotice.push_back(citUser->second);
 			}
 			citChan->second->delUser(user.getNickname());
+		}
+		
+		for (std::list<User *>::const_iterator cit = usersToNotice.begin(); cit != usersToNotice.end(); cit++)
+		{
+			if (!this->replyPush(**cit, ":" + user.getMask() + " QUIT :" + reason) ||
+				!this->replySend(**cit))
+				return false;
 		}
 	}
 
