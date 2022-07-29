@@ -9,6 +9,6 @@
 # define MAGENTA	"\033[38;2;255;0;255m"
 # define YELLOW		"\033[38;2;255;255;0m"
 # define WHITE		"\033[38;2;255;255;255m"
-# define RESET		"\e[0m"
+# define RESET		"\033[0m"
 
 #endif

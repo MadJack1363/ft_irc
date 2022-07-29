@@ -4,10 +4,11 @@
 #include <cstring> // strerror()
 #include <sstream>
 #include <string>
-#include "class/Server.hpp"
 #include <netdb.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "class/Server.hpp"
+#include "ft.hpp"
 
 // ************************************************************************** //
 //                             Private Attributes                             //
@@ -66,6 +67,42 @@ Server::~Server(void) {}
 // ************************************************************************** //
 
 /**
+ * @brief	Add a user in the banlist.
+ * 
+ * @param	user The user to ban.
+ */
+void	Server::addToBanList(User const &user)
+{
+	if (find(this->_banList.begin(), this->_banList.end(), user.getNickname()) == this->_banList.end())
+		this->_banList.push_back(user.getNickname());
+}
+
+/**
+ * @brief Check the reponse of the client of the PING
+ * 
+ * @param user The user to check if the PING is correct
+ * @param params the value of the token send by ping
+ * 
+ * @return true if success, false otherwise.
+ */
+bool	Server::checkPONG(User &user, std::string const &params)
+{
+	std::string	line;
+
+	if (params.empty())
+		return false;
+	line = params.substr(0, params.find('\n'));
+	Server::logMsg(RECEIVED, "(" + ft::toString(user.getSocket()) + ") " + line);
+		if (*(line.end() - 1) == '\r')
+			line.erase(line.end() - 1);
+	line.erase(0, line.find(":") + 1);
+	if (user.getNickname().compare(line) != 0)
+		return false;
+	user.setWaitingForPong(ALIVETIME);
+	return true;
+}
+
+/**
  * @brief	Determine what to do depending on the given `msg`.
  * 
  * @param	user The user that sent the message.
@@ -97,10 +134,10 @@ bool	Server::judge(User &user, std::string &msg)
 		params.erase(params.find_last_not_of(' ') + 1);
 		it = this->_lookupCmds.find(cmdName);
 		if (it == this->_lookupCmds.end())
-			Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") " + cmdName + ' ' + params + RED " Unknown" RESET);
+			Server::logMsg(RECEIVED, "(" + ft::toString(user.getSocket()) + ") " + cmdName + ' ' + params + RED " Unknown" RESET);
 		else
 		{
-			Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") " + cmdName + ' ' + params);
+			Server::logMsg(RECEIVED, "(" + ft::toString(user.getSocket()) + ") " + cmdName + ' ' + params);
 			if (!(this->*it->second)(user, params))
 				return false;
 		}
@@ -125,42 +162,6 @@ void	Server::logMsg(uint const type, std::string const &msg)
 }
 
 /**
- * @brief	Add a user in the banlist.
- * 
- * @param	user The user to ban.
- */
-void	Server::addToBanList(User const &user)
-{
-	if (find(this->_banList.begin(), this->_banList.end(), user.getNickname()) == this->_banList.end())
-		this->_banList.push_back(user.getNickname());
-}
-
-/**
- * @brief Check the reponse of the client of the PING
- * 
- * @param user The user to check if the PING is correct
- * @param params the value of the token send by ping
- * 
- * @return true if success, false otherwise.
- */
-bool	Server::checkPONG(User &user, std::string const &params)
-{
-	std::string	line;
-
-	if (params.empty())
-		return false;
-	line = params.substr(0, params.find('\n'));
-	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") " + line);
-		if (*(line.end() - 1) == '\r')
-			line.erase(line.end() - 1);
-	line.erase(0, line.find(":") + 1);
-	if (user.getNickname().compare(line) != 0)
-		return false;
-	user.setWaitingForPong(ALIVETIME);
-	return true;
-}
-
-/**
  * @brief	Check every user socket connection, receive messages from
  * 			each of them, and process the received messages.
  * 
@@ -173,7 +174,7 @@ bool	Server::recvAll(void)
 	std::string					msg;
 	std::list<User>::iterator	it;
 
-	if (poll(&_pollfds[0], _pollfds.size(), std::strtol(this->_config["timeout"].c_str(), NULL, 10)) == -1)
+	if (poll(&_pollfds[0], _pollfds.size(), static_cast<int>(std::strtol(this->_config["timeout"].c_str(), NULL, 10))) == -1)
 	{
 		Server::logMsg(ERROR, "poll: " + std::string(strerror(errno)));
 		return false;
@@ -197,7 +198,7 @@ bool	Server::recvAll(void)
 				this->checkStillAlive(*it);
 			else if ((it->getWaitingForPong() && time_tmp - it->getLastActivity() >= std::strtol(this->_config["timeout"].c_str(), NULL, 10)) || (!msg.empty() && !this->checkPONG(*it, msg))) 
 			{
-				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
+				Server::logMsg(INTERNAL, "(" + ft::toString(it->getSocket()) + ") Connection lost");
 				close(it->getSocket());
 				it->setSocket(-1);
 			}
@@ -265,7 +266,7 @@ bool	Server::replySend(User &user)
 			return false;
 		}
 		c_msgToSend += retSend;
-		size -= retSend;
+		size -= static_cast<size_t>(retSend);
 	}
 	while (!msgToSend.empty())
 	{
@@ -273,25 +274,10 @@ bool	Server::replySend(User &user)
 		msgToSend.erase(0, msgToSend.find('\n') + 1);
 		if (msgToSend.empty())
 			line.erase(line.end() - 1);
-		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
+		Server::logMsg(SENT, "(" + ft::toString(user.getSocket()) + ") " + line);
 	}
 	user.setMsg("");
 	return true;
-}
-
-/**
- * @brief	Convert an int to a string.
- * 
- * @param	nb The int to convert.
- * 
- * @return	The string representation of the int.
- */
-std::string	Server::toString(int const nb)
-{
-	std::stringstream	ss;
-
-	ss << nb;
-	return ss.str();
 }
 
 /**
@@ -316,7 +302,7 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
 		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
-		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
+		Server::logMsg(INTERNAL, "(" + ft::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
 	return true;
 }
@@ -407,7 +393,7 @@ bool	Server::start(uint16_t const port)
 		Server::logMsg(ERROR, "socket: " + std::string(strerror(errno)));
 		return false;
 	}
-	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket created");
+	Server::logMsg(INTERNAL, "(" + ft::toString(this->_socket) + ") Socket created");
 
 	optval = 1;
 	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(optval)))
@@ -416,7 +402,7 @@ bool	Server::start(uint16_t const port)
 		this->stop();
 		return false;
 	}
-	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket options set");
+	Server::logMsg(INTERNAL, "(" + ft::toString(this->_socket) + ") Socket options set");
 
 	addr.sin_addr.s_addr = inet_addr(this->_config["host"].c_str());
 	addr.sin_port = htons(port);
@@ -427,14 +413,14 @@ bool	Server::start(uint16_t const port)
 		this->stop();
 		return false;
 	}
-	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket bound");
+	Server::logMsg(INTERNAL, "(" + ft::toString(this->_socket) + ") Socket bound");
 	if (listen(this->_socket, SOMAXCONN))
 	{
 		Server::logMsg(ERROR, "listen: " + std::string(strerror(errno)));
 		this->stop();
 		return false;
 	}
-	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket listening");
+	Server::logMsg(INTERNAL, "(" + ft::toString(this->_socket) + ") Socket listening");
 	_pollfds.push_back(pollfd());
 	_pollfds.back().fd = this->_socket;
 	_pollfds.back().events = POLLIN | POLLOUT;

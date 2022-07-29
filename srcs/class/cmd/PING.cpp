@@ -1,8 +1,5 @@
 #include "class/Server.hpp"
 
-# define START 0
-# define LIMIT 1
-
 /**
  * @brief	Ask the server if the connection is still alive.
  * 
@@ -18,7 +15,7 @@ bool	Server::PING(User &user, std::string &params)
 	return this->replyPush(user, "PONG " + params);
 }
 
-// REMIND MOdif the emplacement of the function
+// REMIND Modif the emplacement of the function
 /**
  * @brief	Send a ping to User
  * 

@@ -19,7 +19,7 @@ private:
 		INVITE_ONLY,
 		INSIDE_ONLY,
 		PRIVATE,
-		SECRET,
+		SECRET
 	};
 
 	// Attributes

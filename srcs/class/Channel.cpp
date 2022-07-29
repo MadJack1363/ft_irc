@@ -6,10 +6,9 @@
 
 /**
  * The available modes are:
- * 	- i: invite-only
- * 	- n: no outside messages
+ * - no any for now
  */
-std::string const	Channel::_availableModes("in");
+std::string const	Channel::_availableModes("");
 
 // ************************************************************************** //
 //                                Constructors                                //
@@ -139,6 +138,11 @@ std::map<std::string const, User *const>::const_iterator	Channel::find(std::stri
 std::string const	&Channel::getAvailableModes(void)
 {
 	return Channel::_availableModes;
+}
+
+std::string const	&Channel::getModes(void) const
+{
+	return this->_modes;
 }
 
 std::string const	&Channel::getName(void) const

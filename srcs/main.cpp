@@ -17,7 +17,7 @@ inline static bool	__getPort(std::string const str, uint16_t &port)
 			return false;
 		}
 	}
-	port = strtol(str.c_str(), NULL, 10);
+	port = static_cast<uint16_t>(strtol(str.c_str(), NULL, 10));
 	if (errno == ERANGE)
 	{
 		std::cerr << "error: port: out of range\n";

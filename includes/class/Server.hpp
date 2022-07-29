@@ -29,7 +29,7 @@ private:
 	enum	e_state
 	{
 		STOPPED,
-		RUNNING,
+		RUNNING
 	};
 
 	enum	e_logMsg
@@ -37,7 +37,7 @@ private:
 		ERROR,
 		INTERNAL,
 		RECEIVED,
-		SENT,
+		SENT
 	};
 
 	enum	e_rplNo
@@ -53,6 +53,7 @@ private:
 		RPL_WHOSIUSER = 311,
 		RPL_WHOISOPERATOR = 313,
 		RPL_ENDOFWHOIS = 318,
+		RPL_CHANNELMODEIS = 324,
 		RPL_TOPIC = 332,
 		RPL_WHOISMODES = 379,
 		RPL_YOUREOPER = 381,
@@ -71,7 +72,7 @@ private:
 		ERR_UNKNOWNMODE = 472,
 		ERR_NOPRIVILEGES = 481,
 		ERR_UMODEUNKNOWNFLAG = 501,
-		ERR_USERSDONTMATCH = 502,
+		ERR_USERSDONTMATCH = 502
 	};
 
 	// Attributes

@@ -1,7 +1,7 @@
 ######################################
 #              COMMANDS              #
 ######################################
-CXX			= c++
+CXX			= clang++
 MKDIR		= mkdir -p
 RM			= rm -rf
 
@@ -44,7 +44,8 @@ SRC				=	\
 						Server.cpp			\
 						User.cpp			\
 					}						\
-					main.cpp
+					main.cpp				\
+					toString.cpp
 
 ######################################
 #            OBJECT FILES            #
@@ -63,7 +64,7 @@ CXXFLAGS	+=	-Wshadow
 CXXFLAGS	+=	-std=c++98
 CXXFLAGS	+=	-MMD -MP
 CXXFLAGS	+=	-I${INC_DIR}
-# CXXFLAGS	+=	-Weffc++ -pedantic
+CXXFLAGS	+=	-Weffc++ -pedantic
 
 LDFLAGS		=
 
