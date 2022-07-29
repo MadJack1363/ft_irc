@@ -11,7 +11,7 @@ bool	g_interrupted = false;
 void	sigintHandler(int const sig __attribute__((unused)))
 {
 	g_interrupted = true;
-	std::cout << "Yo!\n";
+	std::cout << "\b\b";
 }
 
 inline static bool	__getPort(std::string const str, uint16_t &port)
