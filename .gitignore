@@ -1,2 +1,10 @@
+# Folder :
 objs/
+config/
+droge_irc/
+
+# Binary
 ircserv
+
+# Log file
+*.log
