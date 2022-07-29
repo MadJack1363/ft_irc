@@ -367,7 +367,8 @@ bool	Server::run(void)
 	{
 		if (!this->welcomeDwarves() ||
 			!this->recvAll() ||
-			nanosleep(&t0, &t1))
+			nanosleep(&t0, &t1) ||
+			g_interrupted == true)
 		{
 			this->stop();
 			return false;

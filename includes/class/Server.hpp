@@ -21,6 +21,8 @@
 #  define BUFFER_SIZE 4096
 # endif
 
+extern bool	g_interrupted;
+
 class Server
 {
 private:

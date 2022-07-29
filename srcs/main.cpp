@@ -1,9 +1,18 @@
 #include <cerrno>
 #include <cstdlib>
+#include <csignal>
 #include <iostream>
 #include "color.h"
 #include "class/Config.hpp"
 #include "class/Server.hpp"
+
+bool	g_interrupted = false;
+
+void	sigintHandler(int const sig __attribute__((unused)))
+{
+	g_interrupted = true;
+	std::cout << "Yo!\n";
+}
 
 inline static bool	__getPort(std::string const str, uint16_t &port)
 {
@@ -39,6 +48,7 @@ int	main(int const argc, char const *const *const argv)
 		<< RESET;
 		return EXIT_FAILURE;
 	}
+	signal(SIGINT, sigintHandler);
 	if (!__getPort(argv[1], port) ||
 		!server.init(argv[2]) ||
 		!server.start(port) ||
