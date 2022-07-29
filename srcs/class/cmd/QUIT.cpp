@@ -8,10 +8,34 @@
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::QUIT(User &user, std::string &params __attribute__((unused)))
+bool	Server::QUIT(User &user, std::string &params)
 {
+	std::string	reason;
+
+	if (!this->replyPush(user, "Error :Connection terminated by dwarf") ||
+		!this->replySend(user))
+		return false;
+
+	if (!user.getLookupChannels().empty())
+	{
+		reason = params;
+		if (*reason.begin() == ':')
+			reason.erase(reason.begin());
+		reason = "Quit: " + reason;
+
+		for (std::map<std::string const, Channel *const>::const_iterator citChan = user.getLookupChannels().begin() ; citChan != user.getLookupChannels().end() ; citChan++)
+		{
+			for (std::map<std::string const, User *const>::const_iterator citUser = citChan->second->begin(); citUser != citChan->second->end(); citUser++)
+			{
+				if (citUser->second != &user && (!this->replyPush(*citUser->second, ":" + user.getMask() + " QUIT :" + reason) ||
+					!this->replySend(*citUser->second)))
+					return false;
+			}
+			citChan->second->delUser(user.getNickname());
+		}
+	}
+
 	close(user.getSocket());
 	user.setSocket(-1);
-	this->_lookupUsers.erase(user.getNickname());
 	return true;
 }

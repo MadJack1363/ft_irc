@@ -10,54 +10,68 @@
  */
 bool	Server::MODE(User &user, std::string &params)
 {
-	std::string				targetName;
-	std::string::iterator	it;
+	static std::string const	delimiter("+- ");
+	std::string					targetName;
+	std::string					modeChanges;
+	std::string::size_type		pos;
+	std::string::const_iterator	cit0;
+	std::string::const_iterator	cit1;
 
-	if (!this->replyPush(user, "MODE " + params))
-		return false;
-	params.erase(0, params.find_first_not_of(' '));
-	if (params.empty())
-		return this->replyPush(user, "461 MODE :Not enough parameters");
-	targetName = params.substr(0, params.find(' '));
-	params.erase(0, params.find(' ') + 1).erase(0, params.find_first_not_of(' '));
-	if (params.empty())
-		return this->replyPush(user, "461 MODE :Not enough parameters");
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' ; ++cit1);
+	targetName = std::string(cit0, cit1);
+	if (targetName.empty())
+		return this->replyPush(user, "461 " + user.getNickname() + " MODE :Not enough parameters");
+
+	for ( ; cit1 != params.end() && *cit1 == ' ' ; ++cit1);
+	modeChanges = std::string(cit1, static_cast<std::string::const_iterator>(params.end()));
+
 	if (*targetName.begin() == '#') // channel mode
 	{
 		return true;
 	}
 	else // user mode
 	{
-		if (this->_lookupUsers.find(targetName) == this->_lookupUsers.end())
-			return this->replyPush(user, "401 " + targetName + " :No such nick/channel");
-		if (targetName != user.getNickname())
-			return this->replyPush(user, "502 :Cant change mode for other users");
-		for (it = params.begin() ; it != params.end() ; )
+		if (!modeChanges.empty())
 		{
-			if (*it == '+')
+			if (this->_lookupUsers.find(targetName) == this->_lookupUsers.end())
+				return this->replyPush(user, "401 " + user.getNickname() + ' ' + targetName + " :No such nick/channel");
+			if (targetName != user.getNickname())
+				return this->replyPush(user, "502 " + user.getNickname() + " :Cant change mode for other users");
+			for (cit0 = modeChanges.begin() ; cit0 != modeChanges.end() ; )
 			{
-				for (++it ; it != params.end() && *it != ' ' && *it != '-' ; ++it)
+				if (*cit0 == '+')
 				{
-					if (user.availableModes().find(*it) == std::string::npos)
-						return this->replyPush(user, std::string("472 ") + *it + " :is unknown mode char to me");
-					if (*it != 'o')
-						user.addMode(*it);
+					for (++cit0 ; cit0 != modeChanges.end() && delimiter.find(*cit0) == std::string::npos ; ++cit0)
+					{
+						if (User::getAvailableModes().find(*cit0) == std::string::npos)
+						{
+							if (!this->replyPush(user, "472 " + user.getNickname() + ' ' + *cit0 + " :is unknown mode char to me"))
+								return false;
+						}
+						else if (*cit0 != 'o' && user.getModes().find(*cit0) == std::string::npos)
+							user.setModes(user.getModes() + *cit0);
+					}
 				}
-			}
-			else if (*it == '-')
-			{
-				for (++it ; it != params.end() && *it != ' ' && *it != '+' ; ++it)
+				else if (*cit0 == '-')
 				{
-					if (user.availableModes().find(*it) == std::string::npos)
-						return this->replyPush(user, std::string("472 ") + *it + " :is unknown mode char to me");
-					user.delMode(*it);
+					for (++cit0 ; cit0 != modeChanges.end() && delimiter.find(*cit0) == std::string::npos ; ++cit0)
+					{
+						if (User::getAvailableModes().find(*cit0) == std::string::npos)
+						{
+							if (!this->replyPush(user, "472 " + user.getNickname() + ' ' + *cit0 + " :is unknown mode char to me"))
+								return false;
+						}
+						pos = user.getModes().find(*cit0);
+						if (pos != std::string::npos)
+							user.setModes(std::string(user.getModes()).erase(pos, 1));
+					}
 				}
+				else if (*cit0 != ' ')
+					return this->replyPush(user, "501 " + user.getNickname() + " :Unknown MODE flag");
+				else
+					++cit0;
 			}
-			else if (*it != ' ')
-				return this->replyPush(user, "501 :Unknown MODE flag");
-			else
-				++it;
 		}
-		return this->replyPush(user, "221 " + user.getNickname() + " :" + user.activeModes());
+		return this->replyPush(user, "221 " + user.getNickname() + " :" + user.getModes());
 	}
 }

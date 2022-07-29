@@ -1,13 +1,25 @@
 #include "class/Channel.hpp"
 
 // ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+/**
+ * The available modes are:
+ * 	- i: invite-only
+ * 	- n: no outside messages
+ */
+std::string const	Channel::_availableModes("in");
+
+// ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
-Channel::Channel(std::string name) :
+Channel::Channel(std::string const &name) :
 	_name(name),
-	_users(),
-	_modes(0U) {}
+	_topic(),
+	_modes(),
+	_lookupUsers() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -15,21 +27,7 @@ Channel::Channel(std::string name) :
 
 Channel::~Channel(void)
 {
-	this->_users.clear();
-}
-
-// ************************************************************************* //
-//                                 Accessors                                 //
-// ************************************************************************* //
-
-std::vector<User *> const	&Channel::getUsers(void) const
-{
-	return this->_users;
-}
-
-std::string const			&Channel::getName(void) const
-{
-	return this->_name;
+	this->_lookupUsers.clear();
 }
 
 // ************************************************************************* //
@@ -37,34 +35,137 @@ std::string const			&Channel::getName(void) const
 // ************************************************************************* //
 
 /**
- * @brief	Get the different available modes for a channel.
+ * @brief	Add a new user to the channel,
+ * 			or modify the user known as its nickname
+ * 			if such an user already exists in the channel.
  * 
- * @return	The available channel mode identifiers as a string.
+ * @param	user The user to add.
  */
-std::string	Channel::availableModes(void)
-{
-	std::string	output;
-	uint		idx;
-
-	for (idx = 0U ; Channel::_lookupModes[idx].first ; ++idx)
-		output.push_back(Channel::_lookupModes[idx].first);
-	return output;
-}
-
-// TODO Write the function comment
 void	Channel::addUser(User &user)
 {
-	this->_users.push_back(&user);
+	this->_lookupUsers.insert(std::pair<std::string const, User *const>(user.getNickname(), &user));
+}
+
+/**
+ * @brief	Get an iterator to the first user of the channel.
+ * 
+ * @return	An iterator to the first user of the channel.
+ */
+std::map<std::string const, User *const>::iterator	Channel::begin(void)
+{
+	return this->_lookupUsers.begin();
+}
+
+/**
+ * @brief	Get a const_iterator to the first user of the channel.
+ * 
+ * @return	A const_iterator to the first user of the channel.
+ */
+std::map<std::string const, User *const>::const_iterator	Channel::begin(void) const
+{
+	return this->_lookupUsers.begin();
+}
+
+/**
+ * @brief	Remove an user from the channel.
+ * 
+ * @param	nickname The nickname of the user to remove.
+ */
+void	Channel::delUser(std::string const &nickname)
+{
+	this->_lookupUsers.erase(nickname);
+}
+
+/**
+ * @brief	Check if the channel is empty.
+ * 
+ * @return	Either true if the channel is empty, or false if not.
+ */
+bool	Channel::empty(void) const
+{
+	return this->_lookupUsers.empty();
+}
+
+/**
+ * @brief	Get an iterator to the post-last user of the channel.
+ * 
+ * @return	An iterator to the post-last user of the channel.
+ */
+std::map<std::string const, User *const>::iterator	Channel::end(void)
+{
+	return this->_lookupUsers.end();
+}
+
+/**
+ * @brief	Get a const_iterator to the post-last user of the channel.
+ * 
+ * @return	A const_iterator to the post-last user of the channel.
+ */
+std::map<std::string const, User *const>::const_iterator	Channel::end(void) const
+{
+	return this->_lookupUsers.end();
+}
+
+/**
+ * @brief	Get an iterator to an user with a given nickname.
+ * 
+ * @param	nickname The nickname of the user to find.
+ * 
+ * @return	Either an iterator to the user with the given nickname,
+ * 			or the end() iterator if no user with the given nickname is found.
+ */
+std::map<std::string const, User *const>::iterator	Channel::find(std::string const &nickname)
+{
+	return this->_lookupUsers.find(nickname);
+}
+
+/**
+ * @brief	Get a const_iterator to an user with a given nickname.
+ * 
+ * @param	nickname The nickname of the user to find.
+ * 
+ * @return	Either a const_iterator to the user with the given nickname,
+ * 			or the end() const_iterator if no user with the given nickname is found.
+ */
+std::map<std::string const, User *const>::const_iterator	Channel::find(std::string const &nickname) const
+{
+	return this->_lookupUsers.find(nickname);
+}
+
+// ************************************************************************* //
+//                                 Accessors                                 //
+// ************************************************************************* //
+
+std::string const	&Channel::getAvailableModes(void)
+{
+	return Channel::_availableModes;
+}
+
+std::string const	&Channel::getName(void) const
+{
+	return this->_name;
+}
+
+std::string const	&Channel::getTopic(void) const
+{
+	return this->_topic;
 }
 
 // ************************************************************************** //
-//                             Private Attributes                             //
+//                                  Mutators                                  //
 // ************************************************************************** //
 
-std::pair<char const, uint const>	Channel::_lookupModes[] = {
-	std::pair<char const, uint const>('s', Channel::SECRET),
-	std::pair<char const, uint const>('p', Channel::PRIVATE),
-	std::pair<char const, uint const>('i', Channel::INVITE_ONLY),
-	std::pair<char const, uint const>('n', Channel::INSIDE_ONLY),
-	std::pair<char const, uint const>(0, 0U)
-};
+void	Channel::setName(std::string const &name)
+{
+	this->_name = name;
+}
+
+void	Channel::setTopic(std::string const &topic)
+{
+	this->_topic = topic;
+}
+
+void	Channel::setModes(std::string const &modes)
+{
+	this->_modes = modes;
+}

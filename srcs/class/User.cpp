@@ -3,6 +3,20 @@
 #include "class/Server.hpp"
 
 // ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+/**
+ * The available modes are:
+ * 	- a: away
+ * 	- i: invisible
+ * 	- o: operator
+ */
+std::string const	User::_availableModes("aio");
+
+std::string const	User::_availableNicknameChars("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
+
+// ************************************************************************** //
 //                                Constructors                                //
 // ************************************************************************** //
 
@@ -11,34 +25,83 @@ User::User(sockaddr_in const &addr, int sockfd) :
 	_socket(sockfd),
 	_nickname("*"),
 	_username(),
-	_hostname(),
+	_servname(),
 	_realname(),
 	_password(),
-	_isRegistered(),
+	_awayMsg(),
 	_modes(),
-	_channels() {}
+	_msg(),
+	_isRegistered(),
+	_waitingForPong(ALIVETIME),
+	_lookupChannels()
+{
+	time(&_lastActivity);
+}
+
 
 User::User(User const &src) :
 	_addr(src._addr),
 	_socket(src._socket),
 	_nickname(src._nickname),
 	_username(src._username),
-	_hostname(src._hostname),
+	_servname(src._servname),
 	_realname(src._realname),
 	_password(src._password),
-	_isRegistered(src._isRegistered),
+	_awayMsg(src._awayMsg),
 	_modes(src._modes),
-	_channels(src._channels) {}
+	_msg(src._msg),
+	_isRegistered(src._isRegistered),
+	_waitingForPong(src._waitingForPong),
+	_lastActivity(src._lastActivity),
+	_lookupChannels(src._lookupChannels) {}
 
 // ************************************************************************* //
 //                                Destructors                                //
 // ************************************************************************* //
+
 
 User::~User(void)
 {
 	if (this->_socket != -1)
 		close(this->_socket);
 	this->_socket = -1;
+}
+
+// ************************************************************************* //
+//                          Public Member Functions                          //
+// ************************************************************************* //
+
+/**
+ * @brief	Add a new channel in which the user is.
+ * 
+ * @param	channel The channel to add.
+ */
+void	User::addChannel(Channel &channel)
+{
+	this->_lookupChannels.insert(std::pair<std::string const, Channel *>(channel.getName(), &channel));
+}
+
+/**
+ * @brief	Remove a channel in which the user is.
+ * 
+ * @param	channelName The name of the channel to remove.
+ */
+void	User::delChannel(std::string const &channelName)
+{
+	this->_lookupChannels.erase(channelName);
+}
+
+// TODO: write the function comment
+bool	User::init(int const &socket, sockaddr_in const &addr)
+{
+	this->_socket = socket;
+	this->_addr = addr;
+	return true;
+}
+
+void	User::updateLastActivity(void)
+{
+	time(&this->_lastActivity);
 }
 
 // ************************************************************************* //
@@ -50,19 +113,19 @@ sockaddr_in const	&User::getAddr(void) const
 	return this->_addr;
 }
 
-int const	&User::getSocket(void) const
+std::string const	&User::getAvailableModes(void)
 {
-	return this->_socket;
+	return User::_availableModes;
 }
 
-std::string const	&User::getNickname(void) const
+std::string const	&User::getAwayMsg(void) const
 {
-	return this->_nickname;
+	return this->_awayMsg;
 }
 
-std::string const	&User::getUsername(void) const
+std::string const	&User::getAvailableNicknameChars(void)
 {
-	return this->_username;
+	return User::_availableNicknameChars;
 }
 
 std::string const	&User::getHostname(void) const
@@ -70,14 +133,24 @@ std::string const	&User::getHostname(void) const
 	return this->_hostname;
 }
 
-std::string const	&User::getRealname(void) const
+bool const	&User::getIsRegistered(void) const
 {
-	return this->_realname;
+	return this->_isRegistered;
 }
 
-std::string const	&User::getPassword(void) const
+std::map<std::string const, Channel *const> const	&User::getLookupChannels(void) const
 {
-	return this->_password;
+	return this->_lookupChannels;
+}
+
+std::string const	&User::getMask(void) const
+{
+	return this->_mask;
+}
+
+std::string const	&User::getModes(void) const
+{
+	return this->_modes;
 }
 
 std::string const	&User::getMsg(void) const
@@ -85,39 +158,57 @@ std::string const	&User::getMsg(void) const
 	return this->_msg;
 }
 
-bool const	&User::getIsRegistered(void) const
+std::string const	&User::getNickname(void) const
 {
-	return this->_isRegistered;
+	return this->_nickname;
 }
 
-uint8_t const	&User::getModes(void) const
+std::string const	&User::getPassword(void) const
 {
-	return this->_modes;
+	return this->_password;
 }
 
-std::map<std::string, Channel *> const	&User::getChannels(void) const
+time_t const	&User::getLastActivity(void) const
 {
-	return this->_channels;
+	return this->_lastActivity;
 }
 
-void	User::setSocket(int const sockfd)
+std::string const	&User::getRealname(void) const
 {
-	this->_socket = sockfd;
+	return this->_realname;
 }
+
+std::string const	&User::getServname(void) const
+{
+	return this->_servname;
+}
+
+int const	&User::getSocket(void) const
+{
+	return this->_socket;
+}
+
+std::string const	&User::getUsername(void) const
+{
+	return this->_username;
+}
+
+bool const	&User::getWaitingForPong(void) const
+{
+	return this->_waitingForPong;
+}
+// ************************************************************************** //
+//                                  Mutators                                  //
+// ************************************************************************** //
 
 void	User::setAddr(sockaddr_in const &addr)
 {
 	this->_addr = addr;
 }
 
-void	User::setNickname(std::string const &nickname)
+void	User::setAwayMsg(std::string const &awayMsg)
 {
-	this->_nickname = nickname;
-}
-
-void	User::setUsername(std::string const &username)
-{
-	this->_username = username;
+	this->_awayMsg = awayMsg;
 }
 
 void	User::setHostname(std::string const &hostname)
@@ -125,14 +216,19 @@ void	User::setHostname(std::string const &hostname)
 	this->_hostname = hostname;
 }
 
-void	User::setRealname(std::string const &realname)
+void	User::setIsRegistered(bool const isRegistered)
 {
-	this->_realname = realname;
+	this->_isRegistered = isRegistered;
 }
 
-void	User::setPassword(std::string const &password)
+void	User::setMask(std::string const &mask)
 {
-	this->_password = password;
+	this->_mask = mask;
+}
+
+void	User::setMask(void)
+{
+	this->_mask = this->_nickname + '!' + this->_username + '@' + this->_servname;
 }
 
 void	User::setMsg(std::string const &msg)
@@ -140,92 +236,42 @@ void	User::setMsg(std::string const &msg)
 	this->_msg = msg;
 }
 
-void	User::setIsRegistered(bool const isRegistered)
-{
-	this->_isRegistered = isRegistered;
-}
-
-void	User::setModes(uint8_t const modes)
+void	User::setModes(std::string const &modes)
 {
 	this->_modes = modes;
 }
 
-void	User::setChannels(std::map<std::string, Channel *> const &channels)
+void	User::setNickname(std::string const &nickname)
 {
-	this->_channels = channels;
+	this->_nickname = nickname;
 }
 
-// ************************************************************************* //
-//                          Public Member Functions                          //
-// ************************************************************************* //
-
-/**
- * @brief	Get the active modes as a string.
- * 
- * @return	The active modes as a string.
- */
-std::string	User::activeModes(void) const
+void	User::setPassword(std::string const &password)
 {
-	std::string	output;
-	uint		idx;
-
-	for (idx = 0U ; User::_lookupModes[idx].first ; ++idx)
-		if (this->_modes & (1 << User::_lookupModes[idx].second))
-			output.push_back(User::_lookupModes[idx].first);
-	return output;
+	this->_password = password;
 }
 
-/**
- * @brief	Activate a specific mode.
- * 
- * @param	c The identifier of the mode to activate.
- */
-void	User::addMode(char const c)
+void	User::setRealname(std::string const &realname)
 {
-	uint	idx;
-
-	for (idx = 0U ; User::_lookupModes[idx].first && c != User::_lookupModes[idx].first ; ++idx);
-	if (User::_lookupModes[idx].first)
-		this->_modes |= 1 << User::_lookupModes[idx].second;
+	this->_realname = realname;
 }
 
-/**
- * @brief	Get the different available modes for an user.
- * 
- * @return	The available user mode identifiers as a string.
- */
-std::string	User::availableModes(void)
+void	User::setServname(std::string const &servname)
 {
-	std::string	output;
-	uint		idx;
-
-	for (idx = 0U ; User::_lookupModes[idx].first ; ++idx)
-		output.push_back(User::_lookupModes[idx].first);
-	return output;
+	this->_servname = servname;
 }
 
-/**
- * @brief	Deactivate a specific mode.
- * 
- * @param	c The identifier of the mode to deactivate.
- */
-void	User::delMode(char const c)
+void	User::setSocket(int const sockfd)
 {
-	uint	idx;
-
-	for (idx = 0U ; User::_lookupModes[idx].first && c != User::_lookupModes[idx].first ; ++idx);
-	if (User::_lookupModes[idx].first)
-		this->_modes &= ~(1 << User::_lookupModes[idx].second);
+	this->_socket = sockfd;
 }
 
-// ************************************************************************** //
-//                             Private Attributes                             //
-// ************************************************************************** //
-
-std::pair<char const, uint const>	User::_lookupModes[] =
+void	User::setUsername(std::string const &username)
 {
-	std::pair<char const, uint const>('a', User::AWAY),
-	std::pair<char const, uint const>('o', User::OPERATOR),
-	std::pair<char const, uint const>('i', User::INVISIBLE),
-	std::pair<char const, uint const>(0, 0U)
-};
+	this->_username = username;
+}
+
+void	User::setWaitingForPong(bool const waitingForPong)
+{
+	this->_waitingForPong = waitingForPong;
+}

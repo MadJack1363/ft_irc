@@ -28,6 +28,7 @@ SRC				=	\
 							KICK.cpp		\
 							KILL.cpp		\
 							MODE.cpp		\
+							MOTD.cpp		\
 							NICK.cpp		\
 							OPER.cpp		\
 							PART.cpp		\
@@ -35,8 +36,8 @@ SRC				=	\
 							PING.cpp		\
 							PRIVMSG.cpp		\
 							QUIT.cpp		\
-							SET.cpp			\
 							USER.cpp		\
+							WHOIS.cpp		\
 						}					\
 						Channel.cpp			\
 						Config.cpp			\
@@ -68,12 +69,12 @@ LDFLAGS		=
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
-	# CXXFLAGS	+=	-fstandalone-debug
+#	CXXFLAGS	+=	-fstandalone-debug
 	CXXFLAGS	+=	-DDEBUG
 else \
 ifeq (${DEBUG}, 2)
 	CXXFLAGS	+=	-g
-	CXXFLAGS	+=	-DDBG
+	CXXFLAGS	+=	-DDEBUG
 	CXXFLAGS	+=	-fsanitize=address
 	LDFLAGS		+=	-fsanitize=address
 endif

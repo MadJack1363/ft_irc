@@ -5,8 +5,40 @@
 #include <sstream>
 #include <string>
 #include "class/Server.hpp"
+#include <netdb.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
-#define TIMEOUT 10
+// ************************************************************************** //
+//                             Private Attributes                             //
+// ************************************************************************** //
+
+std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
+	std::pair<std::string const, Server::t_fct const>(std::string("DIE"), &Server::DIE),
+	std::pair<std::string const, Server::t_fct const>(std::string("JOIN"), &Server::JOIN),
+	std::pair<std::string const, Server::t_fct const>(std::string("KICK"), &Server::KICK),
+	std::pair<std::string const, Server::t_fct const>(std::string("KILL"), &Server::KILL),
+	std::pair<std::string const, Server::t_fct const>(std::string("MODE"), &Server::MODE),
+	std::pair<std::string const, Server::t_fct const>(std::string("MOTD"), &Server::MOTD),
+	std::pair<std::string const, Server::t_fct const>(std::string("NICK"), &Server::NICK),
+	std::pair<std::string const, Server::t_fct const>(std::string("OPER"), &Server::OPER),
+	std::pair<std::string const, Server::t_fct const>(std::string("PART"), &Server::PART),
+	std::pair<std::string const, Server::t_fct const>(std::string("PASS"), &Server::PASS),
+	std::pair<std::string const, Server::t_fct const>(std::string("PING"), &Server::PING),
+	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
+	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
+	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
+	std::pair<std::string const, Server::t_fct const>(std::string("WHOIS"), &Server::WHOIS),
+	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
+};
+
+std::pair<uint const, char const *const> const	Server::_arrayLogMsgTypes[] = {
+	std::pair<uint const, char const *const>(ERROR, RED " Errors " RESET),
+	std::pair<uint const, char const *const>(INTERNAL, WHITE "Internal" RESET),
+	std::pair<uint const, char const *const>(RECEIVED, GREEN "Received" RESET),
+	std::pair<uint const, char const *const>(SENT, MAGENTA "  Sent  " RESET),
+	std::pair<uint const, char const *const>(0, NULL),
+};
 
 // ************************************************************************** //
 //                                Constructors                                //
@@ -20,7 +52,8 @@ Server::Server(void) :
 	_pollfds(),
 	_users(),
 	_lookupUsers(),
-	_lookupChannels() {}
+	_lookupChannels(),
+	_banList() {}
 
 // ************************************************************************* //
 //                                Destructors                                //
@@ -92,6 +125,42 @@ void	Server::logMsg(uint const type, std::string const &msg)
 }
 
 /**
+ * @brief	Add a user in the banlist.
+ * 
+ * @param	user The user to ban.
+ */
+void	Server::addToBanList(User const &user)
+{
+	if (find(this->_banList.begin(), this->_banList.end(), user.getNickname()) == this->_banList.end())
+		this->_banList.push_back(user.getNickname());
+}
+
+/**
+ * @brief Check the reponse of the client of the PING
+ * 
+ * @param user The user to check if the PING is correct
+ * @param params the value of the token send by ping
+ * 
+ * @return true if success, false otherwise.
+ */
+bool	Server::checkPONG(User &user, std::string const &params)
+{
+	std::string	line;
+
+	if (params.empty())
+		return false;
+	line = params.substr(0, params.find('\n'));
+	Server::logMsg(RECEIVED, "(" + Server::toString(user.getSocket()) + ") " + line);
+		if (*(line.end() - 1) == '\r')
+			line.erase(line.end() - 1);
+	line.erase(0, line.find(":") + 1);
+	if (user.getNickname().compare(line) != 0)
+		return false;
+	user.setWaitingForPong(ALIVETIME);
+	return true;
+}
+
+/**
  * @brief	Check every user socket connection, receive messages from
  * 			each of them, and process the received messages.
  * 
@@ -104,40 +173,46 @@ bool	Server::recvAll(void)
 	std::string					msg;
 	std::list<User>::iterator	it;
 
-	if (poll(&_pollfds[0], _pollfds.size(), (TIMEOUT * 1000) / 10) == -1)
+	if (poll(&_pollfds[0], _pollfds.size(), std::strtol(this->_config["timeout"].c_str(), NULL, 10)) == -1)
 	{
 		Server::logMsg(ERROR, "poll: " + std::string(strerror(errno)));
 		return false;
 	}
 	for (it = this->_users.begin() ; it != this->_users.end() ; ++it)
 	{
-		retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, 0);
-		// retRecv = recv(it->second.getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);// mettre celle la quand on aura fais fcntl
+		retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		while (retRecv > 0)
 		{
 			buff[retRecv] = 0;
 			msg.append(buff);
 			if (msg.find("\r\n") != std::string::npos)
 				break ;
-			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, 0);
+			retRecv = recv(it->getSocket(), buff, BUFFER_SIZE, MSG_DONTWAIT);
 		}
-		if (retRecv == -1)
+		time_t	time_tmp;
+		time(&time_tmp);
+		if (time_tmp - it->getLastActivity() >= std::strtol(this->_config["ping"].c_str(), NULL, 10))
 		{
-			Server::logMsg(ERROR, "(" + Server::toString(it->getSocket()) + ") recv: " + std::string(strerror(errno)));
-			return false;
+			if (!it->getWaitingForPong())
+				this->checkStillAlive(*it);
+			else if ((it->getWaitingForPong() && time_tmp - it->getLastActivity() >= std::strtol(this->_config["timeout"].c_str(), NULL, 10)) || (!msg.empty() && !this->checkPONG(*it, msg))) 
+			{
+				Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
+				close(it->getSocket());
+				it->setSocket(-1);
+			}
 		}
-		if (!retRecv) // Check whith the PING
+		else if (!this->judge(*it, msg) || (!it->getMsg().empty() && !this->replySend(*it)))
+			return false;
+		if (retRecv > 0)
 		{
-			Server::logMsg(INTERNAL, "(" + this->toString(it->getSocket()) + ") Connection lost");
-			close(it->getSocket());
-			this->_lookupUsers.erase(it->getNickname());
-			this->_users.erase(it);
+			it->updateLastActivity();
 		}
-		else if (!this->judge(*it, msg)
-			|| (!it->getMsg().empty() && !this->replySend(*it)))
-			return false;
 		if (it->getSocket() == -1)
+		{
+			this->_lookupUsers.erase(it->getNickname());
 			it = this->_users.erase(it);
+		}
 		msg.clear();
 	}
 	return true;
@@ -155,8 +230,8 @@ bool	Server::replyPush(User &user, std::string const &line)
 	try
 	{
 		if (!user.getMsg().empty())
-			user.setMsg(std::string(user.getMsg()).append("\n"));
-		user.setMsg(std::string(user.getMsg()).append(":" + this->_config["server_name"] + " " + line));
+			user.setMsg(user.getMsg() + '\n');
+		user.setMsg(user.getMsg() + line);
 	}
 	catch (std::exception const &e)
 	{
@@ -176,21 +251,31 @@ bool	Server::replyPush(User &user, std::string const &line)
 bool	Server::replySend(User &user)
 {
 	std::string	line;
+	std::string	msgToSend = user.getMsg() + "\r\n";
+	char const	*c_msgToSend = msgToSend.c_str();
+	size_t		size = msgToSend.size();
+	ssize_t		retSend;
 
-	user.setMsg(std::string(user.getMsg()).append("\r\n"));
-	if (send(user.getSocket(), user.getMsg().c_str(), user.getMsg().size() + 1, 0) == -1)
+	while (size > 0)
 	{
-		Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
-		return false;
+		retSend = send(user.getSocket(), c_msgToSend, size, 0);
+		if (retSend < 0)
+		{
+			Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
+			return false;
+		}
+		c_msgToSend += retSend;
+		size -= retSend;
 	}
-	while (!user.getMsg().empty())
+	while (!msgToSend.empty())
 	{
-		line = user.getMsg().substr(0, user.getMsg().find('\n'));
-		user.setMsg(std::string(user.getMsg()).erase(0, user.getMsg().find('\n') + 1));
-		if (user.getMsg().empty())
+		line = msgToSend.substr(0, msgToSend.find('\n'));
+		msgToSend.erase(0, msgToSend.find('\n') + 1);
+		if (msgToSend.empty())
 			line.erase(line.end() - 1);
 		Server::logMsg(SENT, "(" + Server::toString(user.getSocket()) + ") " + line);
 	}
+	user.setMsg("");
 	return true;
 }
 
@@ -230,6 +315,7 @@ bool	Server::welcomeDwarves(void)
 		this->_pollfds.push_back(pollfd());
 		this->_pollfds.back().fd = newUser;
 		this->_pollfds.back().events = POLLIN | POLLOUT;
+		fcntl(newUser, F_SETFL, O_NONBLOCK | O_DIRECT);
 		Server::logMsg(INTERNAL, "(" + Server::toString(this->_users.back().getSocket()) + ") Connection established");
 	}
 	return true;
@@ -244,21 +330,37 @@ bool	Server::welcomeDwarves(void)
  * 
  * @return	true if success, false otherwise.
  */
-bool	Server::init(std::string const password)
+bool	Server::init(std::string const &password)
 {
 	char	nowtime[64];
 	time_t	rawtime;
 	uint	idx;
 
-
+	this->_config.init("config/default.conf");
 	this->_config["server_password"] = password;
 	time(&rawtime);
 	strftime(nowtime, 64, "%Y/%m/%d %H:%M:%S", localtime(&rawtime));
 	this->_creationTime = nowtime;
 	for (idx = 0U ; Server::_arrayCmds[idx].second ; ++idx)
-		this->_lookupCmds.insert(Server::_arrayCmds[idx]);
+		try
+		{
+			this->_lookupCmds.insert(Server::_arrayCmds[idx]);
+		}
+		catch (std::exception const &e)
+		{
+			Server::logMsg(ERROR, std::string("    Exception: ") + e.what());
+			return false;
+		}
 	for (idx = 0U ; Server::_arrayLogMsgTypes[idx].second ; ++idx)
-		this->_lookupLogMsgTypes.insert(Server::_arrayLogMsgTypes[idx]);
+		try
+		{
+			this->_lookupLogMsgTypes.insert(Server::_arrayLogMsgTypes[idx]);
+		}
+		catch (std::exception const &e)
+		{
+			Server::logMsg(ERROR, std::string("    Exception: ") + e.what());
+			return false;
+		}
 	return true;
 }
 
@@ -335,7 +437,7 @@ bool	Server::start(uint16_t const port)
 	Server::logMsg(INTERNAL, "(" + Server::toString(this->_socket) + ") Socket listening");
 	_pollfds.push_back(pollfd());
 	_pollfds.back().fd = this->_socket;
-	_pollfds.back().events = POLLIN;
+	_pollfds.back().events = POLLIN | POLLOUT;
 	this->_state = RUNNING;
 	return true;
 }
@@ -352,38 +454,8 @@ void	Server::stop(void)
 	this->_lookupUsers.clear();
 	this->_lookupCmds.clear();
 	this->_users.clear();
-	if (this->_socket >= 0)
+	if (this->_socket != -1)
 		close(this->_socket);
 	this->_socket = -1;
 	this->_state = STOPPED;
 }
-
-// ************************************************************************** //
-//                             Private Attributes                             //
-// ************************************************************************** //
-
-std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
-	std::pair<std::string const, Server::t_fct const>(std::string("DIE"), &Server::DIE),
-	std::pair<std::string const, Server::t_fct const>(std::string("JOIN"), &Server::JOIN),
-	std::pair<std::string const, Server::t_fct const>(std::string("KICK"), &Server::KICK),
-	std::pair<std::string const, Server::t_fct const>(std::string("KILL"), &Server::KILL),
-	std::pair<std::string const, Server::t_fct const>(std::string("MODE"), &Server::MODE),
-	std::pair<std::string const, Server::t_fct const>(std::string("NICK"), &Server::NICK),
-	std::pair<std::string const, Server::t_fct const>(std::string("OPER"), &Server::OPER),
-	std::pair<std::string const, Server::t_fct const>(std::string("PART"), &Server::PART),
-	std::pair<std::string const, Server::t_fct const>(std::string("PASS"), &Server::PASS),
-	std::pair<std::string const, Server::t_fct const>(std::string("PING"), &Server::PING),
-	std::pair<std::string const, Server::t_fct const>(std::string("PRIVMSG"), &Server::PRIVMSG),
-	std::pair<std::string const, Server::t_fct const>(std::string("QUIT"), &Server::QUIT),
-	std::pair<std::string const, Server::t_fct const>(std::string("SET"), &Server::SET),
-	std::pair<std::string const, Server::t_fct const>(std::string("USER"), &Server::USER),
-	std::pair<std::string const, Server::t_fct const>(std::string(), NULL)
-};
-
-std::pair<uint const, char const *const> const	Server::_arrayLogMsgTypes[] = {
-	std::pair<uint const, char const *const>(ERROR, RED " Errors " RESET),
-	std::pair<uint const, char const *const>(INTERNAL, WHITE "Internal" RESET),
-	std::pair<uint const, char const *const>(RECEIVED, GREEN "Received" RESET),
-	std::pair<uint const, char const *const>(SENT, MAGENTA "  Sent  " RESET),
-	std::pair<uint const, char const *const>(0, NULL),
-};

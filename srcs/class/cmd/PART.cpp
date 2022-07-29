@@ -1,7 +1,7 @@
 #include "class/Server.hpp"
 
 /**
- * @brief	Make an user leaving a channel.
+ * @brief	Make an user leaving one or more channel(s).
  * 
  * @param	user The user that ran the command.
  * @param	params The parameters of the command.
@@ -10,28 +10,57 @@
  */
 bool	Server::PART(User &user, std::string &params)
 {
-	std::vector<std::string>	channel_left;
-	Channel						tmp;
+	std::string													channelsToLeave;
+	std::string													reason("has left the channel");
+	std::string													channelName;
+	std::string::const_iterator									cit0;
+	std::string::const_iterator									cit1;
+	std::map<std::string const, User *const>::const_iterator	cit2;
+	std::map<std::string const, Channel>::iterator				it;
 
-	// REMIND: Temporary to silent unused parameter warning
-	(void)user;
+	for (cit0 = params.begin(), cit1 = params.begin() ; cit1 != params.end() && *cit1 != ' ' && *cit1 != ':' ; ++cit1);
+	channelsToLeave = std::string(cit0, cit1);
+	if (channelsToLeave.empty())
+		return this->replyPush(user, ':' + user.getMask() + " 461 " + user.getNickname() + " PART :Not enough parameters");
 
-	params = params.c_str() + params.find(':') + 1;
-	while (params.find(',') != std::string::npos)
+	if (cit1 != params.end() && *cit1 == ':')
+		reason = std::string(cit1 + 1, static_cast<std::string::const_iterator>(params.end()));
+
+	for (cit1 = channelsToLeave.begin() ; cit1 != channelsToLeave.end() ; ++cit1)
 	{
-		channel_left.push_back(params.substr(0, params.find(',')));
-		params = params.c_str() + params.find(',') + 1;
-	}
-	channel_left.push_back(params.substr(0, params.find(',')));
-	for(std::vector<std::string>::iterator ite = channel_left.begin();ite != channel_left.end();ite++)
-	{
-		// config for send a custom message or no of all user of any channel
-		tmp = this->_lookupChannels[*ite];
-		// if (tmp.getUsers().size() == 1)
-		// 	// need to delete the channel
-		// else{
-		// 	// send value to all User inside the channel
-		// }
+		for (cit0 = cit1 ; cit1 != channelsToLeave.end() && *cit1 != ',' ; ++cit1);
+		channelName = std::string(cit0, cit1);
+		if (*channelName.begin() != '#')
+			channelName.insert(channelName.begin(), '#');
+
+		it = this->_lookupChannels.find(channelName);
+		if (it == this->_lookupChannels.end())
+		{
+			if (!this->replyPush(user, ':' + user.getMask() + " 403 " + user.getNickname() + ' ' + channelName + " :No such channel"))
+				return false;
+		}
+		else
+		{
+			if (it->second.find(user.getNickname()) == it->second.end())
+			{
+				if (!this->replyPush(user, ':' + user.getMask() + " 442 " + user.getNickname() + ' ' + channelName + " :You're not on that channel"))
+					return false;
+			}
+			else
+			{
+				for (cit2 = it->second.begin() ; cit2 != it->second.end() ; ++cit2)
+				{
+					if (!this->replyPush(*cit2->second, ':' + user.getMask() + " PART " + channelName + " :" + reason) ||
+						!this->replySend(*cit2->second))
+						return false;
+				}
+				it->second.delUser(user.getNickname());
+				if (it->second.empty())
+					this->_lookupChannels.erase(it);
+			}
+		}
+		if (cit1 == channelsToLeave.end())
+			break ;
 	}
 	return true;
 }

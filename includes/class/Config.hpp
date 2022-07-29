@@ -12,6 +12,18 @@ private:
 	std::map<std::string const, std::string>	_lookupValues;
 
 	static std::pair<std::string const, std::string const>	_arrayValues[];
+	/*
+		server_name,
+		server_version,
+		modt,
+		host,
+		max_user,
+		ping,
+		timeout,
+		backlog,
+		oper_name,
+		oper_password
+	 */
 
 public:
 	// Constructors
