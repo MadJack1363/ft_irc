@@ -262,8 +262,9 @@ bool	Server::replySend(User &user)
 		retSend = send(user.getSocket(), c_msgToSend, size, 0);
 		if (retSend < 0)
 		{
-			Server::logMsg(ERROR, "send: " + std::string(strerror(errno)));
-			return false;
+			Server::logMsg(ERROR, "    send: " + std::string(strerror(errno)));
+			user.setMsg("");
+			return true;
 		}
 		c_msgToSend += retSend;
 		size -= static_cast<size_t>(retSend);
