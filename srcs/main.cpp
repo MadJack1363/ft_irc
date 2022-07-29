@@ -28,7 +28,7 @@ inline static bool	__getPort(std::string const str, uint16_t &port)
 
 int	main(int const argc, char const *const *const argv)
 {
-	/* Server		server;
+	Server		server;
 	uint16_t	port;
 
 	if (argc != 3)
@@ -45,14 +45,6 @@ int	main(int const argc, char const *const *const argv)
 		!server.run())
 		return EXIT_FAILURE;
 	server.stop();
-	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << '\n'; */
-	Config	c;
-
-	c.init("config/default.conf");
-	for (std::map<std::string const, std::string>::const_iterator cit = c._lookupValues.begin(); cit != c._lookupValues.end(); cit++)
-	{
-		std::cout << "[" << cit->first << "] = [" << cit->second << "]\n";
-	}
-	
+	std::cout << "Project is not working Yet " RED "We are Sorry" RESET << '\n';
 	return EXIT_SUCCESS;
 }

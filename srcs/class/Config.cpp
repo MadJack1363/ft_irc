@@ -26,6 +26,16 @@ Config::~Config(void)
 //                          Public Member Functions                          //
 // ************************************************************************* //
 
+std::map<std::string const, std::string>::iterator	Config::find(std::string const &key)
+{
+	return this->_lookupValues.find(key);
+}
+
+std::map<std::string const, std::string>::const_iterator	Config::find(std::string const &key) const
+{
+	return this->_lookupValues.find(key);
+}
+
 /**
  * @brief	Load the configuration file to initialize values.
  * 

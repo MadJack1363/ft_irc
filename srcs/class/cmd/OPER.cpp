@@ -25,6 +25,7 @@ bool	Server::OPER(User &user, std::string &params)
 	if (password.empty())
 		return this->replyPush(user, "461 " + user.getNickname() + " OPER :Not enough parameters");
 
+	// TODO change the verification with the new oper config
 	if (this->_config["oper_name"] != name || this->_config["oper_password"] != password)
 		return this->replyPush(user, "464 " + user.getNickname() + " :Password incorrect");
 	if (user.getModes().find('o') == std::string::npos)
