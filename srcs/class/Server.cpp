@@ -398,7 +398,7 @@ bool	Server::start(uint16_t const port)
 	Server::logMsg(INTERNAL, "(" + ft::toString(this->_socket) + ") Socket created");
 
 	optval = 1;
-	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(optval)))
+	if (setsockopt(this->_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)))
 	{
 		Server::logMsg(ERROR, "setsockopt: " + std::string(strerror(errno)));
 		this->stop();
