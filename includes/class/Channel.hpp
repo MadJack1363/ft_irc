@@ -12,8 +12,6 @@ class User;
 class Channel
 {
 private:
-
-	// REMIND Need to keep it ??
 	enum	e_mode
 	{
 		INVITE_ONLY,

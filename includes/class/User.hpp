@@ -105,9 +105,6 @@ public:
 	void	setMsg(std::string const &msg);
 	void	setIsRegistered(bool const isRegistered);
 	void	setWaitingForPong(bool const waitingForPong);
-
-	// REMIND: Deprecated
-	void	setChannels(std::map<std::string const, Channel *> const &channels);
 };
 
 #endif
