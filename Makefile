@@ -13,9 +13,9 @@ NAME		= ircserv
 #######################################
 #             DIRECTORIES             #
 #######################################
-SRC_DIR		= srcs/
-OBJ_DIR		= objs/
-INC_DIR		= includes/
+SRC_DIR		= srcs
+OBJ_DIR		= objs
+INC_DIR		= includes
 
 ######################################
 #            SOURCE FILES            #
@@ -51,7 +51,7 @@ SRC				=	\
 #            OBJECT FILES            #
 ######################################
 OBJ			= ${SRC:.cpp=.o}
-OBJ			:= ${addprefix ${OBJ_DIR}, ${OBJ}}
+OBJ			:= ${addprefix ${OBJ_DIR}/, ${OBJ}}
 
 DEP			= ${OBJ:.o=.d}
 
@@ -59,7 +59,7 @@ DEP			= ${OBJ:.o=.d}
 #                FLAGS                #
 #######################################
 CXXFLAGS	=	-c
-CXXFLAGS	+=	-Wall -Wextra# -Werror
+CXXFLAGS	+=	-Wall -Wextra -Werror
 CXXFLAGS	+=	-Wshadow
 CXXFLAGS	+=	-std=c++98
 CXXFLAGS	+=	-MMD -MP
@@ -70,7 +70,7 @@ LDFLAGS		=
 
 ifeq (${DEBUG}, 1)
 	CXXFLAGS	+=	-g
-#	CXXFLAGS	+=	-fstandalone-debug
+	CXXFLAGS	+=	-fstandalone-debug
 	CXXFLAGS	+=	-DDEBUG
 else \
 ifeq (${DEBUG}, 2)
@@ -92,7 +92,7 @@ all: ${NAME}
 
 -include ${DEP}
 
-${OBJ_DIR}%.o: ${SRC_DIR}%.cpp
+${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
 	${CXX} -c ${OUTPUT_OPTION} ${CXXFLAGS} $<
 
