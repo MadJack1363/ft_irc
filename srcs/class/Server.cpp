@@ -34,10 +34,10 @@ std::pair<std::string const, Server::t_fct const> const	Server::_arrayCmds[] = {
 };
 
 std::pair<uint const, char const *const> const	Server::_arrayLogMsgTypes[] = {
-	std::pair<uint const, char const *const>(ERROR, RED " Errors " RESET),
-	std::pair<uint const, char const *const>(INTERNAL, WHITE "Internal" RESET),
-	std::pair<uint const, char const *const>(RECEIVED, GREEN "Received" RESET),
-	std::pair<uint const, char const *const>(SENT, MAGENTA "  Sent  " RESET),
+	std::pair<uint const, char const *const>(ERROR, RED_FG " Errors " RESET),
+	std::pair<uint const, char const *const>(INTERNAL, WHITE_FG "Internal" RESET),
+	std::pair<uint const, char const *const>(RECEIVED, GREEN_FG "Received" RESET),
+	std::pair<uint const, char const *const>(SENT, MAGENTA_FG "  Sent  " RESET),
 	std::pair<uint const, char const *const>(0, NULL),
 };
 
@@ -134,7 +134,7 @@ bool	Server::judge(User &user, std::string &msg)
 		params.erase(params.find_last_not_of(' ') + 1);
 		it = this->_lookupCmds.find(cmdName);
 		if (it == this->_lookupCmds.end())
-			Server::logMsg(RECEIVED, "(" + ft::toString(user.getSocket()) + ") " + cmdName + ' ' + params + RED " Unknown" RESET);
+			Server::logMsg(RECEIVED, "(" + ft::toString(user.getSocket()) + ") " + cmdName + ' ' + params + RED_FG " Unknown" RESET);
 		else
 		{
 			Server::logMsg(RECEIVED, "(" + ft::toString(user.getSocket()) + ") " + cmdName + ' ' + params);
