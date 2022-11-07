@@ -3,10 +3,10 @@
 The purpose of that project is to develop an IRC server in C++98.
 
 ## Table of content
-1.[Requirements](#requirements)
-2.[Restrictions](#restrictions)
-3.[Using](#how-to-use-it)
-4.[Config](#configuration-file)
+1. [Requirements](#requirements)
+2. [Restrictions](#restrictions)
+3. [Using](#how-to-use-it)
+4. [Config](#configuration-file)
 
 ## Requirements
 * We must be able to authenticate, set a nickname, a username, join a channel, send and receive private messages.
@@ -38,6 +38,6 @@ Now you can launch the server with the command ```./ircserv <port> <password>```
 * ```oper```: Pairs of ```name:password``` for operators separated by a coma. (oper = login:pass,login:pass,...)
 
 ## Credits
-majacque (https://github.com/majacque)
-jodufour (https://github.com/JonathanDUFOUR)
-fcatinau (https://github.com/Balgor18)
+* majacque (https://github.com/majacque)
+* jodufour (https://github.com/JonathanDUFOUR)
+* fcatinau (https://github.com/Balgor18)
