@@ -86,7 +86,7 @@ endif
 .PHONY: all clean fclean re fre
 
 ${NAME}: ${OBJ}
-	${CXX} ${OUTPUT_OPTION} ${OBJ} ${LDFLAGS}
+	@${CXX} ${OUTPUT_OPTION} ${OBJ} ${LDFLAGS}
 
 all: ${NAME}
 
@@ -94,7 +94,7 @@ all: ${NAME}
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.cpp
 	@${MKDIR} ${@D}
-	${CXX} -c ${OUTPUT_OPTION} ${CXXFLAGS} $<
+	@${CXX} -c ${OUTPUT_OPTION} ${CXXFLAGS} $<
 
 clean:
 	${RM} ${OBJ_DIR} ${NAME}
@@ -105,5 +105,3 @@ fclean:
 re: clean all
 
 fre: fclean all
-
--include valgrind.mk
